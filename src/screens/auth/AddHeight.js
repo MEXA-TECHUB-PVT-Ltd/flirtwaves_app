@@ -57,12 +57,14 @@ const AddHeight = ({navigation}) => {
             textAlign={'center'}
             fontSize={20}
             fontFamily={'Lexend-SemiBold'}
+            mb={20}
             mt={10}>
             What's your height?
           </Text>
           <View flex={1}>
             <Pressable
               bg={'white'}
+              flexDir={'row'}
               p={2}
               mb={5}
               onPress={() => {}}
@@ -80,7 +82,7 @@ const AddHeight = ({navigation}) => {
                 fontFamily={'Lexend-Regular'}
                 color={'black'}
                 textAlign={'center'}>
-                {cmToFeetAndInches(onChangeValue)} (feet'inches")
+                ({cmToFeetAndInches(onChangeValue)})
               </Text>
             </Pressable>
 

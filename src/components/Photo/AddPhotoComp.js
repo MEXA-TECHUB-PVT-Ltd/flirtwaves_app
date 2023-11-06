@@ -688,6 +688,7 @@ const AddPhotoComp = props => {
         heading={'Add Photo'}
         message={'Add atleast one image to continue'}
         btntxt2={'Ok'}
+        comon={true}
         onPress={() => {
           props.close && props.close('open');
           setActive(false);

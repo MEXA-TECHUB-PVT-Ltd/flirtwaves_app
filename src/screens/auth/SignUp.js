@@ -36,7 +36,7 @@ const SignUp = ({navigation}) => {
           <Logo height={10} width={10} align={'center'} />
           <Text
             textAlign={'left'}
-            fontSize={20}
+            fontSize={22}
             fontFamily={'Lexend-SemiBold'}
             mt={16}>
             Sign Up
@@ -115,6 +115,7 @@ const SignUp = ({navigation}) => {
                     onChangeText={handleChange('confirmPassword')}
                     value={values.confirmPassword}
                     rightIcon
+                    type={'password'}
                   />
                   {errors.confirmPassword && (
                     <View flexDir={'row'} mt={1} alignItems={'center'}>
@@ -153,7 +154,10 @@ const SignUp = ({navigation}) => {
                       alignSelf={'center'}
                       mt={10}
                       mb={3}>
-                      <Text fontSize={14} fontFamily={'Lexend-Light'}>
+                      <Text
+                        fontSize={13}
+                        fontFamily={'Lexend-Light'}
+                        color={'grey.400'}>
                         Already have an account?{' '}
                       </Text>
                       <Text

@@ -33,6 +33,7 @@ const BottomSheet = ({
       closeOnDragDown={false}
       closeOnPressMask={defaultOff ? true : false}
       closeOnPressBack={true}
+      minClosingHeight={0}
       openDuration={250}
       onClose={onClose}
       onOpen={onOpen}

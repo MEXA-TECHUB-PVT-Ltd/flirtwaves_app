@@ -43,45 +43,45 @@ const OnBoarding10 = ({navigation}) => {
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
       <Header right />
-      <ScrollView flex={1}>
-        <View mx={5} flex={1}>
-          <Text
-            textAlign={'center'}
-            fontSize={20}
-            fontFamily={'Lexend-SemiBold'}
-            mt={10}>
-            What are your eating habits?
-          </Text>
-          <View mt={20}>
-            {data?.map(item => {
-              return (
-                <Pressable
-                  bg={'white'}
-                  p={2}
-                  mb={5}
-                  onPress={() => {
-                    setId(item?.id);
-                  }}
-                  //   key={item?.id}
-                  alignItems={'center'}
-                  borderColor={id === item?.id ? 'primary.400' : null}
-                  borderWidth={id === item?.id ? 1 : null}
-                  justifyContent={'center'}>
-                  <Text
-                    fontSize={16}
-                    fontFamily={
-                      id === item?.id ? 'Lexend-Regular' : 'Lexend-Light'
-                    }
-                    color={id === item?.id ? 'black' : 'grey.400'}
-                    textAlign={'center'}>
-                    {item?.name}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
+      {/* <ScrollView flex={1}> */}
+      <View mx={5} flex={1}>
+        <Text
+          textAlign={'center'}
+          fontSize={20}
+          fontFamily={'Lexend-SemiBold'}
+          mt={8}>
+          What are your eating habits?
+        </Text>
+        <View mt={8}>
+          {data?.map(item => {
+            return (
+              <Pressable
+                bg={'white'}
+                p={2}
+                mb={5}
+                onPress={() => {
+                  setId(item?.id);
+                }}
+                //   key={item?.id}
+                alignItems={'center'}
+                borderColor={id === item?.id ? 'primary.400' : null}
+                borderWidth={id === item?.id ? 1 : null}
+                justifyContent={'center'}>
+                <Text
+                  fontSize={16}
+                  fontFamily={
+                    id === item?.id ? 'Lexend-Regular' : 'Lexend-Light'
+                  }
+                  color={id === item?.id ? 'black' : 'grey.400'}
+                  textAlign={'center'}>
+                  {item?.name}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
-      </ScrollView>
+      </View>
+      {/* </ScrollView> */}
       <View mb={16} mx={5}>
         <Footer
           load={'100'}

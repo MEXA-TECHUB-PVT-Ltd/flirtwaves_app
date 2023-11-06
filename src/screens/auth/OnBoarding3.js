@@ -25,7 +25,7 @@ const OnBoarding3 = ({navigation}) => {
   const data = [
     {
       id: 1,
-      name: 'RelationShip',
+      name: 'Relationship',
     },
     {
       id: 2,

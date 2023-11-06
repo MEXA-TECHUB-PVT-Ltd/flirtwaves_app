@@ -15,7 +15,7 @@ const SignIn = ({navigation}) => {
     password: Yup.string().required(`Password is required`),
   });
   const handleCreate = (email, password) => {
-    console.log(email, password);
+    navigation.navigate('Tabs', {screen: 'Home'});
   };
   return (
     <View bg={'primary.20'} flex={1}>
@@ -26,7 +26,7 @@ const SignIn = ({navigation}) => {
           <Logo height={10} width={10} align={'center'} />
           <Text
             textAlign={'left'}
-            fontSize={20}
+            fontSize={22}
             fontFamily={'Lexend-SemiBold'}
             mt={20}>
             Sign In
@@ -92,7 +92,10 @@ const SignIn = ({navigation}) => {
                     </View>
                   )}
                 </View>
-                <Pressable onPress={() => {}}>
+                <Pressable
+                  onPress={() => {
+                    navigation.navigate('ForgetPassword');
+                  }}>
                   <Text
                     mt={2}
                     textAlign={'right'}
@@ -127,7 +130,10 @@ const SignIn = ({navigation}) => {
                       alignSelf={'center'}
                       mt={16}
                       mb={3}>
-                      <Text fontSize={14} fontFamily={'Lexend-Light'}>
+                      <Text
+                        fontSize={13}
+                        fontFamily={'Lexend-Light'}
+                        color={'grey.400'}>
                         Don't have an account?{' '}
                       </Text>
                       <Text

@@ -37,7 +37,7 @@ Note that mtechub llc has no access to or control over these cookies that are us
           fontSize={22}
           mt={3}
           fontFamily={'Lexend-SemiBold'}>
-          Review and accept our privacy policy
+          {`Review and accept our${'\n'}privacy policy`}
         </Text>
       </View>
       <ScrollView>
