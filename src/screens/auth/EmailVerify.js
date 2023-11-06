@@ -3,7 +3,7 @@ import React from 'react';
 import Header from '../../components/Header/Header';
 import FButton from '../../components/button/FButton';
 
-const Privacy = ({navigation}) => {
+const EmailVerify = ({navigation}) => {
   const des = `The personal information that you are asked to provide, and the reasons why you are asked to provide it, will be made clear to you at the point we ask you to provide your personal information.
 If you contact us directly, we may receive additional information about you such as your name, email address, phone number, the contents of the message and/or attachments you may send us, and any other information you may choose to provide.
 When you register for an Account, we may ask for your contact information, including items such as name, company name, address, email address, and telephone number.
@@ -23,10 +23,10 @@ Note that mtechub llc has no access to or control over these cookies that are us
   return (
     <View bg={'white'} flex={1}>
       <Header />
-      <View mx={5} mt={5}>
+      <View alignItems={'center'} justifyContent={'center'} flex={1}>
         <Image
           alignSelf={'center'}
-          source={require('../../assets/privacy-policy.png')}
+          source={require('../../assets/check.png')}
           h={20}
           w={20}
           resizeMode="contain"
@@ -37,31 +37,31 @@ Note that mtechub llc has no access to or control over these cookies that are us
           fontSize={22}
           mt={3}
           fontFamily={'Lexend-SemiBold'}>
-          Review and accept our privacy policy
+          Check your email
         </Text>
-      </View>
-      <ScrollView>
         <View mx={5}>
-          <Text textAlign={'justify'} fontSize={14} mt={5}>
-            {des}
+          <Text textAlign={'center'} fontSize={14} mt={5}>
+            We have send you a link to connect to your account. click on the
+            link from the email and login to your account
           </Text>
         </View>
-      </ScrollView>
-      <View mx={5} mb={5}>
+      </View>
+
+      <View mx={5} mb={10}>
         <FButton
-          label={'Accept'}
+          label={'Use another email address'}
           variant={'Solid'}
           mt={5}
-          onPress={() => navigation.navigate('SignUp')}
+          onPress={() => navigation.goBack()}
         />
         <FButton
-          label={'Continue without accepting'}
+          label={'Login in a different way'}
           variant={'outline'}
-          onPress={() => navigation.navigate('SignUp')}
           mt={5}
+          onPress={() => navigation.navigate('OnBoarding')}
         />
       </View>
     </View>
   );
 };
-export default Privacy;
+export default EmailVerify;

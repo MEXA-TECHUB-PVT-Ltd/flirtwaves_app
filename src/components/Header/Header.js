@@ -14,7 +14,7 @@ const Header = props => {
       mb={0}
       flexDir={'row'}
       alignItems={'center'}
-      justifyContent={props?.load ? null : 'space-between'}>
+      justifyContent={'space-between'}>
       <Pressable
         onPress={() => {
           navigation.goBack();
@@ -34,7 +34,9 @@ const Header = props => {
           {/* <Pressable onPress={() => navigation.goBack()}> */}
           {props?.right ? (
             <Pressable onPress={() => {}}>
-              <AntDesign name="infocirlce" color={'white'} size={20} />
+              <Text fontSize={16} underline fontFamily={'Lexend-Medium'}>
+                Skip
+              </Text>
             </Pressable>
           ) : (
             <Entypo name="chevron-left" size={30} color={'transparent'} />

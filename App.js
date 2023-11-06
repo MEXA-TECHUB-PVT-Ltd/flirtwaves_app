@@ -65,6 +65,7 @@ export default function () {
     colors: {
       // Add new color
       primary: {
+        20: '#FDF2CD',
         50: '#ffe99a',
         100: '#ffe172',
         200: '#ffd84a',
@@ -105,11 +106,12 @@ export default function () {
       grey: {
         400: '#979797',
         500: '#2F2F2F',
+        300: '#575757',
       },
       secondary: '#C30010',
       pro: '#F94449',
       loc: '#FCFCFC',
-      txtColor: '#CCCCCC',
+      txtColor: '#575757',
     },
 
     config: {
