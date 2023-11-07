@@ -15,8 +15,9 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/footer/footer';
 import AddPhotoCom from '../../components/Photo/AddPhotoComp';
 
-const AddPhoto = () => {
+const AddPhoto = ({navigation, route}) => {
   const [slide, setSlide] = React.useState(false);
+  const fromEdit = route?.params?.fromEdit;
   return (
     <View bg={'primary.20'} flex={1}>
       <Header />
@@ -38,7 +39,7 @@ const AddPhoto = () => {
           picture of yourself.
         </Text>
         <View alignSelf={'center'} mx={2} mt={5}>
-          <AddPhotoCom slide={slide} />
+          <AddPhotoCom slide={slide} fromEdit={fromEdit} />
         </View>
       </View>
     </View>

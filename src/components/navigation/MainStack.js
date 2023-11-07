@@ -36,6 +36,8 @@ import SearchScreen from '../../screens/Home/SearchScreen';
 import FavoriteUser from '../../screens/favorites/FavoriteUser';
 import ProfileProcessing from '../../screens/profile/ProfileProcessing';
 import ProfileVerification from '../../screens/profile/ProfileVerification';
+import EditProfile from '../../screens/profile/EditProfile';
+import PersnolInfo from '../../screens/profile/PersnolInfo';
 
 export default function MainStack() {
   const Stack = createNativeStackNavigator();
@@ -78,6 +80,8 @@ export default function MainStack() {
         <Stack.Screen name="FavoriteUser" component={FavoriteUser} />
         <Stack.Screen name="ProfileProcess" component={ProfileProcessing} />
         <Stack.Screen name="ProfileVerifi" component={ProfileVerification} />
+        <Stack.Screen name="EditProfile" component={EditProfile} />
+        <Stack.Screen name="PersonalInfo" component={PersnolInfo} />
       </Stack.Navigator>
     </NavigationContainer>
   );

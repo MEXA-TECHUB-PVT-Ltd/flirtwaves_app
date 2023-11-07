@@ -20,7 +20,8 @@ import * as Yup from 'yup';
 import DateComp from './components/DateComp';
 import Footer from '../../components/footer/footer';
 
-const OnBoarding6 = ({navigation}) => {
+const OnBoarding6 = ({navigation, route}) => {
+  const fromEdit = route?.params?.fromEdit;
   const [id, setId] = React.useState(0);
   const data = [
     {
@@ -77,13 +78,23 @@ const OnBoarding6 = ({navigation}) => {
           </View>
         </View>
       </ScrollView>
-      <View mb={16} mx={5}>
-        <Footer
-          load={'70'}
-          num={8}
-          onPress={() => navigation.navigate('OnBoarding7')}
-        />
-      </View>
+      {fromEdit === true ? (
+        <View mb={16} mx={5}>
+          <FButton
+            label={'Save Changes'}
+            variant={'Solid'}
+            onPress={() => navigation.goBack()}
+          />
+        </View>
+      ) : (
+        <View mb={16} mx={5}>
+          <Footer
+            load={'30'}
+            num={4}
+            onPress={() => navigation.navigate('AddHeight')}
+          />
+        </View>
+      )}
     </View>
   );
 };

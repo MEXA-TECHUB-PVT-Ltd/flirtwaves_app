@@ -599,29 +599,55 @@ const AddPhotoComp = props => {
           </Pressable>
           {/* </View> */}
         </Row>
-        <View mb={12} mt={20}>
-          <Footer
-            load={'20'}
-            num={3}
-            onPress={() => {
-              if (
-                !imageUrl &&
-                !imgurl1 &&
-                !imgurl2 &&
-                !imgurl3 &&
-                !imgurl4 &&
-                !imgurl5 &&
-                !imgurl6 &&
-                !imgurl7 &&
-                !imgurl8
-              ) {
-                setActive(true);
-              } else {
-                navigation.navigate('OnBoarding3');
-              }
-            }}
-          />
-        </View>
+        {props?.fromEdit === true ? (
+          <View mb={16} mt={24} mx={5}>
+            <FButton
+              label={'Save Changes'}
+              variant={'Solid'}
+              onPress={() => {
+                if (
+                  !imageUrl &&
+                  !imgurl1 &&
+                  !imgurl2 &&
+                  !imgurl3 &&
+                  !imgurl4 &&
+                  !imgurl5 &&
+                  !imgurl6 &&
+                  !imgurl7 &&
+                  !imgurl8
+                ) {
+                  setActive(true);
+                } else {
+                  navigation.goBack();
+                }
+              }}
+            />
+          </View>
+        ) : (
+          <View mb={12} mt={20}>
+            <Footer
+              load={'20'}
+              num={3}
+              onPress={() => {
+                if (
+                  !imageUrl &&
+                  !imgurl1 &&
+                  !imgurl2 &&
+                  !imgurl3 &&
+                  !imgurl4 &&
+                  !imgurl5 &&
+                  !imgurl6 &&
+                  !imgurl7 &&
+                  !imgurl8
+                ) {
+                  setActive(true);
+                } else {
+                  navigation.navigate('OnBoarding3');
+                }
+              }}
+            />
+          </View>
+        )}
       </View>
       <BottomSheet
         defaultOff={true}

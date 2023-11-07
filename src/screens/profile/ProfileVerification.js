@@ -11,17 +11,23 @@ import {
   Text,
   View,
   Progress,
+  Pressable,
 } from 'native-base';
 import React from 'react';
-
+import Entypo from 'react-native-vector-icons/Entypo';
 import Header from '../../components/Header/Header';
 import CircularProgress from 'react-native-circular-progress-indicator';
 
 const ProfileVerification = ({navigation}) => {
   return (
     <View flex={1} bg={'white'} alignItems={'center'} justifyContent={'center'}>
-      <View position={'absolute'} top={0} left={0}>
-        <Header />
+      <View position={'absolute'} top={5} left={5}>
+        <Pressable
+          onPress={() => {
+            navigation.navigate('Tabs', {screen: 'Profile'});
+          }}>
+          <Entypo name={'chevron-left'} size={30} color={'black'} />
+        </Pressable>
       </View>
       {/* <ImageBackground
       source={require('../../assets/processing.png')}
