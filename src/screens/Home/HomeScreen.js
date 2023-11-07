@@ -10,6 +10,7 @@ import {
   Center,
   Switch,
 } from 'native-base';
+import RangeSlider from 'rn-range-slider';
 import React from 'react';
 import HomeComp from './components/HomeComp';
 import {ImageBackground, StyleSheet} from 'react-native';
@@ -73,7 +74,7 @@ const HomeScreen = ({navigation}) => {
     }
   };
   const [on, setOn] = React.useState(false);
-  console.log(isBottomSheetExpanded);
+
   const [isLoading, setLoading] = React.useState(false);
   React.useEffect(() => {
     if (isLoading === true) {
@@ -82,9 +83,40 @@ const HomeScreen = ({navigation}) => {
       }, 2000);
     }
   });
+  const [low, setLow] = React.useState(0);
+  const [high, setHigh] = React.useState(100);
+
+  const renderThumb = React.useCallback(
+    () => (
+      <Image
+        source={require('../../assets/thumb.png')}
+        h={5}
+        w={5}
+        resizeMode={'contain'}
+        alt={'thumb'}
+      />
+    ),
+    [],
+  );
+  const renderRail = React.useCallback(
+    () => <View bg={'primary.20'} h={1} w={'100%'} rounded={'full'}></View>,
+    [],
+  );
+  const renderRailSelected = React.useCallback(
+    () => <View bg={'primary.400'} h={1} w={'100%'} rounded={'full'}></View>,
+    [],
+  );
+  const renderLabel = React.useCallback(value => <Text>{value}</Text>, []);
+  // const renderNotch = React.useCallback(() => <, []);
+  const handleValueChange = React.useCallback((low, high) => {
+    setLow(low);
+    setHigh(high);
+  }, []);
+
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <View
+      <Pressable
+        onPress={() => setIsBottomSheetExpanded(false)}
         bg={'white'}
         flex={1}
         alignItems={'center'}
@@ -164,7 +196,10 @@ const HomeScreen = ({navigation}) => {
                         <Pressable
                           flex={1}
                           flexDir={'column'}
-                          onPress={() => navigation.navigate('Filter')}
+                          onPress={() => {
+                            setIsBottomSheetExpanded(false);
+                            navigation.navigate('Filter');
+                          }}
                           justifyContent={'space-between'}
                           p={2}>
                           <Row
@@ -319,11 +354,25 @@ const HomeScreen = ({navigation}) => {
               </Text>
               <Text
                 fontSize={12}
+                mb={4}
                 fontFamily={'Lexend-Light'}
                 color={'grey.400'}
                 mt={3}>
-                20 - 25 years old
+                {low} - {high} years old
               </Text>
+              <RangeSlider
+                style={styles.slider}
+                min={0}
+                max={100}
+                step={1}
+                floatingLabel
+                renderThumb={renderThumb}
+                renderRail={renderRail}
+                renderRailSelected={renderRailSelected}
+                renderLabel={renderLabel}
+                // renderNotch={renderNotch}
+                onValueChanged={handleValueChange}
+              />
               <View mt={5}>
                 <Text
                   color={'primary.400'}
@@ -487,7 +536,7 @@ const HomeScreen = ({navigation}) => {
             </ScrollView>
           </BottomSheet>
         ) : null}
-      </View>
+      </Pressable>
     </GestureHandlerRootView>
   );
 };

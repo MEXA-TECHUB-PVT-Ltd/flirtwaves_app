@@ -9,6 +9,9 @@ import SignIn from '../../../screens/auth/SignIn';
 import SignUp from '../../../screens/auth/SignUp';
 import AddPhoto from '../../../screens/auth/AddPhoto';
 import ConnectionProblem from '../../../screens/auth/ConnectionProblem';
+import AllChats from '../../../screens/chat/AllChats';
+import FavoriteScreen from '../../../screens/favorites/Favorite';
+import Profile from '../../../screens/profile/Profile';
 
 const Tab = createBottomTabNavigator();
 
@@ -107,7 +110,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name="Favorites"
-        component={SignUp}
+        component={FavoriteScreen}
         options={{
           tabBarIcon: ({focused}) => (
             <>
@@ -144,7 +147,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name="chat"
-        component={AddPhoto}
+        component={AllChats}
         options={{
           tabBarIcon: ({focused}) => (
             <>
@@ -179,7 +182,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name="profile"
-        component={ConnectionProblem}
+        component={Profile}
         options={{
           tabBarIcon: ({focused}) => (
             <>

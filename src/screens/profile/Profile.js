@@ -11,7 +11,7 @@ import {
   Switch,
 } from 'native-base';
 import React from 'react';
-import HomeComp from './components/HomeComp';
+
 import {ImageBackground, StyleSheet} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
@@ -22,61 +22,20 @@ import FButton from '../../components/button/FButton';
 import Header from '../../components/Header/Header';
 import Swiper from 'react-native-swiper';
 import Entypo from 'react-native-vector-icons/Entypo';
+import AlertModal from '../../components/Modal/AlertModal';
+import Feather from 'react-native-vector-icons/Feather';
+import ImagePicker from 'react-native-image-crop-picker';
 
-const Filtered = ({navigation}) => {
-  const data = [
-    {
-      id: 1,
-      img: require('../../assets/h1.png'),
-      name: 'Rosie',
-      age: 20,
-      status: 'Active Now',
-      distance: '1.3 km',
-      isVerified: true,
-    },
-    {
-      id: 2,
-      img: require('../../assets/h2.png'),
-      name: 'Olivia',
-      age: 22,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 3,
-      img: require('../../assets/h3.png'),
-      name: 'Sophia',
-      age: 26,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 4,
-      img: require('../../assets/h4.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-  ];
-  const [like, setLiked] = React.useState(false);
-  const [selected, setSelected] = React.useState();
+const Profile = ({navigation}) => {
+  const [like, setLiked] = React.useState(true);
+  const [active, setActive] = React.useState(false);
+  const [active2, setActive2] = React.useState(false);
   const bottomSheetRef = React.useRef(null);
   const [isBottomSheetExpanded, setIsBottomSheetExpanded] =
     React.useState(false);
-  const [clo, setClo] = React.useState(-1);
-  const [id, setId] = React.useState(0);
-  const openBottomSheet = uid => {
-    if (bottomSheetRef.current) {
-      bottomSheetRef.current.open();
-    }
-  };
-  const [on, setOn] = React.useState(false);
-  console.log(isBottomSheetExpanded);
+
   const [isLoading, setLoading] = React.useState(false);
+  const [imgUrl, setImgUrl] = React.useState('');
   React.useEffect(() => {
     if (isLoading === true) {
       setTimeout(() => {
@@ -84,194 +43,71 @@ const Filtered = ({navigation}) => {
       }, 2000);
     }
   });
-  const [gallery, setGallery] = React.useState(false);
-  const RenderImage = () => {
-    return (
-      <View h={'100%'} w={'70%'}>
-        <Image
-          source={require('../../assets/h1.png')}
-          mt={5}
-          flex={0.2}
-          resizeMode={'cover'}
-          alt={'img'}
-        />
-      </View>
-    );
+  const handleCamera = async () => {
+    // console.warn('camera')
+    const data = await ImagePicker.openCamera({
+      width: 500,
+      height: 500,
+      // cropping: true,
+    }).then(imageDetail => {
+      console.log(imageDetail);
+      console.log(imageDetail.path.split('/').pop());
+      const source = imageDetail.path;
+
+      setImgUrl(source);
+    });
   };
-  const RenderImagetwo = () => {
-    return (
-      <View h={'100%'} w={'70%'}>
-        <Image
-          source={require('../../assets/h1.png')}
-          mt={5}
-          flex={0.2}
-          resizeMode={'cover'}
-          alt={'img'}
-        />
-      </View>
-    );
-  };
+
+  React.useEffect(() => {
+    if (imgUrl !== null || imgUrl !== undefined || imgUrl !== '') {
+      navigation.navigate('ProfileProcess');
+    }
+  }, [imgUrl]);
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View bg={'white'} flex={1}>
         <ImageBackground
           source={require('../../assets/h1.png')}
           style={{height: '65%', width: '100%'}}>
-          <Row
-            flex={1}
-            position={'absolute'}
-            top={0}
-            left={0}
-            justifyContent={'space-between'}>
-            <Header />
-          </Row>
           <Pressable
             position={'absolute'}
             w={10}
-            right={5}
+            right={0}
             top={5}
             rounded={'full'}
             onPress={() => {
-              setLiked(!like);
+              //   setActive(true);
             }}>
-            <View
-              bg={'white'}
-              borderRadius={20}
-              p={2}
-              alignItems={'center'}
-              justifyContent={'center'}>
-              <AntDesign
-                name={like === true ? 'heart' : 'hearto'}
-                size={20}
-                color={'#F5BF03'}
-              />
+            <View>
+              <Feather name="settings" size={20} color={'white'} />
             </View>
           </Pressable>
         </ImageBackground>
-        <View mx={5} mt={10}>
-          {/* {isLoading ? null : (
-            <ScrollView showsVerticalScrollIndicator={false} mt={2}>
-              <View mt={8} mb={16}>
-                {data?.map((item, index) => {
-                  return (
-                    <>
-                      <ImageBackground
-                        source={item?.img}
-                        key={index}
-                        style={{height: 400, marginBottom: 20}}
-                        imageStyle={{
-                          borderRadius: 10,
-                          resizeMode: 'cover',
-                        }}>
-                        <Pressable
-                          flex={1}
-                          flexDir={'column'}
-                          onPress={() => console.log('ok')}
-                          justifyContent={'space-between'}
-                          p={2}>
-                          <Row
-                            alignItems={'center'}
-                            justifyContent={'space-between'}>
-                            <View
-                              bg={index === 3 ? '#FFFFFF2B' : '#1919192B'}
-                              borderRadius={10}
-                              p={1}>
-                              <Text
-                                mx={1}
-                                fontSize={12}
-                                fontFamily={'Lexend-Light'}
-                                color={index === 3 ? 'white' : 'black'}>
-                                {item?.distance} away
-                              </Text>
-                            </View>
-                            <Pressable
-                              onPress={() => {
-                                setSelected(index);
-                                setLiked(!like);
-                              }}>
-                              <View
-                                bg={'white'}
-                                borderRadius={20}
-                                p={2}
-                                alignItems={'center'}
-                                justifyContent={'center'}>
-                                <AntDesign
-                                  name={
-                                    like === true && index === selected
-                                      ? 'heart'
-                                      : 'hearto'
-                                  }
-                                  size={20}
-                                  color={'#F5BF03'}
-                                />
-                              </View>
-                            </Pressable>
-                          </Row>
-                          <View>
-                            <Row>
-                              <Row alignItems={'center'}>
-                                <Text
-                                  fontSize={18}
-                                  color={'white'}
-                                  fontFamily={'Lexend-Regular'}>
-                                  {item?.name}, {item?.age}
-                                </Text>
-                                {item?.isVerified === true ? (
-                                  <Image
-                                    ml={3}
-                                    source={require('../../assets/verified.png')}
-                                    h={6}
-                                    alt={'img'}
-                                    w={6}
-                                    resizeMode="contain"
-                                  />
-                                ) : null}
-                              </Row>
-                            </Row>
-                            <Box mt={2}>
-                              <Row
-                                alignItems={'center'}
-                                bg={
-                                  item?.status === 'offline'
-                                    ? 'transparent'
-                                    : '#039D0040'
-                                }
-                                w={item?.status === 'offline' ? '22%' : '28%'}
-                                borderColor={'#6E6E6E'}
-                                borderWidth={
-                                  item?.status === 'offline' ? 1 : null
-                                }
-                                p={2}
-                                borderRadius={10}>
-                                <View
-                                  bg={
-                                    item?.status === 'offline'
-                                      ? '#6E6E6E'
-                                      : '#039D00'
-                                  }
-                                  h={2}
-                                  w={2}
-                                  rounded={'full'}></View>
-                                <Text
-                                  fontSize={10}
-                                  fontFamily={'Lexend-Light'}
-                                  ml={2}
-                                  color={'white'}>
-                                  {item?.status}
-                                </Text>
-                              </Row>
-                            </Box>
-                          </View>
-                        </Pressable>
-                        <View style={[styles.overlay, {height: 400}]} />
-                      </ImageBackground>
-                    </>
-                  );
-                })}
-              </View>
-            </ScrollView>
-          )} */}
-        </View>
+        <AlertModal
+          modalVisible={active}
+          cancelPress={() => {
+            // props.close && props.close('open');
+            setActive(false);
+          }}
+          fromSettings
+          heading={'Delete Account'}
+          message={
+            'Do you want to delete your account? After deleting your account, you can request to recover data within 90 days'
+          }
+          btntxt1={'Cancel'}
+          btntxt2={'Yes,Delete'}
+          comon={true}
+          onPress={() => {
+            navigation.navigate('OnBoarding');
+          }}></AlertModal>
+        <AlertModal
+          modalVisible={active2}
+          verifi={true}
+          onPress={() => {
+            setActive2(false);
+            handleCamera();
+          }}></AlertModal>
+        <View mx={5} mt={10}></View>
 
         <BottomSheet
           ref={bottomSheetRef}
@@ -308,7 +144,7 @@ const Filtered = ({navigation}) => {
               backgroundColor: 'white',
             },
           }}>
-          <ScrollView m={5} showsVerticalScrollIndicator={false}>
+          <ScrollView mx={5} mt={5} showsVerticalScrollIndicator={false}>
             <Row alignItems={'center'} justifyContent={'space-between'}>
               <Row>
                 <Text fontSize={16} fontFamily={'Lexend-Medium'}>
@@ -323,21 +159,38 @@ const Filtered = ({navigation}) => {
                   resizeMode="contain"
                 />
               </Row>
-              <Pressable p={2} onPress={() => navigation.navigate('Chatting')}>
-                <View bg={'primary.400'} borderRadius={10} p={2}>
-                  <Image
-                    source={require('../../assets/mes.png')}
-                    alt={'conversation'}
-                    h={5}
-                    w={5}
-                    resizeMode="contain"
-                  />
-                </View>
+              <Pressable
+                onPress={() => {}}
+                position={'absolute'}
+                p={1}
+                right={2}
+                bg={'primary.400'}
+                rounded={'md'}
+                flexDir={'row'}
+                h={7}
+                w={20}
+                alignItems={'center'}
+                justifyContent={'center'}
+                top={2}>
+                <Image
+                  source={require('../../assets/edit.png')}
+                  h={3}
+                  w={3}
+                  alt={'img'}
+                  resizeMode={'contain'}
+                />
+                <Text
+                  ml={1}
+                  color={'black'}
+                  fontSize={14}
+                  fontFamily={'Lexend-Regular'}>
+                  Edit
+                </Text>
               </Pressable>
             </Row>
             <Text
               fontSize={12}
-              mt={5}
+              mt={2}
               fontFamily={'Lexend-Light'}
               color={'grey.400'}>
               Female - 154 cm
@@ -585,11 +438,22 @@ const Filtered = ({navigation}) => {
               </Pressable>
             </Row>
             <View mt={5}>
-              <FButton
-                label={'Report & Block Usser'}
-                variant={'Solid'}
-                onPress={() => navigation.navigate('ReportUser')}
-              />
+              <Row alignItems={'center'} justifyContent={'space-between'}>
+                <View w={'45%'}>
+                  <FButton
+                    label={'Delete Account'}
+                    variant={'outline'}
+                    onPress={() => setActive(true)}
+                  />
+                </View>
+                <View w={'45%'}>
+                  <FButton
+                    label={'Verify Account'}
+                    variant={'Solid'}
+                    onPress={() => setActive2(true)}
+                  />
+                </View>
+              </Row>
             </View>
           </ScrollView>
         </BottomSheet>
@@ -597,7 +461,7 @@ const Filtered = ({navigation}) => {
     </GestureHandlerRootView>
   );
 };
-export default Filtered;
+export default Profile;
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,

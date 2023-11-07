@@ -22,8 +22,10 @@ export default function ({
   onPress,
   fromSettings,
   fromAuth,
+  cancelPress,
   onPress1,
   comon,
+  verifi,
   h,
 }) {
   // const [modalVisible, setModalVisible] = React.useState();
@@ -125,26 +127,26 @@ export default function ({
                 justifyContent="center">
                 {btntxt1 ? (
                   <Button
-                    rounded="full"
                     // _stack={{bgColor: 'transparent'}}
                     accessibilityLabel="modal-btn1"
                     onPress={
-                      () => {
-                        setModalVisible(false);
-                      }
+                      cancelPress
+
                       // await storeScreenName('SCREENNAME', 'AddLocationScreen');
                       // navigation.navigate('AddLocationScreen');
                     }
+                    borderRadius={10}
+                    bg={'primary.20'}
                     mr={2}
                     alignSelf={'center'}
                     w={'42%'}
                     variant="outline"
                     _text={{
-                      color: 'primary.50',
+                      color: 'primary.400',
                       fontSize: 14,
                       fontFamily: 'NotoSans-Medium',
                     }}
-                    borderColor={'primary.50'}
+                    borderColor={'primary.400'}
                     borderWidth={1}
                     // flex={1}
                     size="sm">
@@ -154,7 +156,7 @@ export default function ({
 
                 <Button
                   _stack={{bgColor: 'transparent'}}
-                  mt={5}
+                  // mt={5}
                   // ml={1}
                   // borderWidth={1}
                   accessibilityLabel="modal-btn2"
@@ -180,6 +182,73 @@ export default function ({
               </Row>
             </Button.Group>
           </>
+        ) : null}
+        {verifi ? (
+          <View m={5}>
+            <Text
+              fontSize={16}
+              fontFamily={'Lexend-SemiBold'}
+              textAlign={'center'}>
+              Instructions
+            </Text>
+            <Text
+              textAlign={'ledt'}
+              fontSize={12}
+              color={'grey.400'}
+              fontFamily={'Lexend-Light'}>
+              Verify your identity with a quick 5-second video
+            </Text>
+            <Row alignItems={'center'} mt={2}>
+              <View h={2} w={2} bg={'primary.400'} rounded={'full'}></View>
+              <Text
+                ml={2}
+                textAlign={'ledt'}
+                fontSize={12}
+                color={'grey.400'}
+                fontFamily={'Lexend-Light'}>
+                Click the 'Record' button below.
+              </Text>
+            </Row>
+            <Row mt={2}>
+              <View
+                h={2}
+                w={2}
+                bg={'primary.400'}
+                rounded={'full'}
+                mt={2}></View>
+              <Text
+                ml={2}
+                textAlign={'ledt'}
+                fontSize={12}
+                color={'grey.400'}
+                fontFamily={'Lexend-Light'}>
+                Nod your head in a 'yes' motion for the entire 5 seconds.
+              </Text>
+            </Row>
+            <Row alignItems={'center'} mt={2}>
+              <View h={2} w={2} bg={'primary.400'} rounded={'full'}></View>
+              <Text
+                ml={2}
+                textAlign={'ledt'}
+                fontSize={12}
+                color={'grey.400'}
+                fontFamily={'Lexend-Light'}>
+                Ensure your face is clearly visible in the video.
+              </Text>
+            </Row>
+            <Row alignItems={'center'} mb={4} mt={2}>
+              <View h={2} w={2} bg={'primary.400'} rounded={'full'}></View>
+              <Text
+                ml={2}
+                textAlign={'ledt'}
+                fontSize={12}
+                color={'grey.400'}
+                fontFamily={'Lexend-Light'}>
+                Click 'Submit' after recording.
+              </Text>
+            </Row>
+            <FButton label={'Ok'} onPress={onPress} variant={'Solid'} />
+          </View>
         ) : null}
 
         {/* </View> */}

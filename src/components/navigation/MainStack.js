@@ -26,6 +26,16 @@ import ResetPassword from '../../screens/auth/ResetPassword';
 import BottomTabs from './bottomTab/BottomTab';
 import Filtered from '../../screens/Home/Filtered';
 import Gallery from '../../screens/Home/Gallery';
+import ReportUser from '../../screens/Home/ReportUser';
+import Chatting from '../../screens/chat/Chatting';
+import CallHistory from '../../screens/chat/CallHistory';
+import AudioCall from '../../screens/chat/AudioCall';
+import VideoCall from '../../screens/chat/VideoCall';
+import AcceptRequest from '../../screens/chat/AcceptRequest';
+import SearchScreen from '../../screens/Home/SearchScreen';
+import FavoriteUser from '../../screens/favorites/FavoriteUser';
+import ProfileProcessing from '../../screens/profile/ProfileProcessing';
+import ProfileVerification from '../../screens/profile/ProfileVerification';
 
 export default function MainStack() {
   const Stack = createNativeStackNavigator();
@@ -58,6 +68,16 @@ export default function MainStack() {
         <Stack.Screen name="Tabs" component={BottomTabs} />
         <Stack.Screen name="Filter" component={Filtered} />
         <Stack.Screen name="Gallery" component={Gallery} />
+        <Stack.Screen name="ReportUser" component={ReportUser} />
+        <Stack.Screen name="Chatting" component={Chatting} />
+        <Stack.Screen name="CallHistory" component={CallHistory} />
+        <Stack.Screen name="AudioCall" component={AudioCall} />
+        <Stack.Screen name="VideoCall" component={VideoCall} />
+        <Stack.Screen name="AcceptRequest" component={AcceptRequest} />
+        <Stack.Screen name="Search" component={SearchScreen} />
+        <Stack.Screen name="FavoriteUser" component={FavoriteUser} />
+        <Stack.Screen name="ProfileProcess" component={ProfileProcessing} />
+        <Stack.Screen name="ProfileVerifi" component={ProfileVerification} />
       </Stack.Navigator>
     </NavigationContainer>
   );
