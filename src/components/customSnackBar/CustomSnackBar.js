@@ -55,7 +55,7 @@ const CustomSnackbar = ({
       <Row>
         <Divider
           w={2}
-          bg={'primary.50'}
+          bg={'#04C200'}
           borderLeftRadius={10}
           orientation="vertical"
         />
@@ -83,18 +83,18 @@ const styles = StyleSheet.create({
     right: 15,
     height: '30%',
     borderRadius: 10,
-    backgroundColor: 'black',
+    backgroundColor: 'white',
     //padding: 14,
     // flexDirection: 'row-reverse',
     //alignItems: 'center',
   },
   message: {
-    color: '#F94449',
+    color: '#04C200',
     fontSize: 16,
     fontFamily: 'NotoSans-SemiBold',
   },
   messageDescription: {
-    color: '#979797',
+    color: 'black',
     fontSize: 14,
     fontFamily: 'NotoSans-Regular',
     // fontWeight: '200',

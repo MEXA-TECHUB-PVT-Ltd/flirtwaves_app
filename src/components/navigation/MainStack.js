@@ -21,6 +21,11 @@ import OnBoarding9 from '../../screens/auth/OnBoarding9';
 import OnBoarding10 from '../../screens/auth/OnBoarding10';
 import Map from '../../screens/auth/Map';
 import ForgotPassword from '../../screens/auth/ForgotPassword';
+import VerifyOtp from '../../screens/auth/VerifyOtp';
+import ResetPassword from '../../screens/auth/ResetPassword';
+import BottomTabs from './bottomTab/BottomTab';
+import Filtered from '../../screens/Home/Filtered';
+import Gallery from '../../screens/Home/Gallery';
 
 export default function MainStack() {
   const Stack = createNativeStackNavigator();
@@ -48,6 +53,11 @@ export default function MainStack() {
         <Stack.Screen name="OnBoarding10" component={OnBoarding10} />
         <Stack.Screen name="Map" component={Map} />
         <Stack.Screen name="ForgetPassword" component={ForgotPassword} />
+        <Stack.Screen name="Verification" component={VerifyOtp} />
+        <Stack.Screen name="ResetPassword" component={ResetPassword} />
+        <Stack.Screen name="Tabs" component={BottomTabs} />
+        <Stack.Screen name="Filter" component={Filtered} />
+        <Stack.Screen name="Gallery" component={Gallery} />
       </Stack.Navigator>
     </NavigationContainer>
   );

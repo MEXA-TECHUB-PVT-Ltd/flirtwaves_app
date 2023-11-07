@@ -23,13 +23,16 @@ export default function ({
   fromSettings,
   fromAuth,
   onPress1,
+  comon,
+  h,
 }) {
   // const [modalVisible, setModalVisible] = React.useState();
   return (
-    <Modal isOpen={modalVisible} flex={1} p={2}>
+    <Modal isOpen={modalVisible} flex={1} p={2} borderRadius={24}>
       <Modal.Content
+        borderRadius={20}
         w={'90%'}
-        h={'50%'}
+        h={h}
         _light={{bg: 'white'}}
         // alignItems={'flex-start'}
         _dark={{bg: 'black'}}>
@@ -54,22 +57,24 @@ export default function ({
                 Enable location through which we can provide you with profile
                 who are nearby and meet your preferences.
               </Text>
-
-              <FButton
-                mt={8}
-                variant={'Solid'}
-                label={'Use my current loaction'}
-                onPress={onPress}
-              />
-              <FButton
-                mt={4}
-                variant={'outline'}
-                label={'Maybe, later'}
-                onPress={onPress1}
-              />
+              <View mb={4}>
+                <FButton
+                  mt={8}
+                  variant={'Solid'}
+                  label={'Use my current location'}
+                  onPress={onPress}
+                />
+                <FButton
+                  mt={4}
+                  variant={'outline'}
+                  label={'Maybe, later'}
+                  onPress={onPress1}
+                />
+              </View>
             </View>
           </>
-        ) : (
+        ) : null}
+        {comon ? (
           <>
             <Image
               mt={5}
@@ -80,27 +85,30 @@ export default function ({
               alignSelf={'center'}
               alt={'img'}
             />
+            {heading ? (
+              <Text
+                mt={2}
+                mx={5}
+                // w={'100%'}
+                color={'black'}
+                fontFamily={'Lexend-SemiBold'}
+                textAlign="center"
+                fontSize={18}>
+                {heading}
+              </Text>
+            ) : null}
+            {message ? (
+              <Text
+                mt={2}
+                fontSize={14}
+                fontFamily={'Lexend-Light'}
+                textAlign={'center'}
+                color={'grey.400'}
+                mx={5}>
+                {message}
+              </Text>
+            ) : null}
 
-            <Text
-              mt={2}
-              mx={5}
-              // w={'100%'}
-              color={'black'}
-              fontFamily={'Lexend-SemiBold'}
-              textAlign="center"
-              fontSize={18}>
-              {heading}
-            </Text>
-
-            <Text
-              mt={2}
-              fontSize={14}
-              fontFamily={'Lexend-Light'}
-              textAlign={'center'}
-              color={'grey.400'}
-              mx={5}>
-              {message}
-            </Text>
             <Button.Group
               // direction="coloumn"
               my="3"
@@ -172,7 +180,7 @@ export default function ({
               </Row>
             </Button.Group>
           </>
-        )}
+        ) : null}
 
         {/* </View> */}
       </Modal.Content>

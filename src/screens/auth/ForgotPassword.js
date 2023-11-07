@@ -1,91 +1,69 @@
+// da/``
+import {ImageBackground, StyleSheet} from 'react-native';
 import {
-  //   KeyboardAvoidingView,
-  TextInput,
-  StyleSheet,
-  //   Text,
-  TouchableWithoutFeedback,
-  //   Button,
-  Keyboard,
-} from 'react-native';
-import {
-  Input,
-  View,
-  KeyboardAvoidingView,
-  Text,
-  Button,
-  VStack,
-  Heading,
+  Box,
   Center,
-  NativeBaseProvider,
+  Circle,
+  Image,
+  Row,
   ScrollView,
+  Text,
+  View,
 } from 'native-base';
 import React from 'react';
-import {Platform} from 'react-native';
 
 import Header from '../../components/Header/Header';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 import FInputs from '../../components/inputs/inputs';
 import FButton from '../../components/button/FButton';
-
 const ForgotPassword = ({navigation}) => {
   const formSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
   });
-
-  const [modalVisible, setModalVisible] = React.useState(false);
-
   const handleCreate = em => {
-    const body = {
-      email: em,
-    };
+    navigation.navigate('Verification');
   };
-
-  const [currentLanguage, setLanguage] = React.useState();
-
   return (
+    // <View flex={1}>
     <View flex={1} bg={'primary.20'}>
       <Header />
-
-      {/* <Center> */}
-
-      <ScrollView showsVerticalScrollIndicator={false} flex={1}>
-        <View alignItems={'center'}>
-          <Heading mt={'40%'}>Forget Password</Heading>
-          <Text color="grey.400" mt={'2'} fontSize={14}>
-            Enter your email for a verification code
+      <ScrollView mx={5} mt={5} showsVerticalScrollIndicator={false}>
+        <View mt={16}>
+          <Text
+            fontSize={22}
+            mb={32}
+            textAlign={'center'}
+            fontFamily={'Lexend-SemiBold'}>
+            Forget Password
           </Text>
-        </View>
-        <Formik
-          initialValues={{
-            email: '',
-          }}
-          validationSchema={formSchema}
-          onSubmit={values => handleCreate(values.email)}>
-          {({
-            values,
-            handleChange,
 
-            handleSubmit,
+          <Formik
+            initialValues={{
+              email: '',
+            }}
+            validationSchema={formSchema}
+            onSubmit={values => handleCreate(values.email)}>
+            {({
+              values,
+              handleChange,
 
-            errors,
-          }) => (
-            <>
-              <View mt={'50%'} flex={1}>
+              handleSubmit,
+
+              errors,
+            }) => (
+              <>
                 <FInputs
+                  placeholder={'Email Address'}
                   value={values.email}
                   onChangeText={handleChange('email')}
-                  placeholder="Enter your Email"
                 />
                 {errors.email && (
-                  <View
-                    flexDir={currentLanguage === 'ar' ? 'row-reverse' : 'row'}
-                    alignItems={'center'}
-                    mt={1}>
+                  <View flexDir={'row'} alignItems={'center'} mt={1} ml={1}>
                     <View
                       bg={'red.500'}
-                      h={2}
-                      w={2}
+                      h={1}
+                      w={1}
                       rounded={'full'}
                       mr={1}></View>
                     <Text color={'red.500'} fontSize={12}>
@@ -93,45 +71,22 @@ const ForgotPassword = ({navigation}) => {
                     </Text>
                   </View>
                 )}
-              </View>
-              <View mt={20} mb={10} flex={1}>
-                <FButton
-                  title={'Send Code'}
-                  variant={'Solid'}
-                  onPress={handleSubmit}
-                />
-              </View>
-            </>
-          )}
-        </Formik>
+                <View mt={'50%'} mb={5}>
+                  <FButton
+                    label={'Send Code'}
+                    onPress={handleSubmit}
+                    variant={'Solid'}
+                  />
+                </View>
+              </>
+            )}
+          </Formik>
+        </View>
       </ScrollView>
-
-      {/* </Center> */}
     </View>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  inner: {
-    padding: 24,
-    flex: 1,
-    justifyContent: 'space-around',
-  },
-  header: {
-    fontSize: 36,
-    marginBottom: 48,
-  },
-  textInput: {
-    height: 40,
-    borderColor: '#000000',
-    borderBottomWidth: 1,
-    marginBottom: 36,
-  },
-  btnContainer: {
-    backgroundColor: 'white',
-    marginTop: 12,
-  },
-});
+
 export default ForgotPassword;
+
+const styles = StyleSheet.create({});
