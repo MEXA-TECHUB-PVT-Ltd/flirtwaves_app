@@ -28,12 +28,15 @@ const Header = props => {
         </View>
       ) : (
         <>
-          <Text fontSize={22} color={'white'} fontFamily={'Lexend-SemiBold'}>
+          <Text fontSize={22} color={'black'} fontFamily={'Lexend-SemiBold'}>
             {props?.title}
           </Text>
           {/* <Pressable onPress={() => navigation.goBack()}> */}
           {props?.right ? (
-            <Pressable onPress={() => {}}>
+            <Pressable
+              onPress={() => {
+                navigation.navigate('Tabs', {screen: 'Home'});
+              }}>
               <Text fontSize={16} underline fontFamily={'Lexend-Medium'}>
                 Skip
               </Text>
