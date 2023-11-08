@@ -25,6 +25,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import AlertModal from '../../components/Modal/AlertModal';
 import Feather from 'react-native-vector-icons/Feather';
 import ImagePicker from 'react-native-image-crop-picker';
+import {useFocusEffect} from '@react-navigation/native';
 
 const Profile = ({navigation}) => {
   const [like, setLiked] = React.useState(true);
@@ -57,9 +58,13 @@ const Profile = ({navigation}) => {
       setImgUrl(source);
     });
   };
-
+  useFocusEffect(
+    React.useCallback(() => {
+      setImgUrl('');
+    }, []),
+  );
   React.useEffect(() => {
-    if (imgUrl !== null || imgUrl !== undefined || imgUrl !== '') {
+    if (imgUrl !== null && imgUrl !== undefined && imgUrl !== '') {
       navigation.navigate('ProfileProcess');
     }
   }, [imgUrl]);
@@ -160,7 +165,9 @@ const Profile = ({navigation}) => {
                 />
               </Row>
               <Pressable
-                onPress={() => {}}
+                onPress={() => {
+                  navigation.navigate('EditProfile');
+                }}
                 position={'absolute'}
                 p={1}
                 right={2}

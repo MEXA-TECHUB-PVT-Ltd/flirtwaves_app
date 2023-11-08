@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     top: 25, // Display at the top of the screen
     left: 15,
     right: 15,
+    zIndex: 999,
     height: '30%',
     borderRadius: 10,
     backgroundColor: 'white',

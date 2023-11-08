@@ -119,9 +119,9 @@ const HomeScreen = ({navigation}) => {
         onPress={() => setIsBottomSheetExpanded(false)}
         bg={'white'}
         flex={1}
-        alignItems={'center'}
-        justifyContent={'center'}>
-        <View mt={10}>
+        // alignItems={'center'}
+      >
+        <View mt={10} mx={5}>
           <Row alignItems={'center'} justifyContent={'space-between'}>
             <Row alignItems={'center'}>
               <View
@@ -188,7 +188,7 @@ const HomeScreen = ({navigation}) => {
                       <ImageBackground
                         source={item?.img}
                         key={index}
-                        style={{height: 400, marginBottom: 20}}
+                        style={{height: 350, marginBottom: 20}}
                         imageStyle={{
                           borderRadius: 10,
                           resizeMode: 'cover',
@@ -520,9 +520,23 @@ const HomeScreen = ({navigation}) => {
                 />
               </Row>
               <View mb={5}>
-                <FInputs placeholder={'Distance'} />
+                <Text
+                  fontSize={14}
+                  color={'primary.400'}
+                  fontFamily={'Lexend-SemiBold'}
+                  mb={2}>
+                  Distance
+                </Text>
+                <FInputs placeholder={'Enter Distance'} />
               </View>
-              <FInputs placeholder={'City'} />
+              <Text
+                fontSize={14}
+                color={'primary.400'}
+                fontFamily={'Lexend-SemiBold'}
+                mb={2}>
+                City
+              </Text>
+              <FInputs placeholder={'Enter City'} />
               <View mt={5}>
                 <FButton
                   label={'Apply'}

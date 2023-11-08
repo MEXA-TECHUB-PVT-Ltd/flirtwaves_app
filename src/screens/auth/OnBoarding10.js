@@ -21,7 +21,8 @@ import DateComp from './components/DateComp';
 import Footer from '../../components/footer/footer';
 import AlertModal from '../../components/Modal/AlertModal';
 
-const OnBoarding10 = ({navigation}) => {
+const OnBoarding10 = ({navigation, route}) => {
+  const fromEdit = route?.params?.fromEdit;
   const [id, setId] = React.useState(0);
   const data = [
     {
@@ -82,20 +83,28 @@ const OnBoarding10 = ({navigation}) => {
         </View>
       </View>
       {/* </ScrollView> */}
-      <View mb={16} mx={5}>
-        <Footer
-          load={'100'}
-          num={12}
-          onPress={() => {
-            setVisible(true);
-          }}
-        />
-      </View>
+      {fromEdit === true ? (
+        <View mb={16} mx={5}>
+          <FButton
+            label={'Save Changes'}
+            variant={'Solid'}
+            onPress={() => navigation.goBack()}
+          />
+        </View>
+      ) : (
+        <View mb={16} mx={5}>
+          <Footer
+            load={'30'}
+            num={4}
+            onPress={() => navigation.navigate('AddHeight')}
+          />
+        </View>
+      )}
       <AlertModal
         modalVisible={visible}
         fromAuth={true}
-        onPress={() => navigation.navigate('Map')}
-        onPress1={() => setVisible(false)}
+        onPress={() => navigation.navigate('Tabs', {screen: 'Home'})}
+        onPress1={() => navigation.navigate('Tabs', {screen: 'Home'})}
       />
     </View>
   );
