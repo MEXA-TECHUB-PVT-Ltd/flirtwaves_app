@@ -69,25 +69,53 @@ const CallHistory = ({navigation}) => {
       callType: 'Voice call',
       duration: '00:30:42',
     },
+    {
+      id: 1,
+      img: require('../../assets/h5.png'),
+      name: 'Sahara Ardia',
+      callType: 'Voice call',
+      duration: '00:30:42',
+    },
+    {
+      id: 1,
+      img: require('../../assets/h6.png'),
+      name: 'Sahara Ardia',
+      callType: 'Voice call',
+      duration: '00:30:42',
+    },
+    {
+      id: 1,
+      img: require('../../assets/h1.png'),
+      name: 'Sahara Ardia',
+      callType: 'Voice call',
+      duration: '00:30:42',
+    },
+    {
+      id: 1,
+      img: require('../../assets/h2.png'),
+      name: 'Sahara Ardia',
+      callType: 'Voice call',
+      duration: '00:30:42',
+    },
   ];
   return (
     <View flex={1} bg={'white'}>
       <Header title={'Call History'} />
-      <View m={5}>
-        <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View m={5} ml={3}>
           {data?.map((item, index) => {
             return (
-              <View borderRadius={10} p={2} key={index}>
+              <View borderRadius={10} p={1} key={index}>
                 <Row
                   alignItems={'center'}
                   justifyContent={'space-between'}
                   mx={2}>
                   <Row alignItems={'center'}>
-                    <Avatar source={item?.img} size={'sm'} />
+                    <Avatar source={item?.img} size={'md'} />
                     <View ml={2}>
                       <Text
                         color={'black'}
-                        fontSize={16}
+                        fontSize={14}
                         fontFamily={'Lexend-Medium'}>
                         {item?.name}
                       </Text>
@@ -122,7 +150,7 @@ const CallHistory = ({navigation}) => {
                   </Row>
                 </Row>
                 <Divider
-                  bg={index === 7 ? 'transparent' : 'grey.400'}
+                  bg={index === data?.length - 1 ? 'transparent' : 'grey.400'}
                   my={2}
                   opacity={0.5}
                   w={'85%'}
@@ -131,8 +159,8 @@ const CallHistory = ({navigation}) => {
               </View>
             );
           })}
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
     </View>
   );
 };

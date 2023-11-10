@@ -132,11 +132,20 @@ const FavoriteUser = ({navigation}) => {
           <ScrollView m={5} showsVerticalScrollIndicator={false}>
             <Row alignItems={'center'} justifyContent={'space-between'}>
               <Row>
-                <Text fontSize={16} fontFamily={'Lexend-Medium'}>
-                  Rosie, 20
-                </Text>
+                <View>
+                  <Text fontSize={16} fontFamily={'Lexend-Medium'}>
+                    Rosie, 20
+                  </Text>
+                  <Text
+                    fontSize={12}
+                    mt={0}
+                    fontFamily={'Lexend-Light'}
+                    color={'grey.400'}>
+                    Female - 154 cm
+                  </Text>
+                </View>
                 <Image
-                  ml={3}
+                  ml={1}
                   source={require('../../assets/verified.png')}
                   h={6}
                   alt={'img'}
@@ -145,7 +154,7 @@ const FavoriteUser = ({navigation}) => {
                 />
               </Row>
               <Pressable p={2} onPress={() => navigation.navigate('Chatting')}>
-                <View bg={'primary.400'} borderRadius={10} p={2}>
+                <View bg={'primary.400'} borderRadius={10} p={3}>
                   <Image
                     source={require('../../assets/mes.png')}
                     alt={'conversation'}
@@ -156,13 +165,7 @@ const FavoriteUser = ({navigation}) => {
                 </View>
               </Pressable>
             </Row>
-            <Text
-              fontSize={12}
-              mt={5}
-              fontFamily={'Lexend-Light'}
-              color={'grey.400'}>
-              Female - 154 cm
-            </Text>
+
             <Row alignItems={'center'} mt={2}>
               <Image
                 alt="img"

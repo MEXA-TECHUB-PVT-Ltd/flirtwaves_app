@@ -81,9 +81,9 @@ const Profile = ({navigation}) => {
             top={5}
             rounded={'full'}
             onPress={() => {
-              //   setActive(true);
+              navigation.navigate('Settings');
             }}>
-            <View>
+            <View p={2}>
               <Feather name="settings" size={20} color={'white'} />
             </View>
           </Pressable>
@@ -152,9 +152,17 @@ const Profile = ({navigation}) => {
           <ScrollView mx={5} mt={5} showsVerticalScrollIndicator={false}>
             <Row alignItems={'center'} justifyContent={'space-between'}>
               <Row>
-                <Text fontSize={16} fontFamily={'Lexend-Medium'}>
-                  Rosie, 20
-                </Text>
+                <View>
+                  <Text fontSize={16} fontFamily={'Lexend-Medium'}>
+                    Rosie, 20
+                  </Text>
+                  <Text
+                    fontSize={12}
+                    fontFamily={'Lexend-Light'}
+                    color={'grey.400'}>
+                    Female - 154 cm
+                  </Text>
+                </View>
                 <Image
                   ml={3}
                   source={require('../../assets/verified.png')}
@@ -175,7 +183,7 @@ const Profile = ({navigation}) => {
                 rounded={'md'}
                 flexDir={'row'}
                 h={7}
-                w={20}
+                w={16}
                 alignItems={'center'}
                 justifyContent={'center'}
                 top={2}>
@@ -195,13 +203,7 @@ const Profile = ({navigation}) => {
                 </Text>
               </Pressable>
             </Row>
-            <Text
-              fontSize={12}
-              mt={2}
-              fontFamily={'Lexend-Light'}
-              color={'grey.400'}>
-              Female - 154 cm
-            </Text>
+
             <Row alignItems={'center'} mt={2}>
               <Image
                 alt="img"

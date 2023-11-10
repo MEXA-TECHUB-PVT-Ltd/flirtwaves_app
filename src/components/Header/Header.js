@@ -3,6 +3,7 @@ import {Pressable, Text, View} from 'native-base';
 import React from 'react';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import {useNavigation} from '@react-navigation/native';
 
 const Header = props => {
@@ -17,7 +18,11 @@ const Header = props => {
       justifyContent={'space-between'}>
       <Pressable
         onPress={() => {
-          navigation.goBack();
+          if (props?.fromSettings === true) {
+            navigation.navigate('Tabs', {screen: 'Settings'});
+          } else {
+            navigation.goBack();
+          }
         }}>
         <Entypo name={'chevron-left'} size={30} color={'black'} />
       </Pressable>
@@ -32,17 +37,27 @@ const Header = props => {
             {props?.title}
           </Text>
           {/* <Pressable onPress={() => navigation.goBack()}> */}
-          {props?.right ? (
-            <Pressable
-              onPress={() => {
-                navigation.navigate('Tabs', {screen: 'Home'});
-              }}>
-              <Text fontSize={16} underline fontFamily={'Lexend-Medium'}>
-                Skip
-              </Text>
+          {props?.title !== 'FAQs' && (
+            <>
+              {props?.right ? (
+                <Pressable
+                  onPress={() => {
+                    navigation.navigate('Tabs', {screen: 'Home'});
+                  }}>
+                  <Text fontSize={16} underline fontFamily={'Lexend-Medium'}>
+                    Skip
+                  </Text>
+                </Pressable>
+              ) : (
+                <Entypo name="chevron-left" size={30} color={'transparent'} />
+              )}
+            </>
+          )}
+
+          {props?.title === 'FAQs' && (
+            <Pressable p={2} onPress={props?.handlePress}>
+              <EvilIcons name="search" size={30} color={'black'} />
             </Pressable>
-          ) : (
-            <Entypo name="chevron-left" size={30} color={'transparent'} />
           )}
 
           {/* </Pressable> */}

@@ -93,11 +93,7 @@ const OnBoarding10 = ({navigation, route}) => {
         </View>
       ) : (
         <View mb={16} mx={5}>
-          <Footer
-            load={'30'}
-            num={4}
-            onPress={() => navigation.navigate('AddHeight')}
-          />
+          <Footer load={'100'} num={12} onPress={() => setVisible(true)} />
         </View>
       )}
       <AlertModal

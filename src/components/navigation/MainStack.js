@@ -38,6 +38,11 @@ import ProfileProcessing from '../../screens/profile/ProfileProcessing';
 import ProfileVerification from '../../screens/profile/ProfileVerification';
 import EditProfile from '../../screens/profile/EditProfile';
 import PersnolInfo from '../../screens/profile/PersnolInfo';
+import Settings from '../../screens/settings/Settings';
+import FAQS from '../../screens/settings/FAQS';
+import Premium from '../../screens/settings/Premium';
+import PrivacySettings from '../../screens/settings/PrivacySettings';
+import Content from '../../screens/browse/Content';
 
 export default function MainStack() {
   const Stack = createNativeStackNavigator();
@@ -46,7 +51,7 @@ export default function MainStack() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name="OnBoarding" component={OnBoarding} />
-        <Stack.Screen name="Privacy" component={Privacy} />
+
         <Stack.Screen name="ConnectionProblem" component={ConnectionProblem} />
         <Stack.Screen name="Verify" component={EmailVerify} />
         <Stack.Screen name="SignUp" component={SignUp} />
@@ -82,6 +87,12 @@ export default function MainStack() {
         <Stack.Screen name="ProfileVerifi" component={ProfileVerification} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="PersonalInfo" component={PersnolInfo} />
+        <Stack.Screen name="Settings" component={Settings} />
+        <Stack.Screen name="Faq" component={FAQS} />
+        <Stack.Screen name="Premium" component={Premium} />
+        <Stack.Screen name="Privacy" component={Privacy} />
+        <Stack.Screen name="PrivacySetting" component={PrivacySettings} />
+        <Stack.Screen name="Content" component={Content} />
       </Stack.Navigator>
     </NavigationContainer>
   );

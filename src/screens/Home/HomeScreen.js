@@ -16,11 +16,14 @@ import HomeComp from './components/HomeComp';
 import {ImageBackground, StyleSheet} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
-import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
+// import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
+
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import FInputs from '../../components/inputs/inputs';
 import FButton from '../../components/button/FButton';
 import Lottie from 'lottie-react-native';
+import RnRangeSlider from 'rn-range-slider';
+import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 
 const HomeScreen = ({navigation}) => {
   const data = [
@@ -83,8 +86,8 @@ const HomeScreen = ({navigation}) => {
       }, 2000);
     }
   });
-  const [low, setLow] = React.useState(0);
-  const [high, setHigh] = React.useState(100);
+  const [low, setLow] = React.useState(25);
+  const [high, setHigh] = React.useState(40);
 
   const renderThumb = React.useCallback(
     () => (
@@ -109,10 +112,12 @@ const HomeScreen = ({navigation}) => {
   const renderLabel = React.useCallback(value => <Text>{value}</Text>, []);
   // const renderNotch = React.useCallback(() => <, []);
   const handleValueChange = React.useCallback((low, high) => {
+    console.log(high, low);
     setLow(low);
     setHigh(high);
   }, []);
-
+  const [h, setH] = React.useState('50%');
+  const [pre, setPre] = React.useState(0);
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <Pressable
@@ -154,7 +159,7 @@ const HomeScreen = ({navigation}) => {
               p={2}
               ml={3}
               onPress={() => {
-                setIsBottomSheetExpanded(true);
+                openBottomSheet();
                 setClo(0);
               }}>
               <Image
@@ -167,7 +172,11 @@ const HomeScreen = ({navigation}) => {
             </Pressable>
           </Row>
           {isLoading ? (
-            <Center flex={1} alignItems={'center'} justifyContent={'center'}>
+            <Center
+              flex={1}
+              mt={'50%'}
+              alignItems={'center'}
+              justifyContent={'center'}>
               <Lottie
                 source={require('../../assets/spinner.json')}
                 autoPlay
@@ -309,8 +318,8 @@ const HomeScreen = ({navigation}) => {
           <BottomSheet
             ref={bottomSheetRef}
             enableDismissOnClose={true}
-            index={clo} // Set to -1 to start with collapsed state
-            snapPoints={['50%', '98%']} // Adjust snap points as needed
+            index={0} // Set to -1 to start with collapsed state
+            snapPoints={['60%', '98%']} // Adjust snap points as needed
             onScroll={event => {
               console.log('Event', event);
               const offsetY = event.nativeEvent.contentOffset.y;
@@ -341,213 +350,233 @@ const HomeScreen = ({navigation}) => {
                 backgroundColor: 'white',
               },
             }}>
-            <ScrollView m={5} showsVerticalScrollIndicator={false}>
-              <Text fontSize={16} fontFamily={'Lexend-Medium'}>
-                Apply Filter
-              </Text>
-              <Text
-                fontSize={14}
-                mt={5}
-                fontFamily={'Lexend-Regular'}
-                color={'primary.400'}>
-                Add Range
-              </Text>
-              <Text
-                fontSize={12}
-                mb={4}
-                fontFamily={'Lexend-Light'}
-                color={'grey.400'}
-                mt={3}>
-                {low} - {high} years old
-              </Text>
-              <RangeSlider
-                style={styles.slider}
-                min={0}
-                max={100}
-                step={1}
-                floatingLabel
-                renderThumb={renderThumb}
-                renderRail={renderRail}
-                renderRailSelected={renderRailSelected}
-                renderLabel={renderLabel}
-                // renderNotch={renderNotch}
-                onValueChanged={handleValueChange}
-              />
-              <View mt={5}>
-                <Text
-                  color={'primary.400'}
-                  fontSize={16}
-                  fontFamily={'Lexend-SemiBold'}>
-                  Select Gender
+            <Pressable>
+              <ScrollView m={5} showsVerticalScrollIndicator={false}>
+                <Text fontSize={16} fontFamily={'Lexend-Medium'}>
+                  Apply Filter
                 </Text>
-                <Row
-                  alignItems={'center'}
-                  justifyContent={'space-around'}
-                  mt={5}>
-                  <Pressable onPress={() => setId(1)}>
-                    <Box
-                      h={32}
-                      w={32}
-                      bg={'white'}
-                      borderColor={id === 1 ? 'primary.400' : 'grey.400'}
-                      borderWidth={id === 1 ? 1 : 1}
-                      justifyContent={'center'}
-                      borderRadius={10}>
-                      <Center alignItems={'center'} justifyContent={'center'}>
-                        <View
-                          bg={id === 1 ? 'primary.400' : 'grey.400'}
-                          rounded={'full'}
-                          p={4}>
-                          <Image
-                            source={require('../../assets/male.png')}
-                            h={6}
-                            w={6}
-                            resizeMode="contain"
-                            alt={'male'}
-                          />
-                        </View>
+                <Text
+                  fontSize={14}
+                  mt={5}
+                  fontFamily={'Lexend-Regular'}
+                  color={'primary.400'}>
+                  Add Range
+                </Text>
+                <Text
+                  fontSize={12}
+                  mb={4}
+                  fontFamily={'Lexend-Light'}
+                  color={'grey.400'}
+                  mt={3}>
+                  {low} - {high} years old
+                </Text>
+                <RnRangeSlider
+                  min={0}
+                  max={100}
+                  style={{padding: 5}}
+                  step={2}
+                  floatingLabel
+                  renderThumb={renderThumb}
+                  renderRail={renderRail}
+                  renderRailSelected={renderRailSelected}
+                  renderLabel={renderLabel}
+                  // renderNotch={renderNotch}
+                  onValueChanged={handleValueChange}
+                />
+                <View mt={5}>
+                  <Text
+                    color={'primary.400'}
+                    fontSize={16}
+                    fontFamily={'Lexend-SemiBold'}>
+                    Select Gender
+                  </Text>
+                  <Row
+                    alignItems={'center'}
+                    justifyContent={'space-around'}
+                    mt={5}>
+                    <Pressable onPress={() => setId(1)}>
+                      <Box
+                        h={32}
+                        w={32}
+                        bg={'white'}
+                        borderColor={id === 1 ? 'primary.400' : 'grey.400'}
+                        borderWidth={id === 1 ? 1 : 1}
+                        justifyContent={'center'}
+                        borderRadius={10}>
+                        <Center alignItems={'center'} justifyContent={'center'}>
+                          <View
+                            bg={id === 1 ? 'primary.400' : 'grey.400'}
+                            rounded={'full'}
+                            p={4}>
+                            <Image
+                              source={require('../../assets/male.png')}
+                              h={6}
+                              w={6}
+                              resizeMode="contain"
+                              alt={'male'}
+                            />
+                          </View>
+                          <Text
+                            color={id === 1 ? 'black' : 'grey.400'}
+                            fontSize={12}
+                            mt={3}
+                            fontFamily={
+                              id === 1 ? 'Lexend-Medium' : 'Lexend-Light'
+                            }>
+                            Male
+                          </Text>
+                        </Center>
+                      </Box>
+                    </Pressable>
+                    <Pressable onPress={() => setId(2)}>
+                      <Box
+                        h={32}
+                        borderRadius={10}
+                        w={32}
+                        borderColor={id === 2 ? 'primary.400' : 'grey.400'}
+                        borderWidth={id === 2 ? 1 : 1}
+                        bg={'white'}
+                        alignItems={'center'}
+                        justifyContent={'center'}>
+                        <Center alignItems={'center'} justifyContent={'center'}>
+                          <View
+                            bg={id === 2 ? 'primary.400' : 'grey.400'}
+                            rounded={'full'}
+                            p={4}>
+                            <Image
+                              source={require('../../assets/female.png')}
+                              h={6}
+                              w={6}
+                              alt={'female'}
+                              resizeMode="contain"
+                            />
+                          </View>
+                        </Center>
                         <Text
-                          color={id === 1 ? 'black' : 'grey.400'}
+                          color={id === 2 ? 'black' : 'grey.400'}
                           fontSize={12}
                           mt={3}
                           fontFamily={
-                            id === 1 ? 'Lexend-Medium' : 'Lexend-Light'
+                            id === 2 ? 'Lexend-Medium' : 'Lexend-Light'
                           }>
-                          Male
+                          Female
                         </Text>
-                      </Center>
-                    </Box>
+                      </Box>
+                    </Pressable>
+                  </Row>
+                </View>
+                <Text
+                  color={'primary.400'}
+                  fontSize={16}
+                  mt={5}
+                  fontFamily={'Lexend-Medium'}>
+                  Prefrence
+                </Text>
+                <Row alignItems={'center'} mt={5}>
+                  <Pressable
+                    onPress={() => setPre(1)}
+                    borderColor={pre === 1 ? 'primary.400' : 'grey.400'}
+                    borderWidth={1}
+                    borderRadius={12}
+                    p={1}
+                    alignItems={'center'}
+                    justifyContent={'center'}>
+                    <Text
+                      fontSize={12}
+                      fontFamily={
+                        pre === 1 ? 'Lexend-SemiBold' : 'Lexend-Regular'
+                      }
+                      mx={2}>
+                      A Relationship
+                    </Text>
                   </Pressable>
-                  <Pressable onPress={() => setId(2)}>
-                    <Box
-                      h={32}
-                      borderRadius={10}
-                      w={32}
-                      borderColor={id === 2 ? 'primary.400' : 'grey.400'}
-                      borderWidth={id === 2 ? 1 : 1}
-                      bg={'white'}
-                      alignItems={'center'}
-                      justifyContent={'center'}>
-                      <Center alignItems={'center'} justifyContent={'center'}>
-                        <View
-                          bg={id === 2 ? 'primary.400' : 'grey.400'}
-                          rounded={'full'}
-                          p={4}>
-                          <Image
-                            source={require('../../assets/female.png')}
-                            h={6}
-                            w={6}
-                            alt={'female'}
-                            resizeMode="contain"
-                          />
-                        </View>
-                      </Center>
-                      <Text
-                        color={id === 2 ? 'black' : 'grey.400'}
-                        fontSize={12}
-                        mt={3}
-                        fontFamily={
-                          id === 2 ? 'Lexend-Medium' : 'Lexend-Light'
-                        }>
-                        Female
-                      </Text>
-                    </Box>
+                  <Pressable
+                    onPress={() => setPre(2)}
+                    borderColor={pre === 2 ? 'primary.400' : 'grey.400'}
+                    ml={5}
+                    borderWidth={1}
+                    borderRadius={12}
+                    p={1}
+                    alignItems={'center'}
+                    justifyContent={'center'}>
+                    <Text
+                      fontSize={12}
+                      fontFamily={
+                        pre === 2 ? 'Lexend-SemiBold' : 'Lexend-Regular'
+                      }
+                      mx={2}>
+                      Nothing Serious
+                    </Text>
                   </Pressable>
                 </Row>
-              </View>
-              <Text
-                color={'primary.400'}
-                fontSize={16}
-                mt={5}
-                fontFamily={'Lexend-Medium'}>
-                Prefrence
-              </Text>
-              <Row alignItems={'center'} mt={5}>
-                <View
-                  borderColor={'grey.400'}
+                <Pressable
+                  onPress={() => setPre(3)}
+                  borderColor={pre === 3 ? 'primary.400' : 'grey.400'}
+                  mt={5}
                   borderWidth={1}
                   borderRadius={12}
                   p={1}
+                  alignSelf={'flex-start'}
                   alignItems={'center'}
                   justifyContent={'center'}>
-                  <Text fontSize={12} fontFamily={'Lexend-Regular'} mx={2}>
-                    A Relationship
+                  <Text
+                    fontSize={12}
+                    fontFamily={
+                      pre === 3 ? 'Lexend-SemiBold' : 'Lexend-Regular'
+                    }
+                    mx={2}>
+                    I'll know when i find it
                   </Text>
-                </View>
-                <View
-                  borderColor={'grey.400'}
-                  ml={5}
-                  borderWidth={1}
-                  borderRadius={12}
-                  p={1}
+                </Pressable>
+                <Row
+                  my={5}
                   alignItems={'center'}
-                  justifyContent={'center'}>
-                  <Text fontSize={12} fontFamily={'Lexend-Regular'} mx={2}>
-                    Nothing Serious
+                  justifyContent={'space-between'}>
+                  <Text
+                    fontSize={16}
+                    color={'primary.400'}
+                    fontFamily={'Lexend-Medium'}>
+                    Online
                   </Text>
+                  <Switch
+                    onThumbColor={'primary.400'}
+                    onTrackColor={'primary.20'}
+                    onToggle={() => {
+                      setOn(!on);
+                    }}
+                    isChecked={on}
+                  />
+                </Row>
+                <View mb={5}>
+                  <Text
+                    fontSize={14}
+                    color={'primary.400'}
+                    fontFamily={'Lexend-SemiBold'}
+                    mb={2}>
+                    Distance
+                  </Text>
+                  <FInputs placeholder={'Enter Distance'} />
                 </View>
-              </Row>
-              <View
-                borderColor={'grey.400'}
-                mt={5}
-                borderWidth={1}
-                borderRadius={12}
-                p={1}
-                alignSelf={'flex-start'}
-                alignItems={'center'}
-                justifyContent={'center'}>
-                <Text fontSize={12} fontFamily={'Lexend-Regular'} mx={2}>
-                  I'll know when i find it
-                </Text>
-              </View>
-              <Row
-                my={5}
-                alignItems={'center'}
-                justifyContent={'space-between'}>
-                <Text
-                  fontSize={16}
-                  color={'primary.400'}
-                  fontFamily={'Lexend-Medium'}>
-                  Online
-                </Text>
-                <Switch
-                  onThumbColor={'primary.400'}
-                  onTrackColor={'primary.20'}
-                  onToggle={() => {
-                    setOn(!on);
-                  }}
-                  isChecked={on}
-                />
-              </Row>
-              <View mb={5}>
                 <Text
                   fontSize={14}
                   color={'primary.400'}
                   fontFamily={'Lexend-SemiBold'}
                   mb={2}>
-                  Distance
+                  City
                 </Text>
-                <FInputs placeholder={'Enter Distance'} />
-              </View>
-              <Text
-                fontSize={14}
-                color={'primary.400'}
-                fontFamily={'Lexend-SemiBold'}
-                mb={2}>
-                City
-              </Text>
-              <FInputs placeholder={'Enter City'} />
-              <View mt={5}>
-                <FButton
-                  label={'Apply'}
-                  variant={'Solid'}
-                  onPress={() => {
-                    setIsBottomSheetExpanded(false);
-                    setLoading(true);
-                  }}
-                />
-              </View>
-            </ScrollView>
+                <FInputs placeholder={'Enter City'} />
+                <View mt={5}>
+                  <FButton
+                    label={'Apply'}
+                    variant={'Solid'}
+                    onPress={() => {
+                      setIsBottomSheetExpanded(false);
+                      setLoading(true);
+                    }}
+                  />
+                </View>
+              </ScrollView>
+            </Pressable>
           </BottomSheet>
         ) : null}
       </Pressable>
