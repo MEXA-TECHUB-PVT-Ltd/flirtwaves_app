@@ -52,7 +52,7 @@ export default function ({
             <View mx={5}>
               <Text
                 mt={2}
-                fontSize={14}
+                fontSize={12}
                 fontFamily={'Lexend-Light'}
                 textAlign={'center'}
                 color={'grey.400'}>
@@ -78,15 +78,28 @@ export default function ({
         ) : null}
         {comon ? (
           <>
-            <Image
-              mt={5}
-              source={require('../../assets/warning.png')}
-              h={20}
-              w={20}
-              resizeMode="contain"
-              alignSelf={'center'}
-              alt={'img'}
-            />
+            {heading === 'Contact Support' ? (
+              <Image
+                mt={5}
+                source={require('../../assets/email.png')}
+                h={20}
+                w={20}
+                resizeMode="contain"
+                alignSelf={'center'}
+                alt={'img'}
+              />
+            ) : (
+              <Image
+                mt={5}
+                source={require('../../assets/warning.png')}
+                h={20}
+                w={20}
+                resizeMode="contain"
+                alignSelf={'center'}
+                alt={'img'}
+              />
+            )}
+
             {heading ? (
               <Text
                 mt={2}
@@ -102,7 +115,7 @@ export default function ({
             {message ? (
               <Text
                 mt={2}
-                fontSize={14}
+                fontSize={12}
                 fontFamily={'Lexend-Light'}
                 textAlign={'center'}
                 color={'grey.400'}

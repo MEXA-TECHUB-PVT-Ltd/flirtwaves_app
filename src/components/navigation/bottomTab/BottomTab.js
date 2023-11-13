@@ -12,6 +12,7 @@ import ConnectionProblem from '../../../screens/auth/ConnectionProblem';
 import AllChats from '../../../screens/chat/AllChats';
 import FavoriteScreen from '../../../screens/favorites/Favorite';
 import Profile from '../../../screens/profile/Profile';
+import Browse from '../../../screens/browse/Browse';
 
 const Tab = createBottomTabNavigator();
 
@@ -73,7 +74,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name="Browse"
-        component={SignIn}
+        component={Browse}
         options={{
           tabBarIcon: ({focused}) => (
             <>

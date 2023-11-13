@@ -3,7 +3,7 @@ import React from 'react';
 import Header from '../../components/Header/Header';
 import FButton from '../../components/button/FButton';
 
-const Privacy = ({navigation, route}) => {
+const PrivacySettings = ({navigation, route}) => {
   const des = `The personal information that you are asked to provide, and the reasons why you are asked to provide it, will be made clear to you at the point we ask you to provide your personal information.
 If you contact us directly, we may receive additional information about you such as your name, email address, phone number, the contents of the message and/or attachments you may send us, and any other information you may choose to provide.
 When you register for an Account, we may ask for your contact information, including items such as name, company name, address, email address, and telephone number.
@@ -37,7 +37,7 @@ Note that mtechub llc has no access to or control over these cookies that are us
           fontSize={22}
           mt={3}
           fontFamily={'Lexend-SemiBold'}>
-          {`Review and accept our${'\n'}privacy policy`}
+          Privacy Policy
         </Text>
       </View>
       <ScrollView>
@@ -53,18 +53,11 @@ Note that mtechub llc has no access to or control over these cookies that are us
           variant={'Solid'}
           mt={5}
           onPress={() => {
-            navigation.navigate('SignUp');
+            navigation.goBack();
           }}
-        />
-
-        <FButton
-          label={'Continue without accepting'}
-          variant={'outline'}
-          onPress={() => navigation.navigate('SignUp')}
-          mt={5}
         />
       </View>
     </View>
   );
 };
-export default Privacy;
+export default PrivacySettings;

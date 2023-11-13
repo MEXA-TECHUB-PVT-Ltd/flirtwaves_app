@@ -287,7 +287,7 @@ function AllChats({navigation}) {
           fontSize={16}
           fontFamily={'Lexend-Medium'}
           color={'black'}>
-          Converstations
+          Messages
         </Text>
         <>
           <Box bg={'primary.20'}>

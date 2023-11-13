@@ -89,9 +89,9 @@ const OnBoarding4 = ({navigation, route}) => {
       ) : (
         <View mb={16} mx={5}>
           <Footer
-            load={'30'}
-            num={4}
-            onPress={() => navigation.navigate('AddHeight')}
+            load={'50'}
+            num={6}
+            onPress={() => navigation.navigate('OnBoarding5')}
           />
         </View>
       )}

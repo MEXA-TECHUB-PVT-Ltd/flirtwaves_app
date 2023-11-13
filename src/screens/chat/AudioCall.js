@@ -61,7 +61,7 @@ const AudioCall = ({navigation}) => {
                   alt={'volume'}
                 />
               </View>
-              <Pressable onPress={() => navigation.navigate('Chatting')}>
+              <Pressable onPress={() => navigation.goBack()}>
                 <View
                   h={16}
                   w={16}

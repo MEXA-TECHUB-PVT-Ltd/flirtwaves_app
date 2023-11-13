@@ -22,6 +22,7 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import DateComp from './components/DateComp';
 import Footer from '../../components/footer/footer';
+import RnRangeSlider from 'rn-range-slider';
 
 const AddHeight = ({navigation}) => {
   const [id, setId] = React.useState(0);
@@ -125,6 +126,7 @@ const AddHeight = ({navigation}) => {
           </View>
         </View>
       </ScrollView>
+
       <View mb={16} mx={5}>
         <Footer
           load={'40'}

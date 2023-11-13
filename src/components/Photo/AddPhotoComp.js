@@ -624,7 +624,7 @@ const AddPhotoComp = props => {
             />
           </View>
         ) : (
-          <View mb={12} mt={20}>
+          <View mb={12} mx={-3} mt={20}>
             <Footer
               load={'20'}
               num={3}
