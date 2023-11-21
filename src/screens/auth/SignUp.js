@@ -15,6 +15,8 @@ import FButton from '../../components/button/FButton';
 import FInputs from '../../components/inputs/inputs';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
 const SignUp = ({navigation}) => {
   const formSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
@@ -25,8 +27,49 @@ const SignUp = ({navigation}) => {
   });
   const handleCreate = (email, password, name) => {
     console.log(email, name, password);
+
+    auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(() => {
+        console.log('User account created & signed in!');
+      })
+      .catch(error => {
+        if (error.code === 'auth/email-already-in-use') {
+          console.log('That email address is already in use!');
+        }
+
+        if (error.code === 'auth/invalid-email') {
+          console.log('That email address is invalid!');
+        }
+
+        console.error(error);
+      });
     navigation.navigate('About');
   };
+  React.useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '826995950151-fj3s3tosc4noduuqcc387s9q0201uggh.apps.googleusercontent.com',
+    });
+    // GoogleSignin.signOut();
+  });
+  async function onGoogleButtonPress() {
+    try {
+      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+      // Get the users ID token
+      const {idToken} = await GoogleSignin.signIn();
+      console.log(idToken);
+    } catch (err) {
+      console.error(err);
+    }
+    // Check if your device supports Google Play
+
+    // Create a Google credential with the token
+    // const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+    // Sign-in the user with the credential
+    // return auth().signInWithCredential(googleCredential);
+  }
   return (
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
@@ -141,6 +184,7 @@ const SignUp = ({navigation}) => {
                   <FButton
                     label={'Continue with Google'}
                     mt={10}
+                    onPress={() => onGoogleButtonPress()}
                     variant={'secondary'}
                   />
                   <FButton

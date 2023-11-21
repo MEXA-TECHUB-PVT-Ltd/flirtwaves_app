@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "826995950151",
+    "project_id": "kirazonecompany",
+    "storage_bucket": "kirazonecompany.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:826995950151:android:2d3f5e9182edfc3efc2762",
+        "android_client_info": {
+          "package_name": "com.flirtwavesmtechub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "826995950151-fb3kkmpmc162qtg74sgtriupfsmdlet1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.flirtwavesmtechub",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "826995950151-fj3s3tosc4noduuqcc387s9q0201uggh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTwFOGGadeCw0Yd8OuiC2SK0S7hV5fKdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "826995950151-1a8uq37k99mtragpun4q86p8oodr0n8m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

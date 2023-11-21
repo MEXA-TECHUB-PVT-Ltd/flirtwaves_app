@@ -47,6 +47,7 @@ function AllChats({navigation}) {
       message: 'Okay see you soon',
       time: '12:32 AM',
       recieved: '2',
+
       status: 'online',
     },
     {
@@ -56,6 +57,7 @@ function AllChats({navigation}) {
       message: 'Thankyou Alex after interested',
       time: '12:22 AM',
       sent: '2',
+
       status: 'offline',
     },
     {
@@ -83,6 +85,7 @@ function AllChats({navigation}) {
       message: 'Okee makasih yaa waktunya',
       time: '12:08 AM',
       sent: '2',
+
       status: 'online',
     },
     {
@@ -441,6 +444,7 @@ function Basic(props) {
       name: 'Sahara Ardia Fadia',
       message: 'Okay see you soon',
       time: '12:32 AM',
+      user_id: 'D3jC7o86tNUlXH81nkIdyUb66Z23',
       recieved: '2',
       status: 'rec',
     },
@@ -449,6 +453,7 @@ function Basic(props) {
       img: require('../../assets/h2.png'),
       name: 'Zahra Putri Stephanie',
       message: 'Thankyou Alex after interested',
+      user_id: 'RtAflHv3RNdw4wETiMvvJa6IT6l2',
       time: '12:22 AM',
       sent: '2',
       status: 'sent',
@@ -514,7 +519,7 @@ function Basic(props) {
       <Pressable
         my={2}
         // borderColor={'grey.500'}
-        onPress={() => navigation.navigate('Chatting')}
+        onPress={() => navigation.navigate('Chatting', {uid: item?.user_id})}
         alignItems="center"
         bg="white"
         // borderBottomColor="trueGray.200"View
