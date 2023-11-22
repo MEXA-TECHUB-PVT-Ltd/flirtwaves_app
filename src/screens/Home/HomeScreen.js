@@ -250,7 +250,9 @@ const HomeScreen = ({navigation}) => {
                             </Pressable>
                           </Row>
                           <View>
-                            <Row>
+                            <Row
+                              alignItems={'center'}
+                              justifyContent={'space-between'}>
                               <Row alignItems={'center'}>
                                 <Text
                                   fontSize={18}
@@ -270,6 +272,23 @@ const HomeScreen = ({navigation}) => {
                                 ) : null}
                               </Row>
                             </Row>
+                            <Pressable
+                              onPress={() => {
+                                navigation.navigate('Chatting');
+                              }}
+                              bg={'primary.400'}
+                              p={2}
+                              rounded={'full'}
+                              position={'absolute'}
+                              bottom={1}
+                              right={0}>
+                              <Image
+                                source={require('../../assets/mes.png')}
+                                h={5}
+                                w={5}
+                                alt="png"
+                              />
+                            </Pressable>
                             <Box mt={2}>
                               <Row
                                 alignItems={'center'}

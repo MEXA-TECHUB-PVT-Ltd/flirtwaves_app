@@ -8,15 +8,45 @@ import FButton from '../../components/button/FButton';
 import FInputs from '../../components/inputs/inputs';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
-
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
 const SignIn = ({navigation}) => {
   const formSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string().required(`Password is required`),
   });
   const handleCreate = (email, password) => {
-    navigation.navigate('Tabs', {screen: 'Home'});
+    try {
+      auth().signInWithEmailAndPassword(email, password);
+      navigation.navigate('Tabs', {screen: 'Home'});
+    } catch (e) {
+      console.error(e);
+    }
   };
+  React.useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '826995950151-fj3s3tosc4noduuqcc387s9q0201uggh.apps.googleusercontent.com',
+    });
+    // GoogleSignin.signOut();
+  });
+  async function onGoogleButtonPress() {
+    // Check if your device supports Google Play
+    try {
+      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+      // Get the users ID token
+      const {idToken, user} = await GoogleSignin.signIn();
+      console.log(idToken, user);
+    } catch (e) {
+      console.error(e);
+    }
+
+    // Create a Google credential with the token
+    // const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+    // Sign-in the user with the credential
+    // return auth().signInWithCredential(googleCredential);
+  }
   return (
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
@@ -112,6 +142,7 @@ const SignIn = ({navigation}) => {
                     onPress={handleSubmit}
                   />
                   <FButton
+                    onPress={() => onGoogleButtonPress()}
                     label={'Continue with Google'}
                     mt={10}
                     variant={'secondary'}

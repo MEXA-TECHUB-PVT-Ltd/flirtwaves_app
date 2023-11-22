@@ -10,9 +10,16 @@ import {
   Divider,
 } from 'native-base';
 import {FlatList} from 'react-native';
-import React, {useState} from 'react';
+import React, {useLayoutEffect, useState} from 'react';
 import ChatScreen from './components/ChatScreen';
-import {useFocusEffect} from '@react-navigation/native';
+import {
+  GiftedChat,
+  Bubble,
+  Day,
+  Send,
+  InputToolbar,
+} from 'react-native-gifted-chat';
+
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AlertModal from '../../components/Modal/AlertModal';
 import BottomSheet from '../../components/bottomSheet/BottomSheet';
@@ -24,7 +31,15 @@ import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 
 import ImagePicker from 'react-native-image-crop-picker';
 import LinearGradient from 'react-native-linear-gradient';
-const Chatting = ({navigation}) => {
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import {useFocusEffect, useIsFocused} from '@react-navigation/native';
+
+const Chatting = ({navigation, route}) => {
+  const otherid = route?.params?.uid;
+
+  const {uid} = auth().currentUser;
+
   const scrollRef = React.useRef(null);
   const [focus, setFocus] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
@@ -33,23 +48,42 @@ const Chatting = ({navigation}) => {
   const bottomSheetRef1 = React.useRef(null);
   const [chat, setChat] = useState([
     {
-      id: 1,
-      sent: 'Hi Alex, nice to meet you and thanks for add me',
-      time: '12:02 Am',
-      image: '',
+      _id: otherid,
+      text: 'Hi Alex, nice to meet you and thanks for add me',
+      createdAt: new Date(),
+      user: {
+        _id: uid,
+        name: 'React Native',
+      },
     },
     {
-      id: 2,
-      recieved: 'Hi Sahara, your welcome nice to meet you too',
-      time: '12:04 Am',
-      image: '',
+      _id: 2,
+      text: 'Hi Sahara, your welcome nice to meet you too',
+      createdAt: new Date(),
+      user: {
+        _id: 1,
+        name: 'You',
+      },
     },
     {
-      id: 3,
-      sent: 'Okay by the way, can you meet me today ?',
-      time: '12:04 Am',
-      image: '',
+      _id: 3,
+      text: 'Okay by the way, can you meet me today ?',
+      createdAt: new Date(),
+      user: {
+        _id: 2,
+        name: 'React Native',
+      },
     },
+    {
+      _id: 4,
+      text: 'Of course dude!',
+      createdAt: new Date(),
+      user: {
+        _id: 1,
+        name: 'You',
+      },
+    },
+    // Add more messages here...
   ]);
   const emojiData = [
     '😀',
@@ -113,13 +147,50 @@ const Chatting = ({navigation}) => {
     '🤠',
     // Add more emojis as needed
   ];
-
+  const isFocused = useIsFocused();
   React.useEffect(() => {
-    if (focus === true) {
-      flatListRef.current.scrollToEnd();
-    }
-    console.log('focus', focus);
-  }, [focus, focus]);
+    AllMessages();
+  }, [isFocused]);
+  const AllMessages = async () => {
+    // var user = await AsyncStorage.getItem('Userid');
+    const doc_id =
+      route.params.uid > uid
+        ? uid + '-' + route.params.uid
+        : route.params.uid + '-' + uid;
+
+    console.log('doc_id  :  ', doc_id);
+
+    const messageRef = firestore()
+      .collection('chats')
+      .doc(doc_id)
+      .collection('messages')
+      .orderBy('createdAt', 'desc');
+
+    messageRef.onSnapshot(querySnap => {
+      const allmsg = querySnap?.docs?.map(docsnap => {
+        const data = docsnap.data();
+        if (data.createdAt) {
+          return {
+            ...docsnap.data(),
+            createdAt: docsnap.data().createdAt.toDate(),
+          };
+        } else {
+          return {
+            ...docsnap.data(),
+            createdAt: new Date(),
+          };
+        }
+      });
+      //  setLoading(false);
+      //  setCount(count + 1);
+
+      setChat(allmsg);
+    });
+    // setTimeout(() => {
+    //   setLoading(false);
+    // }, 2000);
+  };
+
   const openBottomSheet = id => {
     if (bottomSheetRef.current) {
       bottomSheetRef.current.open();
@@ -186,27 +257,120 @@ const Chatting = ({navigation}) => {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+
+    return `${hours}:${minutes}:${seconds}`;
   };
 
   const flatListRef = React.useRef(null);
   const [message, setMessage] = React.useState('');
-  useFocusEffect(
-    React.useCallback(() => {
-      flatListRef.current.scrollToEnd();
-    }, [focus, chat, message]),
-  );
-  React.useEffect(() => {
-    flatListRef.current.scrollToEnd();
-  }, [focus, chat, message]);
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     updateUnreadMessages();
+  //   }, []),
+  // );
 
-  const sendMessage = () => {
-    const newMessage = {
-      recieved: message,
-      time: getCurrentTime(),
+  // const updateUnreadMessages = async () => {
+  //   try {
+  //     // var user = await AsyncStorage.getItem('Userid');
+  //     let docid = '';
+
+  //       docid =
+  //         route.params.userid > user
+  //           ? user + '-' + route.params.userid
+  //           : route.params.userid + '-' + user;
+
+  //     let updated = false;
+  //     const messagesList = firestore()
+  //       .collection('chats')
+  //       .doc(docid)
+  //       .collection('messages');
+  //     // console.log("ORDER_ITEMS  :  ", ORDER_ITEMS);
+  //     messagesList
+  //       .where('read', '==', false)
+  //       .get()
+  //       .then(snapshots => {
+  //         if (snapshots.size > 0) {
+  //           snapshots.forEach(message => {
+  //             if (message?._data?.user?._id != user) {
+  //               messagesList.doc(message?.id).update({
+  //                 read: true,
+  //               });
+
+  //               if (!updated) {
+  //                 dispatch(setChatCount(0));
+  //                 let prevChatList = chatList;
+  //                 const newData = prevChatList?.map(item => {
+  //                   if (item?.user?.id == message?._data?.user?._id) {
+  //                     return {
+  //                       ...item,
+  //                       count: 0,
+  //                     };
+  //                   } else {
+  //                     return {
+  //                       ...item,
+  //                     };
+  //                   }
+  //                 });
+  //                 dispatch(setChatList(newData));
+
+  //                 updated = true;
+  //               } else {
+  //                 // console.log("else not updated....", updated);
+  //               }
+  //             } else {
+  //               // console.log("else called......");
+  //             }
+  //           });
+  //         }
+  //       });
+  //   } catch (error) {}
+  // };
+  const sendMessage = mes => {
+    console.log(mes[0]);
+    let newmes = mes[0];
+    // const newMessage = {
+    //   user_id: uid,
+    //   receiver: {
+    //     userid: otherid,
+    //     message: message,
+    //     status: 'received',
+    //   },
+    //   recieved: message,
+    //   status: 'sent',
+    //   time: getCurrentTime(),
+    // };
+    let docid =
+      route.params.uid > uid
+        ? uid + '-' + route.params.uid
+        : route.params.uid + '-' + uid;
+    let myMsg = {
+      ...newmes,
+
+      _id: `${uid}-${otherid}${chat?.length + 1}`,
+      // text_image: 'image',
+      //type: "image_text",
+      senderId: uid,
+      receiverId: otherid,
+      read: false,
+      user: {
+        _id: uid,
+        name: 'ali',
+      },
     };
-    setChat(previousMessage => [...previousMessage, newMessage]);
-    console.log('new', newMessage);
+
+    setChat(previousMessages => GiftedChat.append(previousMessages, myMsg));
+
+    firestore()
+      .collection('chats')
+      .doc(docid)
+      .collection('messages')
+      .add({
+        ...myMsg,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      });
+    // setChat(previousMessage => [...previousMessage, newMessage]);
+    console.log('new', myMsg);
   };
 
   const renderConversation = ({item}) => {
@@ -281,27 +445,64 @@ const Chatting = ({navigation}) => {
       </View>
     );
   };
-
-  return (
-    <View bg={'white'} flex={1}>
-      <View mx={5} mt={5}>
-        <ChatScreen />
-      </View>
-      <Divider opacity={0.2} mt={2} />
-      <View mx={5} mt={5} mb={16} flex={1}>
-        <FlatList
-          data={chat}
-          ref={flatListRef}
-          showsVerticalScrollIndicator={false}
-          renderItem={renderConversation}
-          keyExtractor={(item, index) => index.toString()}
-          onContentSizeChange={() => flatListRef.current.scrollToEnd()}
-          onLayout={() => flatListRef.current.scrollToEnd()}
-        />
-      </View>
-      {/* <View mt={5}> */}
-      <Row alignItems={'center'} position={'absolute'} bottom={3} mx={5}>
-        <Input
+  const renderBubble = props => {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          left: {
+            width: '80%',
+            padding: 8,
+            marginVertical: 10,
+            backgroundColor: '#FDF2CD', // Customize the color for left messages
+          },
+          right: {
+            width: '80%',
+            padding: 8,
+            backgroundColor: '#F3F3F3',
+            // Customize the color for right messages
+          },
+        }}
+        textStyle={{
+          left: {
+            color: 'black',
+          },
+          right: {
+            color: 'black',
+          },
+        }}
+        tickStyle={{
+          backgroundColor: 'black',
+        }}
+        renderTicks={true}
+      />
+    );
+  };
+  const CustomInputToolbar = props => {
+    return (
+      <InputToolbar
+        {...props}
+        containerStyle={{
+          //   backgroundColor: 'red',
+          height: 52,
+          borderColor: '#f5bf03',
+          // borderTopColor: '#ccc',
+          borderWidth: 0.3,
+          borderRadius: 12,
+          marginLeft: 5,
+          width: '80%',
+          // position: 'absolute',
+          // top: 0,
+          left: 2,
+          bottom: -50,
+          marginTop: 2,
+          // paddingLeft: 25,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'white',
+        }}
+        textInputStyle={{color: 'black'}}>
+        {/* <Input
           bg={'white'}
           _focus={{bg: 'white', borderColor: 'primary.400'}}
           placeholder={'Type a message'}
@@ -317,7 +518,7 @@ const Chatting = ({navigation}) => {
             setFocus(true);
           }}
           onBlur={() => {
-            setFocus(false);
+            setFocus(false)
           }}
           borderWidth={1}
           borderRadius={12}
@@ -359,7 +560,88 @@ const Chatting = ({navigation}) => {
           //     />
           //   </Pressable>
           // }
+        /> */}
+      </InputToolbar>
+    ); // This will remove the input message box
+  };
+  const renderSend = props => {
+    return (
+      <Send
+        {...props}
+        containerStyle={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: 48,
+          width: 48,
+          borderRadius: 10,
+          position: 'absolute',
+          bottom: 0,
+          right: -50,
+          // backgroundColor: 'white',
+          // shadowColor: '#000',
+          // shadowOffset: {
+          //   width: 0,
+          //   height: 2,
+          // },
+          // shadowOpacity: 0.25,
+          // shadowRadius: 3.84,
+          // elevation: 5,
+        }}>
+        {/* <Pressable
+          position={'absolute'}
+          right={0}
+          onPress={() => {
+            sendMessage();
+          }}> */}
+        <View>
+          <Image
+            source={require('../../assets/send.png')}
+            h={10}
+            w={10}
+            alt={'img'}
+            ml={2}
+          />
+        </View>
+        {/* </Pressable> */}
+      </Send>
+    );
+  };
+  return (
+    <View bg={'white'} flex={1}>
+      <View mx={5} mt={5}>
+        <ChatScreen />
+      </View>
+      <Divider opacity={0.2} mt={2} />
+      <View mx={5} mt={5} mb={16} flex={1}>
+        <GiftedChat
+          alwaysShowSend
+          messages={chat}
+          onSend={messages => sendMessage(messages)}
+          user={{
+            _id: uid,
+          }}
+          custontext={{}}
+          renderSend={renderSend}
+          renderBubble={renderBubble}
+          renderAvatar={null}
+          renderInputToolbar={CustomInputToolbar}
+          messagesContainerStyle={{
+            backgroundColor: 'white',
+          }}
+          alignTop={true}
         />
+        {/* <FlatList
+          data={chat}
+          ref={flatListRef}
+          showsVerticalScrollIndicator={false}
+          renderItem={renderConversation}
+          keyExtractor={(item, index) => index.toString()}
+          onContentSizeChange={() => flatListRef.current.scrollToEnd()}
+          onLayout={() => flatListRef.current.scrollToEnd()}
+        /> */}
+      </View>
+      {/* <View mt={5}> */}
+      {/* <Row alignItems={'center'} position={'absolute'} bottom={3} mx={5}>
         <Pressable
           onPress={() => {
             sendMessage();
@@ -372,7 +654,7 @@ const Chatting = ({navigation}) => {
             ml={2}
           />
         </Pressable>
-      </Row>
+      </Row> */}
       <BottomSheet
         defaultOff={true}
         height={'20%'}
