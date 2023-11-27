@@ -17,34 +17,43 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
+import {usePostUserMutation} from '../../redux/apis/auth';
+import {setUserData} from '../../redux/slices/auth';
+import {useDispatch, useSelector} from 'react-redux';
 const SignUp = ({navigation}) => {
+  const dispatch = useDispatch();
+  const [createUser, {data: isData, isLoading}] = usePostUserMutation();
+
   const formSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
-    password: Yup.string().required(`Password is required`),
+    password: Yup.string()
+      .required(`Password is required`)
+      .matches(
+        /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?\/\\~-])[A-Za-z\d!@#$%^&*()_+{}\[\]:;<>,.?\/\\~-]{8,}$/,
+        `Password must contain at least 8 characters,${'\n'}including one letter one number one special charcter,`,
+      ),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('password'), null], 'Passwords must match')
       .required('Confirm password is required'),
   });
   const handleCreate = (email, password, name) => {
-    console.log(email, name, password);
+    try {
+      let body = {
+        email,
+        password,
 
-    auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        console.log('User account created & signed in!');
-      })
-      .catch(error => {
-        if (error.code === 'auth/email-already-in-use') {
-          console.log('That email address is already in use!');
+        signup_type: 'email',
+      };
+      createUser(body).then(res => {
+        console.log(res?.data?.error);
+        if (res?.data?.error === false) {
+          dispatch(setUserData(res?.data?.data));
+          navigation.navigate('About');
         }
-
-        if (error.code === 'auth/invalid-email') {
-          console.log('That email address is invalid!');
-        }
-
-        console.error(error);
       });
-    navigation.navigate('About');
+    } catch (e) {
+      console.log(e);
+    }
   };
   React.useEffect(() => {
     GoogleSignin.configure({
@@ -138,8 +147,9 @@ const SignUp = ({navigation}) => {
                   />
                   {errors.password && (
                     <View>
-                      <View flexDir={'row'} alignItems={'center'} mt={1}>
+                      <View flexDir={'row'} mt={1}>
                         <View
+                          mt={1.5}
                           bg={'red.500'}
                           h={2}
                           w={2}
@@ -177,6 +187,7 @@ const SignUp = ({navigation}) => {
 
                 <View mt={10}>
                   <FButton
+                    loading={isLoading}
                     label={'Continue'}
                     variant={'Solid'}
                     onPress={handleSubmit}

@@ -29,6 +29,7 @@ const FInputs = props => {
         type={show === true ? props?.type : 'text'}
         placeholder={props.placeholder}
         value={props.value}
+        autoCapitalize="none"
         borderWidth={1}
         onFocus={() => {
           setFocused(true);

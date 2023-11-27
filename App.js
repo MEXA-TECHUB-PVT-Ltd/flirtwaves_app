@@ -4,6 +4,8 @@ import {Text} from 'react-native';
 import OnBoarding from './src/screens/auth/onBoarding';
 import Privacy from './src/screens/auth/Privacy';
 import MainStack from './src/components/navigation/MainStack';
+import {Provider} from 'react-redux';
+import {store} from './src/redux/store';
 
 // import JdButton from './src/components/button/Buttons';
 // import JdInputs from './src/components/inputs/inputs';
@@ -121,8 +123,10 @@ export default function () {
   });
 
   return (
-    <NativeBaseProvider theme={theme}>
-      <MainStack />
-    </NativeBaseProvider>
+    <Provider store={store}>
+      <NativeBaseProvider theme={theme}>
+        <MainStack />
+      </NativeBaseProvider>
+    </Provider>
   );
 }

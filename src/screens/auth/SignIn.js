@@ -10,18 +10,35 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
+import {useDispatch, useSelector} from 'react-redux';
+import {useLoginUserMutation} from '../../redux/apis/auth';
+import {setUserData} from '../../redux/slices/auth';
 const SignIn = ({navigation}) => {
+  const disptach = useDispatch();
+  const [loginUser, {data, isError, isLoading}] = useLoginUserMutation();
+
   const formSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string().required(`Password is required`),
   });
+  const [error, setError] = React.useState();
+  const [emailError, setEmailError] = React.useState();
   const handleCreate = (email, password) => {
-    try {
-      auth().signInWithEmailAndPassword(email, password);
-      navigation.navigate('Tabs', {screen: 'Home'});
-    } catch (e) {
-      console.error(e);
-    }
+    let body = {
+      email,
+      password,
+    };
+    loginUser(body).then(res => {
+      console.log('res', res);
+      if (res?.data?.error === false) {
+        disptach(setUserData(res?.data?.data));
+        navigation.navigate('Tabs', {screen: 'Home'});
+      } else if (res?.error?.data?.msg === 'Invalid password') {
+        setError(res?.error?.data?.msg);
+      } else {
+        setEmailError(res?.error?.data?.msg);
+      }
+    });
   };
   React.useEffect(() => {
     GoogleSignin.configure({
@@ -47,6 +64,7 @@ const SignIn = ({navigation}) => {
     // Sign-in the user with the credential
     // return auth().signInWithCredential(googleCredential);
   }
+  console.log(isError);
   return (
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
@@ -83,7 +101,7 @@ const SignIn = ({navigation}) => {
                     onChangeText={handleChange('email')}
                     value={values.email}
                   />
-                  {errors.email && (
+                  {errors.email || isError === true ? (
                     <View flexDir={'row'} alignItems={'center'} mt={1}>
                       <View
                         bg={'red.500'}
@@ -92,10 +110,10 @@ const SignIn = ({navigation}) => {
                         rounded={'full'}
                         mx={1}></View>
                       <Text color={'red.500'} fontSize={12}>
-                        {errors.email}
+                        {errors.email ? errors?.email : emailError}
                       </Text>
                     </View>
-                  )}
+                  ) : null}
                 </View>
 
                 <View mt={5}>
@@ -106,7 +124,8 @@ const SignIn = ({navigation}) => {
                     rightIcon
                     type={'password'}
                   />
-                  {errors.password && (
+                  {errors?.password ||
+                  (isError === true && error !== undefined) ? (
                     <View>
                       <View flexDir={'row'} alignItems={'center'} mt={1}>
                         <View
@@ -116,11 +135,11 @@ const SignIn = ({navigation}) => {
                           rounded={'full'}
                           mx={1}></View>
                         <Text color={'red.500'} fontSize={12}>
-                          {errors.password}
+                          {errors?.password ? errors?.password : error}
                         </Text>
                       </View>
                     </View>
-                  )}
+                  ) : null}
                 </View>
                 <Pressable
                   onPress={() => {
@@ -137,6 +156,7 @@ const SignIn = ({navigation}) => {
                 </Pressable>
                 <View mt={10}>
                   <FButton
+                    loading={isLoading}
                     label={'Continue'}
                     variant={'Solid'}
                     onPress={handleSubmit}
