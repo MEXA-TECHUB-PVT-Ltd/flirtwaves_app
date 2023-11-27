@@ -1,4 +1,5 @@
 import React from 'react';
+import {ActivityIndicator} from 'react-native';
 import {Text, View, Button, Image, Icon} from 'native-base';
 const FButton = props => {
   return (
@@ -39,7 +40,11 @@ const FButton = props => {
             ))
           }
           borderRadius={10}>
-          {props?.label}
+          {props?.loading ? (
+            <ActivityIndicator size={'small'} color={'black'} />
+          ) : (
+            `${props?.label}`
+          )}
         </Button>
       ) : null}
       {props?.variant === 'Solid' && (
@@ -64,7 +69,11 @@ const FButton = props => {
               />
             )
           }>
-          {props?.label}
+          {props?.loading ? (
+            <ActivityIndicator size={'small'} color={'black'} />
+          ) : (
+            `${props?.label}`
+          )}
         </Button>
       )}
       {props?.variant === 'outline' && (
@@ -78,7 +87,11 @@ const FButton = props => {
             fontFamily: 'Lexend-Regular',
           }}
           borderRadius={12}>
-          {props?.label}
+          {props?.loading ? (
+            <ActivityIndicator size={'small'} color={'black'} />
+          ) : (
+            `${props?.label}`
+          )}
         </Button>
       )}
     </View>
