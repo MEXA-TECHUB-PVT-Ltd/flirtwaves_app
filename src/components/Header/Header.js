@@ -5,8 +5,13 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import {useNavigation} from '@react-navigation/native';
+import {useUpdateUserProfileMutation} from '../../redux/apis/auth';
+import {useSelector} from 'react-redux';
 
 const Header = props => {
+  const uid = useSelector(state => state.auth?.userData?.id);
+  const userProfile = useSelector(state => state.auth?.userProfile);
+  const [updateUser, {isError}] = useUpdateUserProfileMutation();
   const navigation = useNavigation();
   return (
     <View
@@ -41,8 +46,17 @@ const Header = props => {
             <>
               {props?.right ? (
                 <Pressable
-                  onPress={() => {
-                    navigation.navigate('Tabs', {screen: 'Home'});
+                  onPress={async () => {
+                    let body = {
+                      id: uid,
+                      date: userProfile,
+                    };
+                    updateUser(body).then(res => {
+                      console.log(res);
+                      if (res?.data?.error === false) {
+                        navigation.navigate('Tabs', {screen: 'Home'});
+                      }
+                    });
                   }}>
                   <Text fontSize={16} underline fontFamily={'Lexend-Medium'}>
                     Skip

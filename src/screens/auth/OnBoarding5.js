@@ -19,10 +19,14 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import DateComp from './components/DateComp';
 import Footer from '../../components/footer/footer';
+import {useDispatch, useSelector} from 'react-redux';
+import {setUserProfile} from '../../redux/slices/auth';
 
 const OnBoarding5 = ({navigation, route}) => {
   const [id, setId] = React.useState(0);
   const fromEdit = route?.params?.fromEdit;
+  const dispatch = useDispatch();
+  const userProfile = useSelector(state => state.auth?.userProfile);
   const data = [
     {
       id: 1,
@@ -35,7 +39,19 @@ const OnBoarding5 = ({navigation, route}) => {
     {id: 3, name: `I know a few good recipes`},
     {id: 4, name: `I’m an excellent chef`},
   ];
+  const handleNavigation = async () => {
+    if (id) {
+      const data = {...userProfile, cooking_skills: id?.name};
+      console.log('data', data);
+      await dispatch(setUserProfile(data));
 
+      if (fromEdit === true) {
+        navigation.goBack();
+      } else {
+        navigation.navigate('OnBoarding6');
+      }
+    }
+  };
   return (
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
@@ -57,19 +73,19 @@ const OnBoarding5 = ({navigation, route}) => {
                   p={2}
                   mb={5}
                   onPress={() => {
-                    setId(item?.id);
+                    setId(item);
                   }}
                   //   key={item?.id}
                   alignItems={'center'}
-                  borderColor={id === item?.id ? 'primary.400' : null}
-                  borderWidth={id === item?.id ? 1 : null}
+                  borderColor={id?.id === item?.id ? 'primary.400' : null}
+                  borderWidth={id?.id === item?.id ? 1 : null}
                   justifyContent={'center'}>
                   <Text
                     fontSize={16}
                     fontFamily={
-                      id === item?.id ? 'Lexend-Regular' : 'Lexend-Light'
+                      id?.id === item?.id ? 'Lexend-Regular' : 'Lexend-Light'
                     }
-                    color={id === item?.id ? 'black' : 'grey.400'}
+                    color={id?.id === item?.id ? 'black' : 'grey.400'}
                     textAlign={'center'}>
                     {item?.name}
                   </Text>
@@ -84,16 +100,12 @@ const OnBoarding5 = ({navigation, route}) => {
           <FButton
             label={'Save Changes'}
             variant={'Solid'}
-            onPress={() => navigation.goBack()}
+            onPress={() => handleNavigation()}
           />
         </View>
       ) : (
         <View mb={16} mx={5}>
-          <Footer
-            load={'60'}
-            num={7}
-            onPress={() => navigation.navigate('OnBoarding6')}
-          />
+          <Footer load={'60'} num={7} onPress={() => handleNavigation()} />
         </View>
       )}
     </View>

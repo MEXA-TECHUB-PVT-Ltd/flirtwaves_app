@@ -22,8 +22,9 @@ import {setUserData} from '../../redux/slices/auth';
 import {useDispatch, useSelector} from 'react-redux';
 const SignUp = ({navigation}) => {
   const dispatch = useDispatch();
-  const [createUser, {data: isData, isLoading}] = usePostUserMutation();
-
+  const [createUser, {data: isData, isLoading, isError}] =
+    usePostUserMutation();
+  const [error, setError] = React.useState();
   const formSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string()
@@ -45,10 +46,12 @@ const SignUp = ({navigation}) => {
         signup_type: 'email',
       };
       createUser(body).then(res => {
-        console.log(res?.data?.error);
+        console.log(res);
         if (res?.data?.error === false) {
           dispatch(setUserData(res?.data?.data));
           navigation.navigate('About');
+        } else {
+          setError(res?.error?.data?.msg);
         }
       });
     } catch (e) {
@@ -122,7 +125,7 @@ const SignUp = ({navigation}) => {
                     onChangeText={handleChange('email')}
                     value={values.email}
                   />
-                  {errors.email && (
+                  {errors.email || error ? (
                     <View flexDir={'row'} alignItems={'center'} mt={1}>
                       <View
                         bg={'red.500'}
@@ -131,10 +134,10 @@ const SignUp = ({navigation}) => {
                         rounded={'full'}
                         mx={1}></View>
                       <Text color={'red.500'} fontSize={12}>
-                        {errors.email}
+                        {errors.email ? errors?.email : error}
                       </Text>
                     </View>
-                  )}
+                  ) : null}
                 </View>
 
                 <View mt={5}>

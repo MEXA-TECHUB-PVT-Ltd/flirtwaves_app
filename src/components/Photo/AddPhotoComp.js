@@ -21,9 +21,17 @@ import FButton from '../button/FButton';
 import {useNavigation} from '@react-navigation/native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Footer from '../footer/footer';
+import {useDispatch, useSelector} from 'react-redux';
+import {setUserProfile} from '../../redux/slices/auth';
+import {useUpdateUserProfileMutation} from '../../redux/apis/auth';
 
 const AddPhotoComp = props => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const [updateProfile, {isLoading}] = useUpdateUserProfileMutation();
+  const uid = useSelector(state => state.auth?.userData?.id);
+  const userProfile = useSelector(state => state.auth?.userProfile);
+
   const bottomSheetRef = React.useRef(null);
   const [active, setActive] = React.useState(false);
   const [id, setId] = React.useState();
@@ -38,6 +46,8 @@ const AddPhotoComp = props => {
   const [imgurl8, setImgurl8] = React.useState();
   const [camera, setCamera] = React.useState();
   const [imageUrl, setImageUrl] = React.useState();
+  const [imgArray, setImgarray] = React.useState([]);
+
   const openBottomSheet = uid => {
     setId(uid);
     setChange(uid);
@@ -194,6 +204,87 @@ const AddPhotoComp = props => {
       console.log('1');
     }
   }, [props?.slide]);
+
+  React.useEffect(() => {
+    // if(id===1){
+
+    // }
+    switch (id) {
+      case 1:
+        setImgarray([...imgArray, imageUrl]);
+
+        break;
+
+      case 2:
+        setImgarray([...imgArray, imgurl1]);
+
+        break;
+
+      case 3:
+        setImgarray([...imgArray, imgurl2]);
+
+        break;
+
+      case 4:
+        setImgarray([...imgArray, imgurl3]);
+
+        break;
+
+      case 5:
+        setImgarray([...imgArray, imgurl4]);
+        break;
+
+      case 6:
+        setImgarray([...imgArray, imgurl5]);
+
+        break;
+
+      case 7:
+        setImgarray([...imgArray, imgurl6]);
+
+        break;
+
+      case 8:
+        setImgarray([...imgArray, imgurl7]);
+        setId();
+        break;
+
+      case 9:
+        setImgarray([...imgArray, imgurl8]);
+        setId();
+        break;
+
+      // code block
+    }
+  }, [
+    imageUrl,
+    imgurl1,
+    imgurl2,
+    imgurl3,
+    imgurl4,
+    imgurl5,
+    imgurl6,
+    imgurl7,
+    imgurl8,
+  ]);
+  console.log(imgArray);
+  const handleNavigation = async () => {
+    if (imgArray.length > 0) {
+      const data = {...userProfile, image: imageUrl};
+      let body = {
+        id: uid,
+        data: data,
+      };
+      console.log(body);
+      updateProfile(body).then(async res => {
+        console.log(res);
+        if (res?.data?.error === false) {
+          await dispatch(setUserProfile(data));
+          navigation.navigate('OnBoarding3');
+        }
+      });
+    }
+  };
   return (
     <>
       <View flex={1} alignSelf={'center'}>
@@ -642,7 +733,7 @@ const AddPhotoComp = props => {
                 ) {
                   setActive(true);
                 } else {
-                  navigation.navigate('OnBoarding3');
+                  handleNavigation();
                 }
               }}
             />

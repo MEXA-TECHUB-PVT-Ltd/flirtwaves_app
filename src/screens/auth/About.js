@@ -19,16 +19,32 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import DateComp from './components/DateComp';
 import Footer from '../../components/footer/footer';
+import {useDispatch, useSelector} from 'react-redux';
+import {useUpdateUserProfileMutation} from '../../redux/apis/auth';
+import {setUserProfile} from '../../redux/slices/auth';
 
 const About = ({navigation}) => {
+  const uid = useSelector(state => state.auth?.userData?.id);
+  const [updateProfile, {isLoading}] = useUpdateUserProfileMutation();
+  const dispatch = useDispatch();
+
   const formSchema = Yup.object().shape({
     name: Yup.string().required('Full Name is required'),
   });
-  const handleCreate = name => {
-    console.log(name);
-    navigation.navigate('Looking');
-  };
   const [id, setId] = React.useState(0);
+  const [dob, setDob] = React.useState();
+  const handleCreate = async name => {
+    if (id !== 0 && dob) {
+      let body = {
+        gender: id === 1 ? 'male' : 'female',
+        name: name,
+        dob: dob,
+      };
+      console.log(body);
+      await dispatch(setUserProfile(body));
+      navigation.navigate('Looking');
+    }
+  };
   return (
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
@@ -77,7 +93,12 @@ const About = ({navigation}) => {
                     </View>
                   )}
                 </View>
-                <DateComp />
+                <DateComp
+                  SavePress={ok => {
+                    console.log('SavePress', ok);
+                    setDob(ok);
+                  }}
+                />
                 <View mt={5}>
                   <Text
                     color={'primary.400'}
@@ -161,7 +182,12 @@ const About = ({navigation}) => {
                   </Row>
                 </View>
                 <View mt={'30%'}>
-                  <Footer load={'10'} num={1} onPress={handleSubmit} />
+                  <Footer
+                    load={'10'}
+                    num={1}
+                    onPress={handleSubmit}
+                    loading={isLoading}
+                  />
                 </View>
               </View>
             )}

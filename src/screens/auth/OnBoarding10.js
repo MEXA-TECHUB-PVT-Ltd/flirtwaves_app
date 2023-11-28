@@ -20,10 +20,19 @@ import * as Yup from 'yup';
 import DateComp from './components/DateComp';
 import Footer from '../../components/footer/footer';
 import AlertModal from '../../components/Modal/AlertModal';
+import {setUserProfile} from '../../redux/slices/auth';
+import {panHandlerName} from 'react-native-gesture-handler/lib/typescript/handlers/PanGestureHandler';
+import {useDispatch, useSelector} from 'react-redux';
+import {useUpdateUserProfileMutation} from '../../redux/apis/auth';
 
 const OnBoarding10 = ({navigation, route}) => {
   const fromEdit = route?.params?.fromEdit;
   const [id, setId] = React.useState(0);
+  const uid = useSelector(state => state.auth?.userData?.id);
+  const dispatch = useDispatch();
+  const userProfile = useSelector(state => state.auth?.userProfile);
+  const [updateUser, {isError}] = useUpdateUserProfileMutation();
+
   const data = [
     {
       id: 1,
@@ -40,6 +49,26 @@ const OnBoarding10 = ({navigation, route}) => {
     {id: 7, name: `halal`},
   ];
   const [visible, setVisible] = React.useState(false);
+  const handleNavigation = async () => {
+    if (id) {
+      const data = {...userProfile, eating_habits: id?.name};
+      console.log('data', data);
+      await dispatch(setUserProfile(data));
+
+      if (fromEdit === true) {
+        navigation.goBack();
+      } else {
+        let body = {
+          id: uid,
+          date: userProfile,
+        };
+        updateUser(body).then(res => {
+          console.log(res);
+          setVisible(true);
+        });
+      }
+    }
+  };
   return (
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
@@ -61,19 +90,19 @@ const OnBoarding10 = ({navigation, route}) => {
                 p={2}
                 mb={5}
                 onPress={() => {
-                  setId(item?.id);
+                  setId(item);
                 }}
                 //   key={item?.id}
                 alignItems={'center'}
-                borderColor={id === item?.id ? 'primary.400' : null}
-                borderWidth={id === item?.id ? 1 : null}
+                borderColor={id?.id === item?.id ? 'primary.400' : null}
+                borderWidth={id?.id === item?.id ? 1 : null}
                 justifyContent={'center'}>
                 <Text
                   fontSize={16}
                   fontFamily={
-                    id === item?.id ? 'Lexend-Regular' : 'Lexend-Light'
+                    id?.id === item?.id ? 'Lexend-Regular' : 'Lexend-Light'
                   }
-                  color={id === item?.id ? 'black' : 'grey.400'}
+                  color={id?.id === item?.id ? 'black' : 'grey.400'}
                   textAlign={'center'}>
                   {item?.name}
                 </Text>
@@ -88,12 +117,12 @@ const OnBoarding10 = ({navigation, route}) => {
           <FButton
             label={'Save Changes'}
             variant={'Solid'}
-            onPress={() => navigation.goBack()}
+            onPress={() => handleNavigation()}
           />
         </View>
       ) : (
         <View mb={16} mx={5}>
-          <Footer load={'100'} num={12} onPress={() => setVisible(true)} />
+          <Footer load={'100'} num={12} onPress={() => handleNavigation()} />
         </View>
       )}
       <AlertModal

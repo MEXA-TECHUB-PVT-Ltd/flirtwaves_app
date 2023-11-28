@@ -6,6 +6,7 @@ import Privacy from './src/screens/auth/Privacy';
 import MainStack from './src/components/navigation/MainStack';
 import {Provider} from 'react-redux';
 import {store} from './src/redux/store';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 // import JdButton from './src/components/button/Buttons';
 // import JdInputs from './src/components/inputs/inputs';

@@ -45,14 +45,38 @@ const styles = StyleSheet.create({
 
 const CELL_COUNT = 4;
 
-const VerifyOtp = ({navigation}) => {
+const VerifyOtp = ({navigation, route}) => {
   const [value, setValue] = useState('');
+  const otp = route?.params?.otp;
+  const email = route?.params?.email;
+  const [otpError, setOtpError] = React.useState();
+  const [loading, setLoading] = useState(false);
   const ref = useBlurOnFulfill({value, cellCount: CELL_COUNT});
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({
     value,
     setValue,
   });
-
+  React.useEffect(() => {
+    if (loading === true) {
+      setTimeout(() => {
+        setLoading(false);
+      }, 2000);
+    }
+    if (value === '') {
+      setOtpError();
+    }
+  });
+  const handleVerify = () => {
+    if (value !== '' || value !== ' ') {
+      console.log(value);
+      if (otp === value) {
+        setLoading(true);
+        navigation.navigate('ResetPassword', {email: email});
+      } else {
+        setOtpError('Invalid Otp');
+      }
+    }
+  };
   return (
     <View flex={1} bg={'primary.20'}>
       <View position={'absolute'} top={0} left={0}>
@@ -71,6 +95,7 @@ const VerifyOtp = ({navigation}) => {
         <CodeField
           ref={ref}
           {...props}
+          autoFocus={true}
           // Use `caretHidden={false}` when users can't paste a text value, because context menu doesn't appear
           value={value}
           onChangeText={setValue}
@@ -87,13 +112,26 @@ const VerifyOtp = ({navigation}) => {
             </Text>
           )}
         />
-
+        {otpError && (
+          <View
+            flexDir={'row'}
+            alignItems={'center'}
+            mt={2}
+            ml={1}
+            alignSelf={'center'}>
+            <View bg={'red.500'} h={2} w={2} rounded={'full'} mr={1}></View>
+            <Text color={'red.500'} fontSize={14}>
+              {otpError}
+            </Text>
+          </View>
+        )}
         <View mx={5} mb={5} mt={'50%'}>
           <FButton
+            loading={loading}
             label={'Verify'}
             variant={'Solid'}
             onPress={() => {
-              navigation.navigate('ResetPassword');
+              handleVerify();
             }}
           />
         </View>
