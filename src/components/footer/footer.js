@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, ActivityIndicator} from 'react-native';
 import {Pressable, Text, View, Row} from 'native-base';
 import React from 'react';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -30,7 +30,11 @@ const Footer = props => {
           borderRadius={10}
           p={1}
           onPress={() => props?.onPress()}>
-          <Entypo name={'chevron-right'} size={30} color={'black'} />
+          {props?.loading ? (
+            <ActivityIndicator size={'small'} color={'black'} />
+          ) : (
+            <Entypo name={'chevron-right'} size={30} color={'black'} />
+          )}
         </Pressable>
       </Row>
 

@@ -19,9 +19,13 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import DateComp from './components/DateComp';
 import Footer from '../../components/footer/footer';
+import {useDispatch, useSelector} from 'react-redux';
+import {setUserProfile} from '../../redux/slices/auth';
 
 const OnBoarding3 = ({navigation, route}) => {
   const fromEdit = route?.params?.fromEdit;
+  const userProfile = useSelector(state => state.auth?.userProfile);
+  const dispatch = useDispatch();
   const [id, setId] = React.useState(0);
   const data = [
     {
@@ -34,7 +38,14 @@ const OnBoarding3 = ({navigation, route}) => {
     },
     {id: 3, name: `I'll know when i find it`},
   ];
-
+  const handleNavigation = async () => {
+    if (id) {
+      const data = {...userProfile, looking_for: id?.name};
+      console.log(data);
+      await dispatch(setUserProfile(data));
+      navigation.navigate('AddHeight');
+    }
+  };
   return (
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
@@ -56,19 +67,19 @@ const OnBoarding3 = ({navigation, route}) => {
                   p={2}
                   mb={5}
                   onPress={() => {
-                    setId(item?.id);
+                    setId(item);
                   }}
                   //   key={item?.id}
                   alignItems={'center'}
-                  borderColor={id === item?.id ? 'primary.400' : null}
-                  borderWidth={id === item?.id ? 1 : null}
+                  borderColor={id?.id === item?.id ? 'primary.400' : null}
+                  borderWidth={id?.id === item?.id ? 1 : null}
                   justifyContent={'center'}>
                   <Text
                     fontSize={16}
                     fontFamily={
-                      id === item?.id ? 'Lexend-Regular' : 'Lexend-Light'
+                      id?.id === item?.id ? 'Lexend-Regular' : 'Lexend-Light'
                     }
-                    color={id === item?.id ? 'black' : 'grey.400'}
+                    color={id?.id === item?.id ? 'black' : 'grey.400'}
                     textAlign={'center'}>
                     {item?.name}
                   </Text>
@@ -88,11 +99,7 @@ const OnBoarding3 = ({navigation, route}) => {
         </View>
       ) : (
         <View mb={16} mx={5}>
-          <Footer
-            load={'30'}
-            num={4}
-            onPress={() => navigation.navigate('AddHeight')}
-          />
+          <Footer load={'30'} num={4} onPress={() => handleNavigation()} />
         </View>
       )}
     </View>

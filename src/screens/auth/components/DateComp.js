@@ -63,6 +63,11 @@ const DateComp = props => {
   const [endTimeHour, setEndTimeHour] = React.useState('5');
   const [endTimeMin, setEndTimeMin] = React.useState('00');
   const [endTimeAm, setEndTimeAm] = React.useState('Pm');
+  const [months, setMonth] = React.useState('');
+  const [years, setYears] = React.useState('');
+  const [days, setDays] = React.useState('');
+  const [stringyMonth, setStringyMonth] = React.useState('');
+  const [dobirth, setDOb] = React.useState();
   const month = [
     'JAN',
     'FEB',
@@ -193,6 +198,40 @@ const DateComp = props => {
     '29',
     '30',
   ];
+  React.useEffect(() => {
+    if (month === 'JAN') {
+      setStringyMonth('01');
+    } else if (month === 'FEB') {
+      setStringyMonth('02');
+    } else if (month === 'MAR') {
+      setStringyMonth('03');
+    } else if (month === 'APR') {
+      setStringyMonth('04');
+    } else if (month === 'MAY') {
+      setStringyMonth('05');
+    } else if (month === 'JUN') {
+      setStringyMonth('06');
+    } else if (month === 'JUL') {
+      setStringyMonth('07');
+    } else if (month === 'AUG') {
+      setStringyMonth('08');
+    } else if (month === 'SEP') {
+      setStringyMonth('09');
+    } else if (month === 'OCT') {
+      setStringyMonth('10');
+    } else if (month === 'NOV') {
+      setStringyMonth('11');
+    } else {
+      setStringyMonth('12');
+    }
+  }, [month]);
+  // React.useEffect(() => {}, [days, stringyMonth, years]);
+  const handleSave = () => {
+    let dob = `${years}-${stringyMonth}-${days}`;
+
+    setDOb(dob);
+    props?.SavePress && props?.SavePress(dob);
+  };
 
   return (
     <View>
@@ -207,7 +246,7 @@ const DateComp = props => {
           borderRadius={8}
           borderColor={'txtColor'}>
           <Text color={'grey.400'} fontFamily={'Lexend-Light'}>
-            Date of Birth
+            {dobirth ? dobirth : `Date of Birth`}
           </Text>
         </Pressable>
         <BottomSheet
@@ -243,7 +282,7 @@ const DateComp = props => {
                 isShowSelectBackground={false}
                 pickerData={day}
                 onValueChange={value => {
-                  console.log('value', value);
+                  setDays(value);
                 }}
               />
               <Picker
@@ -258,7 +297,7 @@ const DateComp = props => {
                 isShowSelectBackground={false}
                 pickerData={month}
                 onValueChange={value => {
-                  console.log('value', value);
+                  setMonth(value);
                 }}
               />
               <Picker
@@ -273,13 +312,14 @@ const DateComp = props => {
                 isShowSelectBackground={false}
                 pickerData={year}
                 onValueChange={value => {
-                  console.log('value', value);
+                  setYears(value);
                 }}
               />
             </Row>
           </View>
           <FButton
             onPress={() => {
+              handleSave();
               closeBottomSheet();
             }}
             label={'Save'}

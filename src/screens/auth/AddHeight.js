@@ -23,9 +23,14 @@ import * as Yup from 'yup';
 import DateComp from './components/DateComp';
 import Footer from '../../components/footer/footer';
 import RnRangeSlider from 'rn-range-slider';
+import {setUserProfile} from '../../redux/slices/auth';
+import {useDispatch, useSelector} from 'react-redux';
 
 const AddHeight = ({navigation}) => {
   const [id, setId] = React.useState(0);
+  const dispatch = useDispatch();
+  const userProfile = useSelector(state => state.auth?.userProfile);
+
   const data = [
     {
       id: 1,
@@ -39,15 +44,30 @@ const AddHeight = ({navigation}) => {
   ];
   const [onChangeValue, setOnChangeValue] = React.useState(170); // Set to 170 cm (5'7") as the default value
   const [onChangeEndValue, setOnChangeEndValue] = React.useState(170);
+  const [height, setHeight] = React.useState();
+  const [updatedHeight, setUpdatedHeight] = React.useState();
 
   // Function to convert centimeters to feet and inches
   const cmToFeetAndInches = cm => {
     const inches = Math.round(cm / 2.54);
     const feet = Math.floor(inches / 12);
     const remainingInches = inches % 12;
+    setHeight(`${feet}'${remainingInches}"`);
+    setUpdatedHeight(`${feet}.${remainingInches}`);
     return `${feet}'${remainingInches}"`;
   };
-
+  const handleOnChange = v => {
+    v && setOnChangeEndValue(Math.floor(v));
+    cmToFeetAndInches(v);
+  };
+  const handleNavigation = async () => {
+    if (updatedHeight) {
+      const data = {...userProfile, height: updatedHeight};
+      console.log(data);
+      await dispatch(setUserProfile(data));
+      navigation.navigate('OnBoarding4');
+    }
+  };
   return (
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
@@ -83,7 +103,7 @@ const AddHeight = ({navigation}) => {
                 fontFamily={'Lexend-Regular'}
                 color={'black'}
                 textAlign={'center'}>
-                ({cmToFeetAndInches(onChangeValue)})
+                {height}
               </Text>
             </Pressable>
 
@@ -97,7 +117,7 @@ const AddHeight = ({navigation}) => {
                 setOnChangeValue(Math.floor(v));
               }}
               onChangeEnd={v => {
-                v && setOnChangeEndValue(Math.floor(v));
+                handleOnChange(v);
               }}>
               <Slider.Track bg="white">
                 <Slider.FilledTrack bg="primary.400" />
@@ -128,11 +148,7 @@ const AddHeight = ({navigation}) => {
       </ScrollView>
 
       <View mb={16} mx={5}>
-        <Footer
-          load={'40'}
-          num={5}
-          onPress={() => navigation.navigate('OnBoarding4')}
-        />
+        <Footer load={'40'} num={5} onPress={() => handleNavigation()} />
       </View>
     </View>
   );

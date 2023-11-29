@@ -17,12 +17,25 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import FInputs from '../../components/inputs/inputs';
 import FButton from '../../components/button/FButton';
+import {useForgetPasswordMutation} from '../../redux/apis/auth';
 const ForgotPassword = ({navigation}) => {
+  const [postEmail, {data, isError, isLoading}] = useForgetPasswordMutation();
+
+  const [error, setError] = React.useState();
   const formSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
   });
   const handleCreate = em => {
-    navigation.navigate('Verification');
+    let body = {
+      email: em,
+    };
+    postEmail(body).then(res => {
+      if (res?.data?.error === false) {
+        navigation.navigate('Verification', {otp: res?.data?.otp, email: em});
+      } else {
+        setError(res?.error?.data?.msg);
+      }
+    });
   };
   return (
     // <View flex={1}>
@@ -58,7 +71,7 @@ const ForgotPassword = ({navigation}) => {
                   value={values.email}
                   onChangeText={handleChange('email')}
                 />
-                {errors.email && (
+                {errors.email || isError === true ? (
                   <View flexDir={'row'} alignItems={'center'} mt={1} ml={1}>
                     <View
                       bg={'red.500'}
@@ -67,12 +80,13 @@ const ForgotPassword = ({navigation}) => {
                       rounded={'full'}
                       mr={1}></View>
                     <Text color={'red.500'} fontSize={12}>
-                      {errors.email}
+                      {errors.email ? errors.email : error}
                     </Text>
                   </View>
-                )}
+                ) : null}
                 <View mt={'50%'} mb={5}>
                   <FButton
+                    loading={isLoading}
                     label={'Send Code'}
                     onPress={handleSubmit}
                     variant={'Solid'}

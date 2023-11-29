@@ -32,11 +32,14 @@ const SignIn = ({navigation}) => {
       console.log('res', res);
       if (res?.data?.error === false) {
         disptach(setUserData(res?.data?.data));
-        navigation.navigate('Tabs', {screen: 'Home'});
+
+        navigation.navigate('Tabs', {screen: 'Home'}, {fromSignIn: true});
       } else if (res?.error?.data?.msg === 'Invalid password') {
-        setError(res?.error?.data?.msg);
+        setError('Wrong Password');
+        setEmailError();
       } else {
         setEmailError(res?.error?.data?.msg);
+        setError();
       }
     });
   };
@@ -101,7 +104,7 @@ const SignIn = ({navigation}) => {
                     onChangeText={handleChange('email')}
                     value={values.email}
                   />
-                  {errors.email || isError === true ? (
+                  {errors.email || emailError ? (
                     <View flexDir={'row'} alignItems={'center'} mt={1}>
                       <View
                         bg={'red.500'}

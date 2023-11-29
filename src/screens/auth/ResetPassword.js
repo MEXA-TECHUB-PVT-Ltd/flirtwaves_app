@@ -18,11 +18,20 @@ import FButton from '../../components/button/FButton';
 import FInputs from '../../components/inputs/inputs';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
+import {useSelector} from 'react-redux';
+import {useUpdatePasswordMutation} from '../../redux/apis/auth';
 
-const ResetPassword = ({navigation}) => {
+const ResetPassword = ({navigation, route}) => {
   const [visible, setVisible] = React.useState(false);
+  const email = route?.params?.email;
+  const [updatePassword, {isError, isLoading}] = useUpdatePasswordMutation();
   const formSchema = Yup.object().shape({
-    newPassword: Yup.string().required('New Password is required'),
+    newPassword: Yup.string()
+      .required('New Password is required')
+      .matches(
+        /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?\/\\~-])[A-Za-z\d!@#$%^&*()_+{}\[\]:;<>,.?\/\\~-]{8,}$/,
+        `Password must contain at least 8 characters,${'\n'}including one letter one number one special charcter,`,
+      ),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('newPassword'), null], 'Passwords must match')
       .required('Confirm password is required'),
@@ -30,6 +39,15 @@ const ResetPassword = ({navigation}) => {
 
   const handleCreate = (nP, cP) => {
     setVisible(true);
+    let body = {
+      email: email,
+      password: nP,
+    };
+    updatePassword(body).then(res => {
+      if (res?.data?.error === false) {
+        setVisible(true);
+      }
+    });
     // console.log('create', body);
   };
   return (
@@ -82,8 +100,9 @@ const ResetPassword = ({navigation}) => {
                       onChangeText={handleChange('newPassword')}
                     />
                     {errors.newPassword && (
-                      <View flexDir={'row'} alignItems={'center'} mt={1} mx={1}>
+                      <View flexDir={'row'} mt={1} mx={1}>
                         <View
+                          mt={1.5}
                           bg={'red.500'}
                           h={2}
                           w={2}
@@ -119,6 +138,7 @@ const ResetPassword = ({navigation}) => {
                 </View>
                 <View mt={'48%'} mb={5}>
                   <FButton
+                    loading={isLoading}
                     variant={'Solid'}
                     label={'Reset Password'}
                     onPress={handleSubmit}
