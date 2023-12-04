@@ -28,7 +28,7 @@ import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {useDispatch, useSelector} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
 import {
-  useGetAllDashboardProfileQuery,
+  useGetAllDashboardProfileMutation,
   useUpdateUserProfileMutation,
 } from '../../redux/apis/auth';
 
@@ -40,13 +40,24 @@ const HomeScreen = ({navigation, route}) => {
   const [updateUser, {isError}] = useUpdateUserProfileMutation();
   const [limit, setLimit] = React.useState(10);
   const [page, setPage] = React.useState(1);
-  const {
-    data: isData,
-    isError: error,
-    isLoading: loading,
-  } = useGetAllDashboardProfileQuery({page: page, limit: 10});
+  const [getProfiles, {data: isData, isError: error, isLoading: loading}] =
+    useGetAllDashboardProfileMutation();
   console.log('userProfile', isData);
-
+  useFocusEffect(
+    React.useCallback(() => {
+      let body = {
+        id: uid,
+        data: {
+          genderId: '1',
+          country: 'rawalpindi',
+          dob: '2000-01-01',
+        },
+      };
+      getProfiles(body).then(res => {
+        console.log(res);
+      });
+    }, []),
+  );
   const data = [
     {
       id: 1,

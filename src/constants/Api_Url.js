@@ -1,1 +1,1 @@
-export const Api_Url = `https://flirtwaves-be.mtechub.com/`;
+export const Api_Url = `http://192.168.18.213:5000`;
