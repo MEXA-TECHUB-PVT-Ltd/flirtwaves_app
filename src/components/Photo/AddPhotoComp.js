@@ -311,7 +311,7 @@ const AddPhotoComp = props => {
                       h={48}
                       w={48}
                       borderRadius={10}
-                      resizeMode={'contain'}
+                      resizeMode={'cover'}
                     />
                     <Pressable
                       onPress={() => openBottomSheet(1)}
@@ -378,7 +378,7 @@ const AddPhotoComp = props => {
                         h={24}
                         w={24}
                         borderRadius={10}
-                        resizeMode={'contain'}
+                        resizeMode={'cover'}
                       />
                       <Pressable
                         onPress={() => openBottomSheet(2)}
@@ -443,7 +443,7 @@ const AddPhotoComp = props => {
                         h={24}
                         w={24}
                         borderRadius={10}
-                        resizeMode={'contain'}
+                        resizeMode={'cover'}
                       />
                       <Pressable
                         onPress={() => openBottomSheet(3)}
@@ -501,18 +501,18 @@ const AddPhotoComp = props => {
               mr={1}
               alignItems={'center'}
               justifyContent={'center'}>
-              {imgurl2 ? (
+              {imgurl3 ? (
                 <>
                   <Stack>
                     <Image
                       source={{
-                        uri: imgurl2,
+                        uri: imgurl3,
                       }}
                       alt={'img'}
                       h={24}
                       w={24}
                       borderRadius={10}
-                      resizeMode={'contain'}
+                      resizeMode={'cover'}
                     />
                     <Pressable
                       onPress={() => openBottomSheet(4)}
@@ -579,7 +579,7 @@ const AddPhotoComp = props => {
                       h={24}
                       w={24}
                       borderRadius={10}
-                      resizeMode={'contain'}
+                      resizeMode={'cover'}
                     />
                     <Pressable
                       onPress={() => openBottomSheet(5)}
@@ -645,7 +645,7 @@ const AddPhotoComp = props => {
                       h={24}
                       w={24}
                       borderRadius={10}
-                      resizeMode={'contain'}
+                      resizeMode={'cover'}
                     />
                     <Pressable
                       onPress={() => openBottomSheet(6)}

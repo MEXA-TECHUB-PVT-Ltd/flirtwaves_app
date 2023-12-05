@@ -9,7 +9,12 @@ import {
   Center,
 } from 'native-base';
 import React from 'react';
-import {ImageBackground, SafeAreaView, StatusBar} from 'react-native';
+import {
+  ImageBackground,
+  SafeAreaView,
+  StatusBar,
+  ActivityIndicator,
+} from 'react-native';
 import FStatusBar from '../../components/statusBar/StatusBar';
 import Header from '../../components/Header/Header';
 import Logo from '../../components/logo/Logo';
@@ -23,7 +28,10 @@ import AlertModal from '../../components/Modal/AlertModal';
 import {setUserProfile} from '../../redux/slices/auth';
 import {panHandlerName} from 'react-native-gesture-handler/lib/typescript/handlers/PanGestureHandler';
 import {useDispatch, useSelector} from 'react-redux';
-import {useUpdateUserProfileMutation} from '../../redux/apis/auth';
+import {
+  useGetAllHabbitsQuery,
+  useUpdateUserProfileMutation,
+} from '../../redux/apis/auth';
 
 const OnBoarding10 = ({navigation, route}) => {
   const fromEdit = route?.params?.fromEdit;
@@ -32,7 +40,9 @@ const OnBoarding10 = ({navigation, route}) => {
   const dispatch = useDispatch();
   const userProfile = useSelector(state => state.auth?.userProfile);
   const [updateUser, {isError}] = useUpdateUserProfileMutation();
-
+  const [page, setPage] = React.useState(1);
+  const {data: isData, isLoading} = useGetAllHabbitsQuery(page);
+  console.log('is', isLoading);
   const data = [
     {
       id: 1,
@@ -49,9 +59,10 @@ const OnBoarding10 = ({navigation, route}) => {
     {id: 7, name: `halal`},
   ];
   const [visible, setVisible] = React.useState(false);
+  console.log(isData);
   const handleNavigation = async () => {
     if (id) {
-      const data = {...userProfile, eating_habits: id?.name};
+      const data = {...userProfile, eating_habits: id?.id};
       console.log('data', data);
       await dispatch(setUserProfile(data));
 
@@ -74,56 +85,69 @@ const OnBoarding10 = ({navigation, route}) => {
       <FStatusBar />
       <Header right />
       {/* <ScrollView flex={1}> */}
-      <View mx={5} flex={1}>
-        <Text
-          textAlign={'center'}
-          fontSize={20}
-          fontFamily={'Lexend-SemiBold'}
-          mt={8}>
-          What are your eating habits?
-        </Text>
-        <View mt={8}>
-          {data?.map(item => {
-            return (
-              <Pressable
-                bg={'white'}
-                p={2}
-                mb={5}
-                onPress={() => {
-                  setId(item);
-                }}
-                //   key={item?.id}
-                alignItems={'center'}
-                borderColor={id?.id === item?.id ? 'primary.400' : null}
-                borderWidth={id?.id === item?.id ? 1 : null}
-                justifyContent={'center'}>
-                <Text
-                  fontSize={16}
-                  fontFamily={
-                    id?.id === item?.id ? 'Lexend-Regular' : 'Lexend-Light'
-                  }
-                  color={id?.id === item?.id ? 'black' : 'grey.400'}
-                  textAlign={'center'}>
-                  {item?.name}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
-      {/* </ScrollView> */}
-      {fromEdit === true ? (
-        <View mb={16} mx={5}>
-          <FButton
-            label={'Save Changes'}
-            variant={'Solid'}
-            onPress={() => handleNavigation()}
-          />
-        </View>
+      {isLoading ? (
+        <ActivityIndicator size={'small'} color={'black'} />
       ) : (
-        <View mb={16} mx={5}>
-          <Footer load={'100'} num={12} onPress={() => handleNavigation()} />
+        <View mx={5} flex={1}>
+          <Text
+            textAlign={'center'}
+            fontSize={20}
+            fontFamily={'Lexend-SemiBold'}
+            mt={8}>
+            What are your eating habits?
+          </Text>
+          <View mt={8}>
+            {isData?.data?.map(item => {
+              console.log('item', item);
+              return (
+                <Pressable
+                  bg={'white'}
+                  p={2}
+                  mb={5}
+                  onPress={() => {
+                    setId(item);
+                  }}
+                  //   key={item?.id}
+                  alignItems={'center'}
+                  borderColor={id?.id === item?.id ? 'primary.400' : null}
+                  borderWidth={id?.id === item?.id ? 1 : null}
+                  justifyContent={'center'}>
+                  <Text
+                    fontSize={16}
+                    fontFamily={
+                      id?.id === item?.id ? 'Lexend-Regular' : 'Lexend-Light'
+                    }
+                    color={id?.id === item?.id ? 'black' : 'grey.400'}
+                    textAlign={'center'}>
+                    {item?.hobby}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
+      )}
+      {/* </ScrollView> */}
+      {!isLoading && (
+        <>
+          {fromEdit === true ? (
+            <View mb={16} mx={5}>
+              <FButton
+                label={'Save Changes'}
+                variant={'Solid'}
+                onPress={() => handleNavigation()}
+              />
+            </View>
+          ) : (
+            <View mb={16} mx={5}>
+              <Footer
+                load={'100'}
+                num={12}
+                onPress={() => handleNavigation()}
+              />
+            </View>
+          )}
+        </>
       )}
       <AlertModal
         modalVisible={visible}

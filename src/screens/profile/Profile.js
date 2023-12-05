@@ -26,11 +26,16 @@ import AlertModal from '../../components/Modal/AlertModal';
 import Feather from 'react-native-vector-icons/Feather';
 import ImagePicker from 'react-native-image-crop-picker';
 import {useFocusEffect} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+import {useDeleteUserMutation} from '../../redux/apis/auth';
 
 const Profile = ({navigation}) => {
   const [like, setLiked] = React.useState(true);
   const [active, setActive] = React.useState(false);
   const [active2, setActive2] = React.useState(false);
+  const uid = useSelector(state => state.auth?.userData?.id);
+  const [deleteUser, {data: isData, isError, isLoading: loading}] =
+    useDeleteUserMutation();
   const bottomSheetRef = React.useRef(null);
   const [isBottomSheetExpanded, setIsBottomSheetExpanded] =
     React.useState(false);
@@ -68,6 +73,16 @@ const Profile = ({navigation}) => {
       navigation.navigate('ProfileProcess');
     }
   }, [imgUrl]);
+  const handleDelete = async () => {
+    deleteUser(uid).then(res => {
+      console.log(res);
+      if (res?.data?.error === false) {
+        navigation.navigate('OnBoarding');
+        setActive(false);
+      }
+    });
+  };
+
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View bg={'white'} flex={1}>
@@ -103,7 +118,7 @@ const Profile = ({navigation}) => {
           btntxt2={'Yes,Delete'}
           comon={true}
           onPress={() => {
-            navigation.navigate('OnBoarding');
+            handleDelete();
           }}></AlertModal>
         <AlertModal
           modalVisible={active2}
