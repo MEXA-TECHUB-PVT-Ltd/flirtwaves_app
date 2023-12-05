@@ -2,10 +2,73 @@ import React, {useState} from 'react';
 import AgoraUIKit from 'agora-rn-uikit';
 import {Image, Text, View} from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
-
+import {
+  ClientRoleType,
+  createAgoraRtcEngine,
+  IRtcEngine,
+  ChannelProfileType,
+} from 'react-native-agora';
 const VideoCall = ({navigation}) => {
   const [videoCall, setVideoCall] = useState(true);
-
+  const agoraEngineRef = React.useRef(); // Agora engine instance
+  const RtcEngine = React.useRef();
+  // React.useEffect(() => {
+  //   if (videoCall === false) {
+  //     navigation.goBack();
+  //   }
+  // }, [videoCall]);
+  React.useEffect(() => {
+    // Initialize Agora engine when the app starts
+    setupVoiceSDKEngine();
+  }, []);
+  const setupVoiceSDKEngine = async () => {
+    try {
+      // use the helper function to get permissions
+      agoraEngineRef.current = createAgoraRtcEngine();
+      const agoraEngine = agoraEngineRef.current;
+      agoraEngineRef.current?.enableAudio();
+      agoraEngineRef.current?.disableVideo();
+      console.log('agora', agoraEngine);
+      agoraEngine.registerEventHandler({
+        onJoinChannelSuccess: () => {
+          // showMessage('Successfully joined the channel ' + channelName);÷
+          // setIsJoined(true);
+        },
+        onUserJoined: (_connection, Uid) => {
+          console.log('User joined the channel', Uid);
+          // showMessage('Remote user joined with uid ' + Uid);
+          // setRemoteUid(Uid);
+        },
+        onUserOffline: (_connection, Uid) => {
+          console.log('useroffline', Uid);
+          setVideoCall(false);
+          navigation.goBack();
+          // navigation.goBack();÷
+          // showMessage('Remote user left the channel. uid: ' + Uid);
+          // setRemoteUid(0);
+        },
+        onRtcStats: (connection, stats) => {
+          console.log('stats: ', stats?.duration, stats?.userCount);
+        },
+      });
+      agoraEngine.initialize({
+        appId: 'bdf562115aec49c2819b25fde6ed2b29',
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const leave = () => {
+    try {
+      agoraEngineRef.current?.leaveChannel();
+      navigation.goBack();
+      // setRemoteUid(0);
+      // setIsJoined(false);/
+      // showMessage('You left the channel');
+    } catch (e) {
+      console.log(e);
+    }
+  };
   const rtcCallbacks = {
     EndCall: () => {
       setVideoCall(false), navigation.goBack();
@@ -16,10 +79,11 @@ const VideoCall = ({navigation}) => {
   };
   const style = {
     localBtnContainer: {
-      marginBottom: 20,
+      marginBottom: 5,
     },
     remoteBtnContainer: {
-      backgroundColor: 'white',
+      backgroundColor: 'transparent',
+      marginBottom: 100,
     },
     localBtnStyles: {
       endCall: {
@@ -33,7 +97,6 @@ const VideoCall = ({navigation}) => {
         backgroundColor: '#F5BF03',
         paddingVertical: 10,
         borderWidth: 0,
-
         // paddingHorizontal: 20,
       },
       switchCamera: {
@@ -54,7 +117,6 @@ const VideoCall = ({navigation}) => {
       },
     },
   };
-
   return videoCall ? (
     <AgoraUIKit
       connectionData={props.rtcProps}
