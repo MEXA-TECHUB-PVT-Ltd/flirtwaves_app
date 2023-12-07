@@ -50,7 +50,8 @@ const ChatScreen = props => {
               source={require('../../../assets/call.png')}
             />
           </Pressable>
-          <Pressable onPress={() => navigation.navigate('VideoCall')}>
+          <Pressable
+            onPress={() => navigation.navigate('VideoCall', {fromChat: true})}>
             <Image
               h={7}
               w={8}

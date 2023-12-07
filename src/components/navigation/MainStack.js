@@ -43,12 +43,192 @@ import FAQS from '../../screens/settings/FAQS';
 import Premium from '../../screens/settings/Premium';
 import PrivacySettings from '../../screens/settings/PrivacySettings';
 import Content from '../../screens/browse/Content';
-
+import messaging from '@react-native-firebase/messaging';
+import PushNotification, {Importance} from 'react-native-push-notification';
+import Sound from 'react-native-sound';
+import {
+  useNavigation,
+  useNavigationContainerRef,
+} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {setFromSignIn} from '../../redux/slices/auth';
 export default function MainStack() {
   const Stack = createNativeStackNavigator();
+  const dispatch = useDispatch();
+  const fromNotifi = useSelector(state => state.auth?.fromSignIn);
+
+  const [initialRoute, setInitialRoute] = React.useState(false);
+  Sound.setCategory('Playback');
+
+  var ding = new Sound('call.mp3', Sound.MAIN_BUNDLE, error => {
+    if (error) {
+      console.log('failed to load the sound', error);
+      return;
+    }
+    // when loaded successfully
+    console.log('duration in seconds: ');
+  });
+  PushNotification.createChannel(
+    {
+      channelId: 'channel-id', // (required)
+      channelName: 'My channel', // (required)
+      foreground: true,
+      channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
+      playSound: true, // (optional) default: true
+      soundName: 'call.mp3', // (optional) See `soundName` parameter of `localNotification` function
+      importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
+      vibrate: true,
+      timeoutAfter: 3000,
+      priority: 'high',
+      //
+      // (optional) default: true. Creates the default vibration pattern if true.
+    },
+    created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
+  );
+  PushNotification.configure({
+    onNotification: function (notification) {
+      console.log('NOTIFICATION:', notification);
+      if (notification.userInteraction === true) {
+        ding.stop(() => {
+          // Note: If you want to play a sound after stopping and rewinding it,
+          // it is important to call play() in a callback.
+          //   whoosh.play();
+        });
+        switch (notification.action) {
+          case 'Answer':
+            console.warn(notification.action);
+            setInitialRoute(true);
+            dispatch(setFromSignIn(true));
+            ding.stop(() => {
+              // Note: If you want to play a sound after stopping and rewinding it,
+              // it is important to call play() in a callback.
+              //   whoosh.play();
+            });
+            // navigate to answer screen
+            // navigation.navigate('AnswerScreen', {notification: notification});
+            break;
+          case 'Decline':
+            ding.stop(() => {
+              // Note: If you want to play a sound after stopping and rewinding it,
+              // it is important to call play() in a callback.
+              //   whoosh.play();
+            });
+            // update app state to decline call
+            // ...
+            break;
+        }
+      }
+    },
+    requestPermissions: Platform.OS === 'ios',
+    onAction: function (notification) {
+      ding.stop(() => {
+        // Note: If you want to play a sound after stopping and rewinding it,
+        // it is important to call play() in a callback.
+        //   whoosh.play();
+      });
+    },
+  });
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    console.log('Message handled in the background!', remoteMessage);
+    ding.play(success => {
+      if (success) {
+        console.log('successfully finished playing');
+      } else {
+        console.log('playback failed due to audio decoding errors');
+      }
+    });
+
+    // if (remoteMessage.notification && remoteMessage.notification.title) {
+    PushNotification.localNotification({
+      /* Android Only Properties */
+      channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
+      ticker: 'My Notification Ticker', // (optional)
+      /* iOS and Android properties */
+      largeIcon: 'ic_launcher',
+      smallIcon: 'ic_notification',
+      largeIconUrl: 'https://www.example.tld/picture.jpg',
+      title: remoteMessage.notification.title, // (optional)
+      message: remoteMessage.notification.body, // (required)
+      playSound: true,
+      priority: 'high',
+      timeoutAfter: 3000,
+      //   invokeApp: false,
+      soundName: 'call.mp3',
+      actions: ['Answer', 'Decline'],
+    });
+    //  ToastAndroid.show(remoteMessage.notification.title, ToastAndroid.SHORT);
+    // }
+  });
+  // Register foreground message handler
+  messaging().onMessage(async remoteMessage => {
+    console.log('Notification received in foreground:', remoteMessage);
+    ding.play(success => {
+      if (success) {
+        console.log('successfully finished playing');
+      } else {
+        console.log('playback failed due to audio decoding errors');
+      }
+    });
+    // Handle the notification content here
+    // You can update your app's UI or show a custom in-app notification.
+    if (remoteMessage.notification && remoteMessage.notification.title) {
+      PushNotification.localNotification({
+        /* Android Only Properties */
+        channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
+        ticker: 'My Notification Ticker', // (optional)
+        /* iOS and Android properties */
+        largeIcon: 'ic_launcher',
+        priority: 'high',
+        largeIconUrl: 'https://www.example.tld/picture.jpg',
+        title: remoteMessage.notification.title, // (optional)
+        message: remoteMessage.notification.body, // (required)
+        playSound: true,
+        smallIcon: 'ic_notification',
+        soundName: 'call.mp3',
+        timeoutAfter: 3000,
+        actions: ['Answer', 'Decline'],
+      });
+    }
+  });
+  //notification
+  messaging().onNotificationOpenedApp(remoteMessage => {
+    console.log(
+      'Notification caused app to open from background state:',
+      remoteMessage.notification,
+    );
+    PushNotification.localNotification({
+      /* Android Only Properties */
+      channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
+      ticker: 'My Notification Ticker', // (optional)
+      /* iOS and Android properties */
+      largeIcon: 'ic_launcher',
+      largeIconUrl: 'https://www.example.tld/picture.jpg',
+      title: remoteMessage.notification.title, // (optional)
+      message: remoteMessage.notification.body, // (required)
+      playSound: true,
+      timeoutAfter: 3000,
+      priority: 'high',
+      smallIcon: 'ic_notification',
+      soundName: 'call.mp3',
+      actions: ['Answer', 'Decline'],
+    });
+    //navigation.navigate(remoteMessage.data.type);
+  });
+  // Check whether an initial notification is available
+
+  const navigationRef = useNavigationContainerRef(); // Access navigation container reference
+
+  React.useEffect(() => {
+    // Perform navigation to a specific screen without conditional rendering
+    if (fromNotifi === true) {
+      navigationRef.current.navigate('VideoCall'); // Navigates to 'OnBoarding' screen
+    } else {
+      return;
+    }
+  }, [navigationRef, fromNotifi]);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name="OnBoarding" component={OnBoarding} />
 
