@@ -2,9 +2,31 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
         <uses-permission android:name="android.permission.CAMERA" />
+
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+<uses-permission android:name="android.permission.BLUETOOTH" />
+<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<!-- Permissions required by the App -->
+<uses-permission android:name="android.permission.READ_PHONE_STATE" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<uses-permission android:name="android.permission.GET_TASKS" />
+<uses-permission android:name="android.permission.BIND_TELECOM_CONNECTION_SERVICE"/>
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.CALL_PHONE" />
+<uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
+ <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+<uses-feature
+    android:glEsVersion="0x00020000"
+    android:required="true" />
+
 <uses-feature android:name="android.hardware.camera" />
 <uses-feature android:name="android.hardware.camera.autofocus" />
-
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
@@ -12,6 +34,27 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
+           <service
+         android:name="com.reactnativefullscreennotificationincomingcall.IncomingCallService"
+         android:enabled="true"
+         android:stopWithTask="false"
+         android:exported="true" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCs-3fQDiEwVKaFLcMvqMv4x2M2Bwi5-Zg"/>
+            <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
+              <meta-data  android:name="com.dieam.reactnativepushnotification.notification_channel_name" android:value="My channel"/>
+   <meta-data  android:name="com.dieam.reactnativepushnotification.notification_channel_description" android:value="A channel to categorise your notifications"/>
+     <meta-data
+      android:name="com.dieam.reactnativepushnotification.default_notification_channel_id"
+      android:value="channel-id" />
+           <meta-data  android:name="com.dieam.reactnativepushnotification.notification_foreground"
+                    android:value="true"/> <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationActions" />
+        <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher" />
+         <service
+            android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService"
+            android:exported="false" >
+        </service>
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -23,6 +66,7 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
+
       </activity>
     </application>
 </manifest>

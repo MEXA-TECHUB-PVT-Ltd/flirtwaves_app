@@ -196,6 +196,9 @@ export const authApis = createApi({
     whichTwoWords: builder.query({
       query: page => `habits/getall_habits?page=${page}&limit=10`,
     }),
+    getAllUsers: builder.query({
+      query: page => `user/get_all_users?page=${page}&limit=10`,
+    }),
   }),
 });
 
@@ -230,4 +233,5 @@ export const {
   useGetAllRelationsQuery,
   useGetAllSmokingsQuery,
   useWhichTwoWordsQuery,
+  useGetAllUsersQuery,
 } = authApis;

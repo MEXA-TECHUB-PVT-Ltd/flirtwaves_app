@@ -8,10 +8,17 @@ import {
   IRtcEngine,
   ChannelProfileType,
 } from 'react-native-agora';
-const VideoCall = ({navigation}) => {
+import {useDispatch, useSelector} from 'react-redux';
+import {setFromSignIn} from '../../redux/slices/auth';
+const VideoCall = ({navigation, route}) => {
   const [videoCall, setVideoCall] = useState(true);
   const agoraEngineRef = React.useRef(); // Agora engine instance
   const RtcEngine = React.useRef();
+  const dispatch = useDispatch();
+  const fromChat = route?.params?.fromChat;
+  const fromHistory = route?.params?.fromHistory;
+  const FromNotifi = useSelector(state => state.auth?.fromSignIn);
+  console.log(FromNotifi);
   // React.useEffect(() => {
   //   if (videoCall === false) {
   //     navigation.goBack();
@@ -27,11 +34,12 @@ const VideoCall = ({navigation}) => {
       agoraEngineRef.current = createAgoraRtcEngine();
       const agoraEngine = agoraEngineRef.current;
       agoraEngineRef.current?.enableAudio();
-      agoraEngineRef.current?.disableVideo();
+
       console.log('agora', agoraEngine);
       agoraEngine.registerEventHandler({
         onJoinChannelSuccess: () => {
-          // showMessage('Successfully joined the channel ' + channelName);÷
+          // showMessage('Successfully joined the channel ');
+          console.log('Successfully joined the channel ');
           // setIsJoined(true);
         },
         onUserJoined: (_connection, Uid) => {
@@ -42,7 +50,14 @@ const VideoCall = ({navigation}) => {
         onUserOffline: (_connection, Uid) => {
           console.log('useroffline', Uid);
           setVideoCall(false);
-          navigation.goBack();
+          if (FromNotifi === true) {
+            dispatch(setFromSignIn(false));
+            navigation.replace('CallHistory');
+          } else if (fromChat === true) {
+            navigation.replace('Chatting');
+          } else if (fromHistory === true) {
+            navigation.replace('CallHistory');
+          }
           // navigation.goBack();÷
           // showMessage('Remote user left the channel. uid: ' + Uid);
           // setRemoteUid(0);
@@ -61,7 +76,10 @@ const VideoCall = ({navigation}) => {
   const leave = () => {
     try {
       agoraEngineRef.current?.leaveChannel();
-      navigation.goBack();
+      dispatch(setFromSignIn(false));
+      // dispatch(setFromSignIn());
+
+      navigation.replace('CallHistory');
       // setRemoteUid(0);
       // setIsJoined(false);/
       // showMessage('You left the channel');
@@ -71,7 +89,13 @@ const VideoCall = ({navigation}) => {
   };
   const rtcCallbacks = {
     EndCall: () => {
-      setVideoCall(false), navigation.goBack();
+      if (FromNotifi === true) {
+        leave();
+      } else if (fromChat === true) {
+        navigation.replace('Chatting');
+      } else if (fromHistory === true) {
+        navigation.replace('CallHistory');
+      }
     },
   };
   const props = {
@@ -83,7 +107,7 @@ const VideoCall = ({navigation}) => {
     },
     remoteBtnContainer: {
       backgroundColor: 'transparent',
-      marginBottom: 100,
+      // marginBottom: 100,
     },
     localBtnStyles: {
       endCall: {
