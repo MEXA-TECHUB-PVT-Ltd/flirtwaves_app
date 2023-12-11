@@ -11,6 +11,7 @@ import {
   Switch,
   FlatList,
 } from 'native-base';
+import {Platform, PermissionsAndroid} from 'react-native';
 import RangeSlider from 'rn-range-slider';
 import React from 'react';
 import HomeComp from './components/HomeComp';
@@ -18,7 +19,15 @@ import {ImageBackground, StyleSheet} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
 // import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
+import Geolocation from 'react-native-geolocation-service';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 
+import MapView, {Marker} from 'react-native-maps';
+
+import Entypo from 'react-native-vector-icons/Entypo';
+
+import Geocoder from 'react-native-geocoding';
+import {MapKey} from '../../constants/MapKey';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import FInputs from '../../components/inputs/inputs';
 import FButton from '../../components/button/FButton';
@@ -28,36 +37,130 @@ import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {useDispatch, useSelector} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
 import {
-  useGetAllDashboardProfileMutation,
+  useAddToFavMutation,
+  useGetAllDashboardProfileQuery,
+  useGetUserByIdQuery,
   useUpdateUserProfileMutation,
 } from '../../redux/apis/auth';
 
 const HomeScreen = ({navigation, route}) => {
+  const [updateUser, {isError}] = useUpdateUserProfileMutation();
+  const [LocationCords, setLocationCords] = React.useState({
+    latitude: 0,
+    longitude: 0,
+  });
+
+  React.useEffect(() => {
+    // Check and request location permission
+    const requestLocationPermission = async () => {
+      if (Platform.OS === 'ios') {
+        handleWatchPosition();
+      } else {
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          );
+          // await PermissionsAndroid.request(
+          //   PermissionsAndroid.PERMISSIONS.POST_NOTIFICATION,
+          // );
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            handleWatchPosition();
+          } else {
+            console.log('Location permission denied');
+          }
+        } catch (error) {
+          console.log('Error requesting location permission:', error);
+        }
+      }
+    };
+
+    requestLocationPermission();
+  }, []);
+  //   console.log('aa', updatedLocation);
+  const [address, setAddress] = React.useState();
+
+  const handleWatchPosition = async () => {
+    console.log('loc');
+    Geocoder.init(MapKey);
+    await Geolocation.getCurrentPosition(
+      position => {
+        console.log('aa', position);
+        const lat = position.coords.latitude;
+        const long = position.coords.longitude;
+        setLocationCords({
+          latitude: lat,
+          longitude: long,
+        });
+
+        Geocoder.from(lat, long).then(json => {
+          var addressComponent = json.results[0].formatted_address;
+          setAddress(addressComponent);
+          // ref?.current?.setAddressText(addressComponent);
+          console.log('address', addressComponent);
+
+          // _________________________________fix current location issue while adding listing_________________
+          let geometry = json?.results[0]?.geometry;
+        });
+        // Update the user's location using the latitude and longitude values
+        // You can send this data to a server, update a map, or perform any other necessary actions
+        // console.log('New location:', latitude, longitude);
+        // dispatch(setLiveLocation({latitude: latitude, longitude: longitude}))
+      },
+      error => {
+        // Handle error cases
+        if (error.code === error.PERMISSION_DENIED) {
+          console.log('Location permission denied.');
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          console.log('Location information is unavailable.');
+        } else if (error.code === error.TIMEOUT) {
+          console.log('Location request timed out.');
+        } else {
+          console.log('An unknown error occurred.');
+        }
+      },
+      {
+        enableHighAccuracy: true, // Use GPS for more accurate results (if available)
+        timeout: 2000, // Set a timeout of 5 seconds
+        maximumAge: 0, // Force the device to get the current location instead of using a cached result
+        distanceFilter: 10, // Update the location only if the user has moved at least 10 meters
+      },
+    );
+
+    // Clean up the watch position when the component is unmounted
+    // return () => {
+    //   navigator.geolocation.clearWatch(watchId);
+    // };
+  };
+  // React.useEffect(() => {
+  //   if (address && LocationCords) {
+  //     let body = {
+  //       id: uid,
+  //       data: {
+  //         location: address,
+  //         longitude: LocationCords.longitude,
+  //         latitude: LocationCords.latitude,
+  //       },
+  //     };
+  //     updateUser(body).then(res => {
+  //       console.log('res', res);
+  //     });
+  //   }
+  // }, [address, LocationCords]);
   const dispatch = useDispatch();
 
   const userProfile = useSelector(state => state.auth?.userProfile);
   const uid = useSelector(state => state.auth?.userData?.id);
-  const [updateUser, {isError}] = useUpdateUserProfileMutation();
+  const location = useSelector(state => state.userData?.location);
+  console.log(location);
+
   const [limit, setLimit] = React.useState(10);
   const [page, setPage] = React.useState(1);
-  const [getProfiles, {data: isData, isError: error, isLoading: loading}] =
-    useGetAllDashboardProfileMutation();
-  console.log('userProfile', isData);
-  useFocusEffect(
-    React.useCallback(() => {
-      let body = {
-        id: uid,
-        data: {
-          genderId: '1',
-          country: 'rawalpindi',
-          dob: '2000-01-01',
-        },
-      };
-      getProfiles(body).then(res => {
-        console.log(res);
-      });
-    }, []),
-  );
+  const {
+    data: isData,
+    isError: error,
+    isLoading: loading,
+  } = useGetAllDashboardProfileQuery({uid: uid, page: page});
+
   const data = [
     {
       id: 1,
@@ -97,6 +200,7 @@ const HomeScreen = ({navigation, route}) => {
     },
   ];
   const [like, setLiked] = React.useState(false);
+
   const [selected, setSelected] = React.useState();
   const bottomSheetRef = React.useRef(null);
   const [isBottomSheetExpanded, setIsBottomSheetExpanded] =
@@ -110,7 +214,7 @@ const HomeScreen = ({navigation, route}) => {
   };
   const [on, setOn] = React.useState(false);
 
-  const [isLoading, setLoading] = React.useState(false);
+  const [isLoading, setLoading] = React.useState(loading);
   React.useEffect(() => {
     if (isLoading === true) {
       setTimeout(() => {
@@ -144,23 +248,67 @@ const HomeScreen = ({navigation, route}) => {
   const renderLabel = React.useCallback(value => <Text>{value}</Text>, []);
   // const renderNotch = React.useCallback(() => <, []);
   const handleValueChange = React.useCallback((low, high) => {
-    console.log(high, low);
     setLow(low);
     setHigh(high);
   }, []);
   const [h, setH] = React.useState('50%');
   const [pre, setPre] = React.useState(0);
+  const [dashData, setDashData] = React.useState([]);
+  const [postFav, {isData: FavData, isError: Error}] = useAddToFavMutation();
+  React.useEffect(() => {
+    // if(isData?.count>0){
+    //   const newData={...dashData};
+    // }
+
+    if (isData?.data) {
+      if (isData?.data[0]?.id === dashData[0]?.id) {
+        return;
+      } else {
+        if (isData?.count === 0) {
+          return;
+        }
+        setDashData(prev => [...prev, ...isData?.data]);
+      }
+    }
+  }, [isData]);
+  const handleFav = id => {
+    let body = {
+      uid: uid,
+      data: {
+        favorite_user_id: id,
+      },
+    };
+    postFav(body).then(Res => {
+      console.log(Res);
+    });
+  };
+  const {
+    data: userData,
+    isError: userError,
+    isLoading: Userloading,
+  } = useGetUserByIdQuery(uid);
+  console.log('name', userData?.data?.name);
+  const img = require('../../assets/avatars.png');
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <View style={{flex: 1}}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'white',
+        }}>
         <Pressable
           onPress={() => setIsBottomSheetExpanded(false)}
-          bg={'white'}
+          // bg={'white'}
           flex={1}
           // alignItems={'center'}
         >
-          <View mt={10} mx={5}>
-            <Row alignItems={'center'} justifyContent={'space-between'}>
+          <View mt={10} mx={4}>
+            <Row
+              alignItems={'center'}
+              w={'80%'}
+              justifyContent={'space-between'}>
               <Row alignItems={'center'}>
                 <View
                   bg={'primary.400'}
@@ -183,8 +331,13 @@ const HomeScreen = ({navigation, route}) => {
                     color={'grey.400'}>
                     Your location
                   </Text>
-                  <Text fontSize={14} fontFamily={'Lexend-Regular'}>
-                    123 Elm Street Sunnydale, US
+                  <Text
+                    textAlign={'left'}
+                    fontSize={14}
+                    w={210}
+                    fontFamily={'Lexend-Regular'}
+                    numberOfLines={1}>
+                    {userData?.data?.location}
                   </Text>
                 </View>
               </Row>
@@ -207,7 +360,7 @@ const HomeScreen = ({navigation, route}) => {
             {isLoading ? (
               <Center
                 flex={1}
-                mt={'50%'}
+                // mt={'50%'}
                 alignItems={'center'}
                 justifyContent={'center'}>
                 <Lottie
@@ -216,27 +369,26 @@ const HomeScreen = ({navigation, route}) => {
                   loop
                   style={{
                     // marginBottom: 5,
-                    height: 80,
-                    width: 80,
+                    height: 50,
+                    width: 50,
                     // backgroundColor: 'black',
                   }}></Lottie>
               </Center>
             ) : (
               <FlatList
                 mt={2}
-                mb={10}
+                mb={2}
                 showsVerticalScrollIndicator={false}
-                data={data}
+                data={dashData}
                 onEndReached={() => {
                   setPage(page + 1);
-                  setLimit(limit + 10);
                 }}
                 keyExtractor={item => item?.id}
                 renderItem={({item, index}) => {
                   return (
                     <>
                       <ImageBackground
-                        source={item?.img}
+                        source={item?.images ? {uri: item?.images[0]} : img}
                         key={index}
                         style={{height: 350, marginBottom: 20}}
                         imageStyle={{
@@ -248,7 +400,7 @@ const HomeScreen = ({navigation, route}) => {
                           flexDir={'column'}
                           onPress={() => {
                             setIsBottomSheetExpanded(false);
-                            navigation.navigate('Filter');
+                            navigation.navigate('Filter', {otherId: item?.id});
                           }}
                           justifyContent={'space-between'}
                           p={2}>
@@ -270,6 +422,8 @@ const HomeScreen = ({navigation, route}) => {
                             <Pressable
                               onPress={() => {
                                 setSelected(index);
+                                handleFav(item?.id);
+
                                 setLiked(!like);
                               }}>
                               <View
@@ -315,7 +469,9 @@ const HomeScreen = ({navigation, route}) => {
                             </Row>
                             <Pressable
                               onPress={() => {
-                                navigation.navigate('Chatting');
+                                navigation.navigate('Chatting', {
+                                  uid: item?.id,
+                                });
                               }}
                               bg={'primary.400'}
                               p={2}
@@ -334,20 +490,22 @@ const HomeScreen = ({navigation, route}) => {
                               <Row
                                 alignItems={'center'}
                                 bg={
-                                  item?.status === 'offline'
+                                  item?.online_status === false
                                     ? 'transparent'
                                     : '#039D0040'
                                 }
-                                w={item?.status === 'offline' ? '22%' : '28%'}
+                                w={
+                                  item?.online_status === false ? '22%' : '28%'
+                                }
                                 borderColor={'#6E6E6E'}
                                 borderWidth={
-                                  item?.status === 'offline' ? 1 : null
+                                  item?.online_status === false ? 1 : null
                                 }
                                 p={2}
                                 borderRadius={10}>
                                 <View
                                   bg={
-                                    item?.status === 'offline'
+                                    item?.online_status === false
                                       ? '#6E6E6E'
                                       : '#039D00'
                                   }
@@ -359,7 +517,9 @@ const HomeScreen = ({navigation, route}) => {
                                   fontFamily={'Lexend-Light'}
                                   ml={2}
                                   color={'white'}>
-                                  {item?.status}
+                                  {item?.online_status === false
+                                    ? 'offline'
+                                    : 'Active now'}
                                 </Text>
                               </Row>
                             </Box>

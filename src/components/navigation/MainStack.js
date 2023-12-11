@@ -53,10 +53,15 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import {setFromSignIn} from '../../redux/slices/auth';
 export default function MainStack() {
+  const navigationRef = useNavigationContainerRef(); // Access navigation container reference
   const Stack = createNativeStackNavigator();
   const dispatch = useDispatch();
   const fromNotifi = useSelector(state => state.auth?.fromSignIn);
-
+  messaging()
+    .getToken()
+    .then(res => {
+      console.log(res);
+    });
   const [initialRoute, setInitialRoute] = React.useState(false);
   Sound.setCategory('Playback');
 
@@ -97,13 +102,26 @@ export default function MainStack() {
         switch (notification.action) {
           case 'Answer':
             console.warn(notification.action);
-            setInitialRoute(true);
-            dispatch(setFromSignIn(true));
-            ding.stop(() => {
-              // Note: If you want to play a sound after stopping and rewinding it,
-              // it is important to call play() in a callback.
-              //   whoosh.play();
-            });
+            if (notification?.data?.callType === 'Audio') {
+              setInitialRoute(true);
+              dispatch(setFromSignIn(true));
+              navigationRef.current.navigate('AudioCall');
+              ding.stop(() => {
+                // Note: If you want to play a sound after stopping and rewinding it,
+                // it is important to call play() in a callback.
+                //   whoosh.play();
+              });
+            } else {
+              setInitialRoute(true);
+              dispatch(setFromSignIn(true));
+              navigationRef.current.navigate('VideoCall');
+              ding.stop(() => {
+                // Note: If you want to play a sound after stopping and rewinding it,
+                // it is important to call play() in a callback.
+                //   whoosh.play();
+              });
+            }
+
             // navigate to answer screen
             // navigation.navigate('AnswerScreen', {notification: notification});
             break;
@@ -142,7 +160,7 @@ export default function MainStack() {
     PushNotification.localNotification({
       /* Android Only Properties */
       channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
-      ticker: 'My Notification Ticker', // (optional)
+      // ticker: 'My Notification Ticker', // (optional)
       /* iOS and Android properties */
       largeIcon: 'ic_launcher',
       smallIcon: 'ic_notification',
@@ -155,6 +173,7 @@ export default function MainStack() {
       //   invokeApp: false,
       soundName: 'call.mp3',
       actions: ['Answer', 'Decline'],
+      userInfo: remoteMessage?.data,
     });
     //  ToastAndroid.show(remoteMessage.notification.title, ToastAndroid.SHORT);
     // }
@@ -187,45 +206,45 @@ export default function MainStack() {
         soundName: 'call.mp3',
         timeoutAfter: 3000,
         actions: ['Answer', 'Decline'],
+        userInfo: remoteMessage?.data,
       });
     }
   });
   //notification
-  messaging().onNotificationOpenedApp(remoteMessage => {
-    console.log(
-      'Notification caused app to open from background state:',
-      remoteMessage.notification,
-    );
-    PushNotification.localNotification({
-      /* Android Only Properties */
-      channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
-      ticker: 'My Notification Ticker', // (optional)
-      /* iOS and Android properties */
-      largeIcon: 'ic_launcher',
-      largeIconUrl: 'https://www.example.tld/picture.jpg',
-      title: remoteMessage.notification.title, // (optional)
-      message: remoteMessage.notification.body, // (required)
-      playSound: true,
-      timeoutAfter: 3000,
-      priority: 'high',
-      smallIcon: 'ic_notification',
-      soundName: 'call.mp3',
-      actions: ['Answer', 'Decline'],
-    });
-    //navigation.navigate(remoteMessage.data.type);
-  });
+  // messaging().onNotificationOpenedApp(remoteMessage => {
+  //   console.log(
+  //     'Notification caused app to open from background state:',
+  //     remoteMessage.notification,
+  //   );
+  //   PushNotification.localNotification({
+  //     /* Android Only Properties */
+  //     channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
+  //     ticker: 'My Notification Ticker', // (optional)
+  //     /* iOS and Android properties */
+  //     largeIcon: 'ic_launcher',
+  //     largeIconUrl: 'https://www.example.tld/picture.jpg',
+  //     title: remoteMessage.notification.title, // (optional)
+  //     message: remoteMessage.notification.body, // (required)
+  //     playSound: true,
+  //     timeoutAfter: 3000,
+  //     priority: 'high',
+  //     smallIcon: 'ic_notification',
+  //     soundName: 'call.mp3',
+  //     actions: ['Answer', 'Decline'],
+  //     userInfo: remoteMessage?.data,
+  //   });
+  //   //navigation.navigate(remoteMessage.data.type);
+  // });
   // Check whether an initial notification is available
 
-  const navigationRef = useNavigationContainerRef(); // Access navigation container reference
-
-  React.useEffect(() => {
-    // Perform navigation to a specific screen without conditional rendering
-    if (fromNotifi === true) {
-      navigationRef.current.navigate('VideoCall'); // Navigates to 'OnBoarding' screen
-    } else {
-      return;
-    }
-  }, [navigationRef, fromNotifi]);
+  // React.useEffect(() => {
+  //   // Perform navigation to a specific screen without conditional rendering
+  //   if (fromNotifi === true) {
+  //     navigationRef.current.navigate('VideoCall'); // Navigates to 'OnBoarding' screen
+  //   } else {
+  //     return;
+  //   }
+  // }, [navigationRef, fromNotifi]);
 
   return (
     <NavigationContainer ref={navigationRef}>

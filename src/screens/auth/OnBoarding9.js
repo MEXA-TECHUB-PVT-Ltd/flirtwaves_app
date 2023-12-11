@@ -49,7 +49,7 @@ const OnBoarding9 = ({navigation, route}) => {
   ];
   const handleNavigation = async () => {
     if (id) {
-      const data = {...userProfile, about_kids: id?.id};
+      const data = {...userProfile, kids_opinion: id?.id};
       console.log('data', data);
       await dispatch(setUserProfile(data));
 

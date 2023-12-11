@@ -34,11 +34,12 @@ import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import {useFocusEffect, useIsFocused} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
 
 const Chatting = ({navigation, route}) => {
   const otherid = route?.params?.uid;
 
-  const {uid} = auth().currentUser;
+  const uid = useSelector(state => state.auth?.userData?.id);
 
   const scrollRef = React.useRef(null);
   const [focus, setFocus] = React.useState(false);
@@ -474,7 +475,7 @@ const Chatting = ({navigation, route}) => {
         tickStyle={{
           backgroundColor: 'black',
         }}
-        renderTicks={true}
+        // renderTicks={true}
       />
     );
   };
@@ -609,11 +610,13 @@ const Chatting = ({navigation, route}) => {
   return (
     <View bg={'white'} flex={1}>
       <View mx={5} mt={5}>
-        <ChatScreen />
+        <ChatScreen otherid={otherid} />
       </View>
       <Divider opacity={0.2} mt={2} />
       <View mx={5} mt={5} mb={16} flex={1}>
         <GiftedChat
+          scrollToBottom={true}
+          // keyboardShouldPersistTaps={true}
           alwaysShowSend
           messages={chat}
           onSend={messages => sendMessage(messages)}

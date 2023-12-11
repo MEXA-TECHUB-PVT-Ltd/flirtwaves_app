@@ -11,8 +11,10 @@ import {
 import React from 'react';
 import Header from '../../components/Header/Header';
 import PushNotification from 'react-native-push-notification';
+import {useSelector} from 'react-redux';
 
 const CallHistory = ({navigation}) => {
+  const uid = useSelector(state => state.auth?.userData?.id);
   const data = [
     {
       id: 1,
@@ -129,7 +131,7 @@ const CallHistory = ({navigation}) => {
     });
   };
   const sendNotification = async () => {
-    let userToken = `dT7KCliiRQKbGpqx-lfTyE:APA91bHuNThS9xbzJGYd93GucHDIK7fMWJ8Z64fHOLoHz8h4XZL26grSnhYQv_cg5CBPJqPzdqRsZ1Ta-cAZhWEX8lYFFB1Wkvlvog0JcrE50Ka6KkwOzmnwJxJGz4DeV9tTXEj2Uszh`;
+    let userToken = `d_7mbIQWTtSSnKKS7Wqqm_:APA91bG5117xReX9kHT0k_X-xI9vsoVjoSSKy_j6kJHkydZhxRLcIh9WgBr5lZjLtCVAEvAAy1t1bDO0Nimi7BeifDkPcyu6sjCTUui3SxoGy8iRG7Ft82oXy7PEzSK8BwZOfFUpR1s1`;
     const serverKey =
       'AAAAwIzMwkc:APA91bFhMh8x-9cwYeNpav4xc6g_gkmjARKk8sao7ZjE1fD_7xvRWAypZa6xESII19AlcDRd3N5BAZn5ZLQEPgTjEsJSRhhUJjALZ36fXZOXroQy5o9oYBxD7tDNwTeWhVShkYB8PkAb'; // Replace with your actual server key
     const token = userToken.replace(/"/g, '');
@@ -159,6 +161,41 @@ const CallHistory = ({navigation}) => {
       });
 
       navigation.navigate('VideoCall', {fromHistory: true});
+    } catch (error) {
+      console.error('Error sending notification:', error);
+    }
+  };
+  const sendAudioNotification = async () => {
+    let userToken = `d_7mbIQWTtSSnKKS7Wqqm_:APA91bG5117xReX9kHT0k_X-xI9vsoVjoSSKy_j6kJHkydZhxRLcIh9WgBr5lZjLtCVAEvAAy1t1bDO0Nimi7BeifDkPcyu6sjCTUui3SxoGy8iRG7Ft82oXy7PEzSK8BwZOfFUpR1s1`;
+    const serverKey =
+      'AAAAwIzMwkc:APA91bFhMh8x-9cwYeNpav4xc6g_gkmjARKk8sao7ZjE1fD_7xvRWAypZa6xESII19AlcDRd3N5BAZn5ZLQEPgTjEsJSRhhUJjALZ36fXZOXroQy5o9oYBxD7tDNwTeWhVShkYB8PkAb'; // Replace with your actual server key
+    const token = userToken.replace(/"/g, '');
+    //'f5scnV4jSJ6j2QMOLYUAYI:APA91bEQOL6umubg_n73gGvXxwM8lF9UdkiIcQC2qnHeH2Axi54RQM6Ny6wXnz8RxdvCiMOOR5KBrzGUp4d59cf9oBq3stokRw4HzMSF'; // Replace with the device token
+    const data = {
+      to: token,
+      notification: {
+        body: 'Sami is Calling you',
+        title: 'Calling',
+        // subtitle: 'New offer is recieved',
+      },
+      data: {
+        callId: 'random123',
+        userId: '123',
+        callType: 'Audio',
+      },
+    };
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `key=${serverKey}`,
+    };
+    try {
+      const response = await fetch('https://fcm.googleapis.com/fcm/send', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(data),
+      });
+
+      navigation.navigate('AudioCall', {fromHistory: true});
     } catch (error) {
       console.error('Error sending notification:', error);
     }
@@ -193,7 +230,7 @@ const CallHistory = ({navigation}) => {
                     </View>
                   </Row>
                   <Row alignItems={'center'}>
-                    <Pressable onPress={() => navigation.navigate('AudioCall')}>
+                    <Pressable onPress={() => sendAudioNotification()}>
                       <Image
                         h={4}
                         w={4}

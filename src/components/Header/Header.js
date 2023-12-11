@@ -49,12 +49,12 @@ const Header = props => {
                   onPress={async () => {
                     let body = {
                       id: uid,
-                      date: userProfile,
+                      data: userProfile,
                     };
                     updateUser(body).then(res => {
                       console.log(res);
                       if (res?.data?.error === false) {
-                        navigation.navigate('Tabs', {screen: 'Home'});
+                        navigation.navigate('Map');
                       }
                     });
                   }}>

@@ -3,8 +3,12 @@ import React from 'react';
 import Header from '../../components/Header/Header';
 import FButton from '../../components/button/FButton';
 import CustomSnackbar from '../../components/customSnackBar/CustomSnackBar';
+import {useReportUserMutation} from '../../redux/apis/auth';
+import {useSelector} from 'react-redux';
 
-const ReportUser = ({navigation}) => {
+const ReportUser = ({navigation, route}) => {
+  const otherUid = route?.params?.otherId;
+  const uid = useSelector(state => state.auth?.userData?.id);
   const data = [
     {
       id: 1,
@@ -34,7 +38,28 @@ const ReportUser = ({navigation}) => {
   ];
   const [id, setId] = React.useState(0);
   const [isSubmited, setSubmit] = React.useState(false);
+  const [reason, setReason] = React.useState('');
+  const [detail, setDetail] = React.useState();
   const [visible, setVisible] = React.useState(false);
+  const [postReport, {isData, isError}] = useReportUserMutation();
+  const handleReport = () => {
+    console.log('report', reason, detail);
+
+    if (detail && reason) {
+      console.log('report reason', reason);
+      let body = {
+        uid: uid,
+        data: {reporter_id: otherUid, reason: reason, description: detail},
+      };
+      postReport(body).then(res => {
+        console.log(res);
+        if (res?.data?.error === false) {
+          setVisible(true);
+        }
+      });
+    }
+    // setVisible(true);
+  };
   return (
     <View bg={'white'} flex={1}>
       <Header />
@@ -82,6 +107,8 @@ const ReportUser = ({navigation}) => {
             mt={16}
             mx={5}
             placeholder={'Add reason'}
+            value={detail}
+            onChangeText={txt => setDetail(txt)}
             bg={'white'}
             color={'grey.500'}
             h={32}
@@ -100,6 +127,7 @@ const ReportUser = ({navigation}) => {
                   mb={5}
                   onPress={() => {
                     setId(item?.id);
+                    setReason(item?.name);
                   }}
                   //   key={item?.id}
                   alignItems={'center'}
@@ -133,7 +161,7 @@ const ReportUser = ({navigation}) => {
             <FButton
               label={'Submit'}
               onPress={() => {
-                setVisible(true);
+                handleReport();
               }}
               variant={'Solid'}
             />

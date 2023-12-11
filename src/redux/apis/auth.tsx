@@ -47,15 +47,10 @@ export const authApis = createApi({
       },
       invalidatesTags: ['getUser'],
     }),
-    getAllDashboardProfile: builder.mutation({
-      query: body => {
-        return {
-          url: `user/getall_dashboard_profiles/${body?.id}`,
-          method: 'POST',
-          body: body?.data,
-        };
-      },
-      invalidatesTags: ['getUser'],
+    getAllDashboardProfile: builder.query({
+      query: body =>
+        `user/getall_dashboard_profiles/userId=${body?.uid}?page=${body?.page}&limit=10`,
+      providesTags: ['getUser'],
     }),
     updateUserProfile: builder.mutation({
       query: body => {
@@ -199,6 +194,15 @@ export const authApis = createApi({
     getAllUsers: builder.query({
       query: page => `user/get_all_users?page=${page}&limit=10`,
     }),
+    addToFav: builder.mutation({
+      query: body => {
+        return {
+          url: `favourites/add/user_id/${body.uid}`,
+          method: 'POST',
+          body: body.data,
+        };
+      },
+    }),
   }),
 });
 
@@ -208,7 +212,7 @@ export const {
   usePostUserMutation,
   useLoginUserMutation,
   useForgetPasswordMutation,
-  useGetAllDashboardProfileMutation,
+
   useUpdatePasswordMutation,
   useUpdateUserProfileMutation,
   useSerchUserMutation,
@@ -234,4 +238,6 @@ export const {
   useGetAllSmokingsQuery,
   useWhichTwoWordsQuery,
   useGetAllUsersQuery,
+  useGetAllDashboardProfileQuery,
+  useAddToFavMutation,
 } = authApis;
