@@ -460,7 +460,9 @@ const Browse = ({navigation}) => {
                 <View alignItems={'center'}>
                   <Pressable
                     bg={'#F5BF0317'}
-                    onPress={() => navigation.navigate('Content')}
+                    onPress={() =>
+                      navigation.navigate('Content', {fromLikes: true})
+                    }
                     borderRadius={10}
                     p={4}
                     borderColor={'primary.400'}
@@ -485,7 +487,9 @@ const Browse = ({navigation}) => {
                 <View alignItems={'center'}>
                   <Pressable
                     bg={'#F5BF0317'}
-                    onPress={() => navigation.navigate('Content')}
+                    onPress={() =>
+                      navigation.navigate('Content', {fromVerif: true})
+                    }
                     borderRadius={10}
                     p={4}
                     borderColor={'primary.400'}
@@ -510,7 +514,9 @@ const Browse = ({navigation}) => {
                 <View alignItems={'center'}>
                   <Pressable
                     bg={'#F5BF0317'}
-                    onPress={() => navigation.navigate('Content')}
+                    onPress={() =>
+                      navigation.navigate('Content', {fromNew: true})
+                    }
                     borderRadius={10}
                     p={4}
                     borderColor={'primary.400'}
@@ -536,7 +542,9 @@ const Browse = ({navigation}) => {
                   <Pressable
                     bg={'#F5BF0317'}
                     borderRadius={10}
-                    onPress={() => navigation.navigate('Content')}
+                    onPress={() =>
+                      navigation.navigate('Content', {fromOnline: true})
+                    }
                     p={4}
                     borderColor={'primary.400'}
                     borderWidth={1}>
