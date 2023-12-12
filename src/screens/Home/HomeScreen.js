@@ -11,7 +11,7 @@ import {
   Switch,
   FlatList,
 } from 'native-base';
-import {Platform, PermissionsAndroid} from 'react-native';
+import {Platform, PermissionsAndroid, AppState} from 'react-native';
 import RangeSlider from 'rn-range-slider';
 import React from 'react';
 import HomeComp from './components/HomeComp';
@@ -40,11 +40,14 @@ import {
   useAddToFavMutation,
   useGetAllDashboardProfileQuery,
   useGetUserByIdQuery,
+  useRemoveFavMutation,
+  useUpdateOnlineStatusMutation,
   useUpdateUserProfileMutation,
 } from '../../redux/apis/auth';
 
 const HomeScreen = ({navigation, route}) => {
   const [updateUser, {isError}] = useUpdateUserProfileMutation();
+  const [updateStaus, {isError: onlineError}] = useUpdateOnlineStatusMutation();
   const [LocationCords, setLocationCords] = React.useState({
     latitude: 0,
     longitude: 0,
@@ -80,11 +83,11 @@ const HomeScreen = ({navigation, route}) => {
   const [address, setAddress] = React.useState();
 
   const handleWatchPosition = async () => {
-    console.log('loc');
+    // console.log('loc');
     Geocoder.init(MapKey);
     await Geolocation.getCurrentPosition(
       position => {
-        console.log('aa', position);
+        // console.log('aa', position);
         const lat = position.coords.latitude;
         const long = position.coords.longitude;
         setLocationCords({
@@ -96,7 +99,7 @@ const HomeScreen = ({navigation, route}) => {
           var addressComponent = json.results[0].formatted_address;
           setAddress(addressComponent);
           // ref?.current?.setAddressText(addressComponent);
-          console.log('address', addressComponent);
+          // console.log('address', addressComponent);
 
           // _________________________________fix current location issue while adding listing_________________
           let geometry = json?.results[0]?.geometry;
@@ -146,12 +149,24 @@ const HomeScreen = ({navigation, route}) => {
   //     });
   //   }
   // }, [address, LocationCords]);
+  React?.useEffect(() => {
+    let body = {
+      id: uid,
+      data: {
+        online_status: AppState?.currentState === 'active' ? true : false,
+        // verified_status: true,
+      },
+    };
+    // console.log(body);
+    updateStaus(body).then(res => {
+      // console.log(res);
+    });
+  }, [AppState]);
   const dispatch = useDispatch();
 
   const userProfile = useSelector(state => state.auth?.userProfile);
   const uid = useSelector(state => state.auth?.userData?.id);
   const location = useSelector(state => state.userData?.location);
-  console.log(location);
 
   const [limit, setLimit] = React.useState(10);
   const [page, setPage] = React.useState(1);
@@ -199,6 +214,7 @@ const HomeScreen = ({navigation, route}) => {
       isVerified: false,
     },
   ];
+
   const [like, setLiked] = React.useState(false);
 
   const [selected, setSelected] = React.useState();
@@ -255,6 +271,8 @@ const HomeScreen = ({navigation, route}) => {
   const [pre, setPre] = React.useState(0);
   const [dashData, setDashData] = React.useState([]);
   const [postFav, {isData: FavData, isError: Error}] = useAddToFavMutation();
+  const [removeFav, {isData: RFavData, isError: RError}] =
+    useRemoveFavMutation();
   React.useEffect(() => {
     // if(isData?.count>0){
     //   const newData={...dashData};
@@ -271,23 +289,62 @@ const HomeScreen = ({navigation, route}) => {
       }
     }
   }, [isData]);
-  const handleFav = id => {
-    let body = {
-      uid: uid,
-      data: {
-        favorite_user_id: id,
-      },
-    };
-    postFav(body).then(Res => {
-      console.log(Res);
-    });
-  };
+  const [favId, setFavId] = React.useState();
+  const handleFav = React.useCallback(id => {
+    console.log('fav', like);
+    // if (like === true) {
+    //   let body = {
+    //     uid: uid,
+    //     data: {
+    //       favorite_user_id: id,
+    //     },
+    //   };
+
+    //   postFav(body).then(Res => {
+    //     console.log(Res);
+    //   });
+    // } else {
+    //   let body = {
+    //     uid: uid,
+    //     fav: id,
+    //   };
+
+    //   removeFav(body).then(Res => {
+    //     console.log('Res', Res);
+    //   });
+    // }
+  }, []);
+  React.useEffect(() => {
+    console.log('object', like, favId);
+    if (like === true && favId) {
+      let body = {
+        uid: uid,
+        data: {
+          favorite_user_id: favId,
+        },
+      };
+
+      postFav(body).then(Res => {
+        console.log(Res);
+      });
+    } else if (like === false && favId) {
+      let body = {
+        id: uid,
+        fav: favId,
+      };
+
+      removeFav(body).then(Res => {
+        console.log('Res', Res);
+      });
+    }
+  }, [like, favId]);
+
   const {
     data: userData,
     isError: userError,
     isLoading: Userloading,
   } = useGetUserByIdQuery(uid);
-  console.log('name', userData?.data?.name);
+  // console.log('name', userData?.data?.id);
   const img = require('../../assets/avatars.png');
   return (
     <GestureHandlerRootView style={{flex: 1}}>
@@ -387,146 +444,155 @@ const HomeScreen = ({navigation, route}) => {
                 renderItem={({item, index}) => {
                   return (
                     <>
-                      <ImageBackground
-                        source={item?.images ? {uri: item?.images[0]} : img}
-                        key={index}
-                        style={{height: 350, marginBottom: 20}}
-                        imageStyle={{
-                          borderRadius: 10,
-                          resizeMode: 'cover',
-                        }}>
-                        <Pressable
-                          flex={1}
-                          flexDir={'column'}
-                          onPress={() => {
-                            setIsBottomSheetExpanded(false);
-                            navigation.navigate('Filter', {otherId: item?.id});
-                          }}
-                          justifyContent={'space-between'}
-                          p={2}>
-                          <Row
-                            alignItems={'center'}
-                            justifyContent={'space-between'}>
-                            <View
-                              bg={index === 3 ? '#FFFFFF2B' : '#1919192B'}
-                              borderRadius={10}
-                              p={1}>
-                              <Text
-                                mx={1}
-                                fontSize={12}
-                                fontFamily={'Lexend-Light'}
-                                color={index === 3 ? 'white' : 'black'}>
-                                {item?.distance} away
-                              </Text>
-                            </View>
-                            <Pressable
-                              onPress={() => {
-                                setSelected(index);
-                                handleFav(item?.id);
-
-                                setLiked(!like);
-                              }}>
-                              <View
-                                bg={'white'}
-                                borderRadius={20}
-                                p={2}
-                                alignItems={'center'}
-                                justifyContent={'center'}>
-                                <AntDesign
-                                  name={
-                                    like === true && index === selected
-                                      ? 'heart'
-                                      : 'hearto'
-                                  }
-                                  size={20}
-                                  color={'#F5BF03'}
-                                />
-                              </View>
-                            </Pressable>
-                          </Row>
-                          <View>
+                      {item?.block_status === false ||
+                      item?.report_status === false ? (
+                        <ImageBackground
+                          source={item?.images ? {uri: item?.images[0]} : img}
+                          key={index}
+                          style={{height: 350, marginBottom: 20}}
+                          imageStyle={{
+                            borderRadius: 10,
+                            resizeMode: 'cover',
+                          }}>
+                          <Pressable
+                            flex={1}
+                            flexDir={'column'}
+                            onPress={() => {
+                              setIsBottomSheetExpanded(false);
+                              navigation.navigate('Filter', {
+                                otherId: item?.id,
+                              });
+                            }}
+                            justifyContent={'space-between'}
+                            p={2}>
                             <Row
                               alignItems={'center'}
                               justifyContent={'space-between'}>
-                              <Row alignItems={'center'}>
+                              <View
+                                bg={index === 3 ? '#FFFFFF2B' : '#1919192B'}
+                                borderRadius={10}
+                                p={1}>
                                 <Text
-                                  fontSize={18}
-                                  color={'white'}
-                                  fontFamily={'Lexend-Regular'}>
-                                  {item?.name}, {item?.age}
+                                  mx={1}
+                                  fontSize={12}
+                                  fontFamily={'Lexend-Light'}
+                                  color={index === 3 ? 'white' : 'black'}>
+                                  {item?.distance} away
                                 </Text>
-                                {item?.isVerified === true ? (
-                                  <Image
-                                    ml={3}
-                                    source={require('../../assets/verified.png')}
-                                    h={6}
-                                    alt={'img'}
-                                    w={6}
-                                    resizeMode="contain"
+                              </View>
+                              <Pressable
+                                onPress={() => {
+                                  setSelected(index);
+                                  setLiked(!like);
+                                  setFavId(item?.id);
+
+                                  // console.log('like', like);
+                                  // handleFav(item?.id);
+                                }}>
+                                <View
+                                  bg={'white'}
+                                  borderRadius={20}
+                                  p={2}
+                                  alignItems={'center'}
+                                  justifyContent={'center'}>
+                                  <AntDesign
+                                    name={
+                                      like === true && index === selected
+                                        ? 'heart'
+                                        : 'hearto'
+                                    }
+                                    size={20}
+                                    color={'#F5BF03'}
                                   />
-                                ) : null}
-                              </Row>
+                                </View>
+                              </Pressable>
                             </Row>
-                            <Pressable
-                              onPress={() => {
-                                navigation.navigate('Chatting', {
-                                  uid: item?.id,
-                                });
-                              }}
-                              bg={'primary.400'}
-                              p={2}
-                              rounded={'full'}
-                              position={'absolute'}
-                              bottom={1}
-                              right={0}>
-                              <Image
-                                source={require('../../assets/mes.png')}
-                                h={5}
-                                w={5}
-                                alt="png"
-                              />
-                            </Pressable>
-                            <Box mt={2}>
+                            <View>
                               <Row
                                 alignItems={'center'}
-                                bg={
-                                  item?.online_status === false
-                                    ? 'transparent'
-                                    : '#039D0040'
-                                }
-                                w={
-                                  item?.online_status === false ? '22%' : '28%'
-                                }
-                                borderColor={'#6E6E6E'}
-                                borderWidth={
-                                  item?.online_status === false ? 1 : null
-                                }
+                                justifyContent={'space-between'}>
+                                <Row alignItems={'center'}>
+                                  <Text
+                                    fontSize={18}
+                                    color={'white'}
+                                    fontFamily={'Lexend-Regular'}>
+                                    {item?.name}, {item?.age}
+                                  </Text>
+                                  {item?.verified_status === true ? (
+                                    <Image
+                                      ml={3}
+                                      source={require('../../assets/verified.png')}
+                                      h={6}
+                                      alt={'img'}
+                                      w={6}
+                                      resizeMode="contain"
+                                    />
+                                  ) : null}
+                                </Row>
+                              </Row>
+                              <Pressable
+                                onPress={() => {
+                                  navigation.navigate('Chatting', {
+                                    uid: item?.id,
+                                  });
+                                }}
+                                bg={'primary.400'}
                                 p={2}
-                                borderRadius={10}>
-                                <View
+                                rounded={'full'}
+                                position={'absolute'}
+                                bottom={1}
+                                right={0}>
+                                <Image
+                                  source={require('../../assets/mes.png')}
+                                  h={5}
+                                  w={5}
+                                  alt="png"
+                                />
+                              </Pressable>
+                              <Box mt={2}>
+                                <Row
+                                  alignItems={'center'}
                                   bg={
                                     item?.online_status === false
-                                      ? '#6E6E6E'
-                                      : '#039D00'
+                                      ? 'transparent'
+                                      : '#039D0040'
                                   }
-                                  h={2}
-                                  w={2}
-                                  rounded={'full'}></View>
-                                <Text
-                                  fontSize={10}
-                                  fontFamily={'Lexend-Light'}
-                                  ml={2}
-                                  color={'white'}>
-                                  {item?.online_status === false
-                                    ? 'offline'
-                                    : 'Active now'}
-                                </Text>
-                              </Row>
-                            </Box>
-                          </View>
-                        </Pressable>
-                        <View style={[styles.overlay, {height: 400}]} />
-                      </ImageBackground>
+                                  w={
+                                    item?.online_status === false
+                                      ? '22%'
+                                      : '28%'
+                                  }
+                                  borderColor={'#6E6E6E'}
+                                  borderWidth={
+                                    item?.online_status === false ? 1 : null
+                                  }
+                                  p={2}
+                                  borderRadius={10}>
+                                  <View
+                                    bg={
+                                      item?.online_status === false
+                                        ? '#6E6E6E'
+                                        : '#039D00'
+                                    }
+                                    h={2}
+                                    w={2}
+                                    rounded={'full'}></View>
+                                  <Text
+                                    fontSize={10}
+                                    fontFamily={'Lexend-Light'}
+                                    ml={2}
+                                    color={'white'}>
+                                    {item?.online_status === false
+                                      ? 'offline'
+                                      : 'Active now'}
+                                  </Text>
+                                </Row>
+                              </Box>
+                            </View>
+                          </Pressable>
+                          <View style={[styles.overlay, {height: 400}]} />
+                        </ImageBackground>
+                      ) : null}
                     </>
                   );
                 }}

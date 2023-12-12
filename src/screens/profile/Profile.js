@@ -27,7 +27,10 @@ import Feather from 'react-native-vector-icons/Feather';
 import ImagePicker from 'react-native-image-crop-picker';
 import {useFocusEffect} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
-import {useDeleteUserMutation} from '../../redux/apis/auth';
+import {
+  useDeleteUserMutation,
+  useGetUserByIdQuery,
+} from '../../redux/apis/auth';
 
 const Profile = ({navigation}) => {
   const [like, setLiked] = React.useState(true);
@@ -82,12 +85,15 @@ const Profile = ({navigation}) => {
       }
     });
   };
-
+  const userData = useSelector(state => state?.auth?.userData);
+  console.log(userData);
+  const {data: profileData, isError: profileError} = useGetUserByIdQuery(uid);
+  console.log(profileData);
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View bg={'white'} flex={1}>
         <ImageBackground
-          source={require('../../assets/h1.png')}
+          source={{uri: userData?.images[0]}}
           style={{height: '65%', width: '100%'}}>
           <Pressable
             position={'absolute'}
@@ -169,23 +175,25 @@ const Profile = ({navigation}) => {
               <Row>
                 <View>
                   <Text fontSize={16} fontFamily={'Lexend-Medium'}>
-                    Rosie, 20
+                    {userData?.name}
                   </Text>
                   <Text
                     fontSize={12}
                     fontFamily={'Lexend-Light'}
                     color={'grey.400'}>
-                    Female - 154 cm
+                    {userData?.gender} - {userData?.height} ft
                   </Text>
                 </View>
-                <Image
-                  ml={3}
-                  source={require('../../assets/verified.png')}
-                  h={6}
-                  alt={'img'}
-                  w={6}
-                  resizeMode="contain"
-                />
+                {userData?.verified_status === true && (
+                  <Image
+                    ml={3}
+                    source={require('../../assets/verified.png')}
+                    h={6}
+                    alt={'img'}
+                    w={6}
+                    resizeMode="contain"
+                  />
+                )}
               </Row>
               <Pressable
                 onPress={() => {
@@ -229,238 +237,227 @@ const Profile = ({navigation}) => {
               />
               <Text
                 fontSize={12}
+                numberOfLines={1}
+                w={'70%'}
                 fontFamily={'Lexend-Light'}
                 color={'grey.400'}>
-                Chigaco, USA
+                {userData?.location}
               </Text>
             </Row>
             <View my={5}>
               <Row>
-                <View
-                  bg={'white'}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/love.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      Looking for Relationship
-                    </Text>
-                  </Row>
-                </View>
-                <View
-                  bg={'white'}
-                  ml={2}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/fitness.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      Occasional Exercise
-                    </Text>
-                  </Row>
-                </View>
+                {profileData?.data?.relation_type_data && (
+                  <View
+                    bg={'white'}
+                    borderColor={'grey.400'}
+                    borderWidth={1}
+                    p={1}
+                    borderRadius={10}>
+                    <Row alignItems={'center'}>
+                      <Image
+                        source={require('../../assets/love.png')}
+                        h={5}
+                        w={5}
+                        resizeMode={'contain'}
+                        alt={'profile'}
+                      />
+                      <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                        Looking For {profileData?.data?.relation_type_data}
+                      </Text>
+                    </Row>
+                  </View>
+                )}
+                {profileData?.data?.exercise_data && (
+                  <View
+                    bg={'white'}
+                    ml={2}
+                    borderColor={'grey.400'}
+                    borderWidth={1}
+                    p={1}
+                    borderRadius={10}>
+                    <Row alignItems={'center'}>
+                      <Image
+                        source={require('../../assets/fitness.png')}
+                        h={5}
+                        w={5}
+                        resizeMode={'contain'}
+                        alt={'profile'}
+                      />
+                      <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                        {profileData?.data?.exercise_data}
+                      </Text>
+                    </Row>
+                  </View>
+                )}
               </Row>
               <Row mt={4}>
-                <View
-                  bg={'white'}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/chef.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      I am a excellent chef
-                    </Text>
-                  </Row>
-                </View>
-                <View
-                  bg={'white'}
-                  ml={2}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/hiking.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      Hiking & backpack
-                    </Text>
-                  </Row>
-                </View>
+                {profileData?.data?.cooking_skill_data && (
+                  <View
+                    bg={'white'}
+                    borderColor={'grey.400'}
+                    borderWidth={1}
+                    p={1}
+                    borderRadius={10}>
+                    <Row alignItems={'center'}>
+                      <Image
+                        source={require('../../assets/chef.png')}
+                        h={5}
+                        w={5}
+                        resizeMode={'contain'}
+                        alt={'profile'}
+                      />
+                      <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                        {profileData?.data?.cooking_skill_data}
+                      </Text>
+                    </Row>
+                  </View>
+                )}
+
+                {profileData?.data?.habit_data && (
+                  <View
+                    bg={'white'}
+                    ml={2}
+                    borderColor={'grey.400'}
+                    borderWidth={1}
+                    p={1}
+                    borderRadius={10}>
+                    <Row alignItems={'center'}>
+                      <Image
+                        source={require('../../assets/hiking.png')}
+                        h={5}
+                        w={5}
+                        resizeMode={'contain'}
+                        alt={'profile'}
+                      />
+                      <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                        {profileData?.data?.habit_data}
+                      </Text>
+                    </Row>
+                  </View>
+                )}
               </Row>
               <Row mt={4}>
-                <View
-                  bg={'white'}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/moon.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      I'm in bed by midnight
-                    </Text>
-                  </Row>
-                </View>
-                <View
-                  bg={'white'}
-                  ml={2}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/smoking.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      Zero Tolerance
-                    </Text>
-                  </Row>
-                </View>
+                {profileData?.data?.night_life_data && (
+                  <View
+                    bg={'white'}
+                    borderColor={'grey.400'}
+                    borderWidth={1}
+                    p={1}
+                    borderRadius={10}>
+                    <Row alignItems={'center'}>
+                      <Image
+                        source={require('../../assets/moon.png')}
+                        h={5}
+                        w={5}
+                        resizeMode={'contain'}
+                        alt={'profile'}
+                      />
+                      <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                        {profileData?.data?.night_life_data}
+                      </Text>
+                    </Row>
+                  </View>
+                )}
+
+                {profileData?.data?.smoking_opinion_data && (
+                  <View
+                    bg={'white'}
+                    ml={2}
+                    borderColor={'grey.400'}
+                    borderWidth={1}
+                    p={1}
+                    borderRadius={10}>
+                    <Row alignItems={'center'}>
+                      <Image
+                        source={require('../../assets/smoking.png')}
+                        h={5}
+                        w={5}
+                        resizeMode={'contain'}
+                        alt={'profile'}
+                      />
+                      <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                        {profileData?.data?.smoking_opinion_data}
+                      </Text>
+                    </Row>
+                  </View>
+                )}
               </Row>
+
               <Row mt={4}>
-                <View
-                  bg={'white'}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/kid.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      Thanks but no thanks
-                    </Text>
-                  </Row>
-                </View>
-                <View
-                  bg={'white'}
-                  ml={2}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/healthy.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      A little bit of everything
-                    </Text>
-                  </Row>
-                </View>
+                {profileData?.data?.kids_opinion_data && (
+                  <View
+                    bg={'white'}
+                    borderColor={'grey.400'}
+                    borderWidth={1}
+                    p={1}
+                    borderRadius={10}>
+                    <Row alignItems={'center'}>
+                      <Image
+                        source={require('../../assets/kid.png')}
+                        h={5}
+                        w={5}
+                        resizeMode={'contain'}
+                        alt={'profile'}
+                      />
+                      <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                        {profileData?.data?.kids_opinion_data}
+                      </Text>
+                    </Row>
+                  </View>
+                )}
+
+                {profileData?.data?.hobby_data && (
+                  <View
+                    bg={'white'}
+                    ml={2}
+                    borderColor={'grey.400'}
+                    borderWidth={1}
+                    p={1}
+                    borderRadius={10}>
+                    <Row alignItems={'center'}>
+                      <Image
+                        source={require('../../assets/healthy.png')}
+                        h={5}
+                        w={5}
+                        resizeMode={'contain'}
+                        alt={'profile'}
+                      />
+                      <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                        {profileData?.data?.hobby_data}
+                      </Text>
+                    </Row>
+                  </View>
+                )}
               </Row>
             </View>
             <Text fontSize={16} fontFamily={'Lexend-Medium'}>
               Gallery
             </Text>
-            <Row justifyContent={'space-between'} mt={5}>
-              <Pressable onPress={() => navigation.navigate('Gallery')}>
-                <Image
-                  source={require('../../assets/h1.png')}
-                  h={24}
-                  borderRadius={10}
-                  w={24}
-                  alt={'gallery'}
-                />
-              </Pressable>
-              <Pressable onPress={() => navigation.navigate('Gallery')}>
-                <Image
-                  source={require('../../assets/h2.png')}
-                  h={24}
-                  borderRadius={10}
-                  w={24}
-                  alt={'gallery'}
-                />
-              </Pressable>
-              <Pressable onPress={() => navigation.navigate('Gallery')}>
-                <Image
-                  source={require('../../assets/h3.png')}
-                  h={24}
-                  borderRadius={10}
-                  w={24}
-                  alt={'gallery'}
-                />
-              </Pressable>
-            </Row>
-            <Row justifyContent={'space-between'} mt={3}>
-              <Pressable onPress={() => navigation.navigate('Gallery')}>
-                <Image
-                  source={require('../../assets/h4.png')}
-                  h={24}
-                  borderRadius={10}
-                  w={24}
-                  alt={'gallery'}
-                />
-              </Pressable>
-              <Pressable onPress={() => navigation.navigate('Gallery')}>
-                <Image
-                  source={require('../../assets/h5.png')}
-                  h={24}
-                  borderRadius={10}
-                  w={24}
-                  alt={'gallery'}
-                />
-              </Pressable>
-              <Pressable onPress={() => navigation.navigate('Gallery')}>
-                <Image
-                  source={require('../../assets/h6.png')}
-                  h={24}
-                  borderRadius={10}
-                  w={24}
-                  alt={'gallery'}
-                />
-              </Pressable>
-            </Row>
+            <View
+              // mt={5}
+              flexDir={'row'}
+              flexWrap={'wrap'}
+              justifyContent={'space-between'}>
+              {userData?.images?.map((item, index) => {
+                return (
+                  <Pressable
+                    onPress={() =>
+                      navigation.navigate('Gallery', {otherUid: uid})
+                    }
+                    key={index}
+                    m={2}>
+                    <Image
+                      source={{uri: item}}
+                      h={24}
+                      borderRadius={10}
+                      w={24}
+                      alt={'gallery'}
+                    />
+                  </Pressable>
+                );
+              })}
+            </View>
+
             <View mt={5}>
               <Row alignItems={'center'} justifyContent={'space-between'}>
                 <View w={'45%'}>

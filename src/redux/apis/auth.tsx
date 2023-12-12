@@ -5,7 +5,7 @@ import {Api_Url} from '../../constants/Api_Url';
 export const authApis = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({baseUrl: Api_Url}),
-  tagTypes: ['getUser', 'getCrushes'],
+  tagTypes: ['getUser', 'getCrushes', 'getFav'],
   endpoints: builder => ({
     postUser: builder.mutation({
       query: body => {
@@ -126,6 +126,7 @@ export const authApis = createApi({
           body: body?.data,
         };
       },
+      invalidatesTags: ['getUser'],
     }),
     changePassword: builder.mutation({
       query: body => {
@@ -154,6 +155,7 @@ export const authApis = createApi({
           body: body?.data,
         };
       },
+      invalidatesTags: ['getUser'],
     }),
     blockUser: builder.mutation({
       query: body => {
@@ -163,36 +165,47 @@ export const authApis = createApi({
           body: body?.data,
         };
       },
+      invalidatesTags: ['getUser'],
     }),
     getAllGenders: builder.query({
       query: page => `gender/getall_genders?page=${page}&limit=10`,
+      providesTags: ['getUser'],
     }),
     getAllRelations: builder.query({
       query: page => `relationship/getall_relations?page=${page}&limit=10`,
+      providesTags: ['getUser'],
     }),
     getAllCookings: builder.query({
       query: page => `cookingskill/getall_cookingskill?page=${page}&limit=10`,
+      providesTags: ['getUser'],
     }),
     getAllHabbits: builder.query({
       query: page => `hobbies/getall_hobbies?page=${page}&limit=10`,
+      providesTags: ['getUser'],
     }),
     getAllSmokings: builder.query({
       query: page => `smoking/getall_smokingopinions?page=${page}&limit=10`,
+      providesTags: ['getUser'],
     }),
     getAllKids: builder.query({
       query: page => `kids/getall_kidsopinions?page=${page}&limit=10`,
+      providesTags: ['getUser'],
     }),
     getAllNightLife: builder.query({
       query: page => `nightlife/getall_nightlifes?page=${page}&limit=10`,
+      providesTags: ['getUser'],
     }),
     getAllExcercises: builder.query({
       query: page => `exercises/getall_exercises?page=${page}&limit=10`,
+      providesTags: ['getUser'],
     }),
     whichTwoWords: builder.query({
       query: page => `habits/getall_habits?page=${page}&limit=10`,
+      providesTags: ['getUser'],
     }),
     getAllUsers: builder.query({
       query: page => `user/get_all_users?page=${page}&limit=10`,
+      providesTags: ['getUser'],
     }),
     addToFav: builder.mutation({
       query: body => {
@@ -202,6 +215,61 @@ export const authApis = createApi({
           body: body.data,
         };
       },
+      invalidatesTags: ['getUser', 'getFav'],
+    }),
+    updateOnlineStatus: builder.mutation({
+      query: body => {
+        return {
+          url: `user/update_onlineuser_status/${body?.id}`,
+          method: 'PUT',
+          body: body?.data,
+        };
+      },
+      invalidatesTags: ['getUser'],
+    }),
+    updateVerifyStatus: builder.mutation({
+      query: body => {
+        return {
+          url: `updateuser_verificationstatus/${body?.id}`,
+          method: 'PUT',
+          body: body?.data,
+        };
+      },
+      invalidatesTags: ['getUser'],
+    }),
+    removeFav: builder.mutation({
+      query: body => {
+        return {
+          url: `favourites/remove/user_id=${body?.id}/favorite_id=${body?.fav}`,
+          method: `DELETE`,
+        };
+      },
+      invalidatesTags: ['getUser', 'getFav'],
+    }),
+    getFavofUser: builder.query({
+      query: body =>
+        `favourites/getFavoritesbyuserID/${body.id}?page=${body.page}&limit=10`,
+      providesTags: ['getUser', 'getFav'],
+    }),
+    getVerifiedProfiles: builder.query({
+      query: body =>
+        `user/get_verified_users/userId=${body?.uid}?page=${body?.page}&limit=10`,
+      providesTags: ['getUser'],
+    }),
+    getNewUsers: builder.query({
+      query: body =>
+        `user/get_recent_profiles/userId=${body?.uid}?page=${body?.page}&limit=10`,
+      providesTags: ['getUser'],
+    }),
+    getLikes: builder.query({
+      query: body =>
+        `favourites/get_received_favourite/user_id=${body?.uid}?page=${body?.page}&limit=10`,
+      providesTags: ['getUser', 'getFav'],
+    }),
+    getOnlineUsers: builder.query({
+      query: body =>
+        `user/get_onlineusers/userId=${body?.uid}?page=${body?.page}&limit=10`,
+      providesTags: ['getUser', 'getFav'],
     }),
   }),
 });
@@ -240,4 +308,12 @@ export const {
   useGetAllUsersQuery,
   useGetAllDashboardProfileQuery,
   useAddToFavMutation,
+  useUpdateOnlineStatusMutation,
+  useUpdateVerifyStatusMutation,
+  useRemoveFavMutation,
+  useGetFavofUserQuery,
+  useGetVerifiedProfilesQuery,
+  useGetNewUsersQuery,
+  useGetLikesQuery,
+  useGetOnlineUsersQuery,
 } = authApis;

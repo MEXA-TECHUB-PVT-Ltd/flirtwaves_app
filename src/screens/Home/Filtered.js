@@ -10,6 +10,7 @@ import {
   Center,
   Switch,
 } from 'native-base';
+import Lottie from 'lottie-react-native';
 import React from 'react';
 import HomeComp from './components/HomeComp';
 import {ImageBackground, StyleSheet} from 'react-native';
@@ -22,62 +23,25 @@ import FButton from '../../components/button/FButton';
 import Header from '../../components/Header/Header';
 import Swiper from 'react-native-swiper';
 import Entypo from 'react-native-vector-icons/Entypo';
+import {
+  useAddToFavMutation,
+  useGetUserByIdQuery,
+  useRemoveFavMutation,
+} from '../../redux/apis/auth';
+import {useSelector} from 'react-redux';
 
 const Filtered = ({navigation, route}) => {
   const otherUid = route?.params?.otherId;
-  console.log(otherUid);
-  const data = [
-    {
-      id: 1,
-      img: require('../../assets/h1.png'),
-      name: 'Rosie',
-      age: 20,
-      status: 'Active Now',
-      distance: '1.3 km',
-      isVerified: true,
-    },
-    {
-      id: 2,
-      img: require('../../assets/h2.png'),
-      name: 'Olivia',
-      age: 22,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 3,
-      img: require('../../assets/h3.png'),
-      name: 'Sophia',
-      age: 26,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 4,
-      img: require('../../assets/h4.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-  ];
+  const uid = useSelector(state => state.auth?.userData?.id);
+  const [postFav, {isData: FavData, isError: Error}] = useAddToFavMutation();
+  const [removeFav, {isData: RFavData, isError: RError}] =
+    useRemoveFavMutation();
   const [like, setLiked] = React.useState(false);
   const [selected, setSelected] = React.useState();
   const bottomSheetRef = React.useRef(null);
   const [isBottomSheetExpanded, setIsBottomSheetExpanded] =
     React.useState(false);
-  const [clo, setClo] = React.useState(-1);
-  const [id, setId] = React.useState(0);
-  const openBottomSheet = uid => {
-    if (bottomSheetRef.current) {
-      bottomSheetRef.current.open();
-    }
-  };
-  const [on, setOn] = React.useState(false);
-  console.log(isBottomSheetExpanded);
+
   const [isLoading, setLoading] = React.useState(false);
   React.useEffect(() => {
     if (isLoading === true) {
@@ -86,70 +50,99 @@ const Filtered = ({navigation, route}) => {
       }, 2000);
     }
   });
-  const [gallery, setGallery] = React.useState(false);
-  const RenderImage = () => {
-    return (
-      <View h={'100%'} w={'70%'}>
-        <Image
-          source={require('../../assets/h1.png')}
-          mt={5}
-          flex={0.2}
-          resizeMode={'cover'}
-          alt={'img'}
-        />
-      </View>
-    );
-  };
-  const RenderImagetwo = () => {
-    return (
-      <View h={'100%'} w={'70%'}>
-        <Image
-          source={require('../../assets/h1.png')}
-          mt={5}
-          flex={0.2}
-          resizeMode={'cover'}
-          alt={'img'}
-        />
-      </View>
-    );
-  };
+  const {
+    data: userData,
+    isError: userError,
+    isLoading: Userloading,
+  } = useGetUserByIdQuery(otherUid);
+  // console.log(userData?.data);
+  const [favId, setFavId] = React.useState();
+
+  React.useEffect(() => {
+    console.log('object', like, favId);
+    if (like === true && favId) {
+      let body = {
+        uid: uid,
+        data: {
+          favorite_user_id: favId,
+        },
+      };
+
+      postFav(body).then(Res => {
+        console.log(Res);
+      });
+    } else if (like === false && favId) {
+      let body = {
+        id: uid,
+        fav: favId,
+      };
+
+      removeFav(body).then(Res => {
+        console.log('Res', Res);
+      });
+    }
+  }, [like, favId]);
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View bg={'white'} flex={1}>
-        <ImageBackground
-          source={require('../../assets/h1.png')}
-          style={{height: '65%', width: '100%'}}>
-          <Row
+        {Userloading ? (
+          <Center
             flex={1}
-            position={'absolute'}
-            top={0}
-            left={0}
-            justifyContent={'space-between'}>
-            <Header />
-          </Row>
-          <Pressable
-            position={'absolute'}
-            w={10}
-            right={5}
-            top={5}
-            rounded={'full'}
-            onPress={() => {
-              setLiked(!like);
-            }}>
-            <View
-              bg={'white'}
-              borderRadius={20}
-              p={2}
-              alignItems={'center'}
-              justifyContent={'center'}>
-              <AntDesign
-                name={like === true ? 'heart' : 'hearto'}
-                size={20}
-                color={'#F5BF03'}
-              />
-            </View>
-          </Pressable>
-          {/* <ImageBackground
+            // mt={'50%'}
+            alignItems={'center'}
+            justifyContent={'center'}>
+            <Lottie
+              source={require('../../assets/spinner.json')}
+              autoPlay
+              loop
+              style={{
+                // marginBottom: 5,
+                height: 50,
+                width: 50,
+                // backgroundColor: 'black',
+              }}></Lottie>
+          </Center>
+        ) : (
+          <>
+            <ImageBackground
+              source={
+                userData?.data?.images
+                  ? {uri: userData?.data?.images[0]}
+                  : require('../../assets/avatars.png')
+              }
+              style={{height: '65%', width: '100%'}}>
+              <Row
+                flex={1}
+                position={'absolute'}
+                top={0}
+                left={0}
+                justifyContent={'space-between'}>
+                <Header />
+              </Row>
+              <Pressable
+                position={'absolute'}
+                w={10}
+                right={5}
+                top={5}
+                rounded={'full'}
+                onPress={() => {
+                  setLiked(!like);
+                  setFavId(userData?.data?.id);
+                }}>
+                <View
+                  bg={'white'}
+                  borderRadius={20}
+                  p={2}
+                  alignItems={'center'}
+                  justifyContent={'center'}>
+                  <AntDesign
+                    name={like === true ? 'heart' : 'hearto'}
+                    size={20}
+                    color={'#F5BF03'}
+                  />
+                </View>
+              </Pressable>
+              {/* <ImageBackground
             source={require('../../assets/Rectangle.png')}
             style={{
               height: 20,
@@ -162,9 +155,9 @@ const Filtered = ({navigation, route}) => {
               alt={'img'}
             />
           </ImageBackground> */}
-        </ImageBackground>
-        <View mx={5} mt={10}>
-          {/* {isLoading ? null : (
+            </ImageBackground>
+            <View mx={5} mt={10}>
+              {/* {isLoading ? null : (
             <ScrollView showsVerticalScrollIndicator={false} mt={2}>
               <View mt={8} mb={16}>
                 {data?.map((item, index) => {
@@ -286,333 +279,352 @@ const Filtered = ({navigation, route}) => {
               </View>
             </ScrollView>
           )} */}
-        </View>
+            </View>
 
-        <BottomSheet
-          ref={bottomSheetRef}
-          enableDismissOnClose={true}
-          index={0} // Set to -1 to start with collapsed state
-          snapPoints={['60%', '98%']} // Adjust snap points as needed
-          onScroll={event => {
-            console.log('Event', event);
-            const offsetY = event.nativeEvent.contentOffset.y;
+            <BottomSheet
+              ref={bottomSheetRef}
+              enableDismissOnClose={true}
+              index={0} // Set to -1 to start with collapsed state
+              snapPoints={['60%', '98%']} // Adjust snap points as needed
+              onScroll={event => {
+                console.log('Event', event);
+                const offsetY = event.nativeEvent.contentOffset.y;
 
-            if (isBottomSheetExpanded && offsetY === 0) {
-              setIsBottomSheetExpanded(false);
-            } else if (!isBottomSheetExpanded && offsetY > 0) {
-              setIsBottomSheetExpanded(true);
-            }
-          }}
-          //snapPoints={snapPoints}
-          //onChange={handleSheetChange}
-          height={210}
-          openDuration={250}
-          closeOnDragDown={true}
-          draggableIcon={false}
-          closeOnPressMask={true}
-          customStyles={{
-            container: {
-              borderTopLeftRadius: 100,
-              borderTopRightRadius: 100,
-              paddingTop: 0,
-              padding: 20,
-              zIndex: 999,
-              backgroundColor: 'white',
-            },
-            draggableIcon: {
-              backgroundColor: 'white',
-            },
-          }}>
-          <ScrollView m={5} showsVerticalScrollIndicator={false}>
-            <Row alignItems={'center'} justifyContent={'space-between'}>
-              <Row>
-                <View>
-                  <Text fontSize={16} fontFamily={'Lexend-Medium'}>
-                    Rosie, 20
-                  </Text>
-                  <Text
-                    fontSize={12}
-                    mt={0}
-                    fontFamily={'Lexend-Light'}
-                    color={'grey.400'}>
-                    Female - 154 cm
-                  </Text>
-                </View>
-                <Image
-                  ml={1}
-                  source={require('../../assets/verified.png')}
-                  h={6}
-                  alt={'img'}
-                  w={6}
-                  resizeMode="contain"
-                />
-              </Row>
-              <Pressable p={2} onPress={() => navigation.navigate('Chatting')}>
-                <View bg={'primary.400'} borderRadius={10} p={3}>
+                if (isBottomSheetExpanded && offsetY === 0) {
+                  setIsBottomSheetExpanded(false);
+                } else if (!isBottomSheetExpanded && offsetY > 0) {
+                  setIsBottomSheetExpanded(true);
+                }
+              }}
+              //snapPoints={snapPoints}
+              //onChange={handleSheetChange}
+              height={210}
+              openDuration={250}
+              closeOnDragDown={true}
+              draggableIcon={false}
+              closeOnPressMask={true}
+              customStyles={{
+                container: {
+                  borderTopLeftRadius: 100,
+                  borderTopRightRadius: 100,
+                  paddingTop: 0,
+                  padding: 20,
+                  zIndex: 999,
+                  backgroundColor: 'white',
+                },
+                draggableIcon: {
+                  backgroundColor: 'white',
+                },
+              }}>
+              <ScrollView m={5} showsVerticalScrollIndicator={false}>
+                <Row alignItems={'center'} justifyContent={'space-between'}>
+                  <Row>
+                    <View>
+                      <Text fontSize={16} fontFamily={'Lexend-Medium'}>
+                        {userData?.data?.name}
+                      </Text>
+                      <Text
+                        fontSize={12}
+                        mt={0}
+                        fontFamily={'Lexend-Light'}
+                        color={'grey.400'}>
+                        {userData?.data?.gender} - {userData?.data?.height} ft
+                      </Text>
+                    </View>
+                    {userData?.data?.verified_status && (
+                      <Image
+                        ml={1}
+                        source={require('../../assets/verified.png')}
+                        h={6}
+                        alt={'img'}
+                        w={6}
+                        resizeMode="contain"
+                      />
+                    )}
+                  </Row>
+                  <Pressable
+                    p={2}
+                    onPress={() => {
+                      navigation.navigate('Chatting', {
+                        uid: userData?.data?.id,
+                      });
+                    }}>
+                    <View bg={'primary.400'} borderRadius={10} p={3}>
+                      <Image
+                        source={require('../../assets/mes.png')}
+                        alt={'conversation'}
+                        h={5}
+                        w={5}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  </Pressable>
+                </Row>
+
+                <Row alignItems={'center'} mt={2}>
                   <Image
-                    source={require('../../assets/mes.png')}
-                    alt={'conversation'}
+                    alt="img"
+                    source={require('../../assets/loc2.png')}
                     h={5}
                     w={5}
-                    resizeMode="contain"
+                    resizeMode={'contain'}
+                  />
+                  <Text
+                    fontSize={12}
+                    numberOfLines={1}
+                    w={'70%'}
+                    fontFamily={'Lexend-Light'}
+                    color={'grey.400'}>
+                    {userData?.data?.location}
+                  </Text>
+                </Row>
+                <View my={5}>
+                  <Row>
+                    {userData?.data?.relation_type_data && (
+                      <View
+                        bg={'white'}
+                        borderColor={'grey.400'}
+                        borderWidth={1}
+                        p={1}
+                        borderRadius={10}>
+                        <Row alignItems={'center'}>
+                          <Image
+                            source={require('../../assets/love.png')}
+                            h={5}
+                            w={5}
+                            resizeMode={'contain'}
+                            alt={'profile'}
+                          />
+                          <Text
+                            ml={2}
+                            fontSize={10}
+                            fontFamily={'Lexend-Medium'}>
+                            Looking for {userData?.data?.relation_type_data}
+                          </Text>
+                        </Row>
+                      </View>
+                    )}
+
+                    {userData?.data?.excercise_data && (
+                      <View
+                        bg={'white'}
+                        ml={2}
+                        borderColor={'grey.400'}
+                        borderWidth={1}
+                        p={1}
+                        borderRadius={10}>
+                        <Row alignItems={'center'}>
+                          <Image
+                            source={require('../../assets/fitness.png')}
+                            h={5}
+                            w={5}
+                            resizeMode={'contain'}
+                            alt={'profile'}
+                          />
+                          <Text
+                            ml={2}
+                            fontSize={10}
+                            fontFamily={'Lexend-Medium'}>
+                            {userData?.data?.excercise_data}
+                          </Text>
+                        </Row>
+                      </View>
+                    )}
+                  </Row>
+                  <Row mt={4}>
+                    {userData?.data?.cooking_skill_data && (
+                      <View
+                        bg={'white'}
+                        borderColor={'grey.400'}
+                        borderWidth={1}
+                        p={1}
+                        borderRadius={10}>
+                        <Row alignItems={'center'}>
+                          <Image
+                            source={require('../../assets/chef.png')}
+                            h={5}
+                            w={5}
+                            resizeMode={'contain'}
+                            alt={'profile'}
+                          />
+                          <Text
+                            ml={2}
+                            fontSize={10}
+                            fontFamily={'Lexend-Medium'}>
+                            {userData?.data?.cooking_skill_data}
+                          </Text>
+                        </Row>
+                      </View>
+                    )}
+                    {userData?.data?.habit_data && (
+                      <View
+                        bg={'white'}
+                        ml={2}
+                        borderColor={'grey.400'}
+                        borderWidth={1}
+                        p={1}
+                        borderRadius={10}>
+                        <Row alignItems={'center'}>
+                          <Image
+                            source={require('../../assets/hiking.png')}
+                            h={5}
+                            w={5}
+                            resizeMode={'contain'}
+                            alt={'profile'}
+                          />
+                          <Text
+                            ml={2}
+                            fontSize={10}
+                            fontFamily={'Lexend-Medium'}>
+                            {userData?.data?.habit_data}
+                          </Text>
+                        </Row>
+                      </View>
+                    )}
+                  </Row>
+                  <Row mt={4}>
+                    {userData?.data?.night_life_data && (
+                      <View
+                        bg={'white'}
+                        borderColor={'grey.400'}
+                        borderWidth={1}
+                        p={1}
+                        borderRadius={10}>
+                        <Row alignItems={'center'}>
+                          <Image
+                            source={require('../../assets/moon.png')}
+                            h={5}
+                            w={5}
+                            resizeMode={'contain'}
+                            alt={'profile'}
+                          />
+                          <Text
+                            ml={2}
+                            fontSize={10}
+                            fontFamily={'Lexend-Medium'}>
+                            {userData?.data?.night_life_data}
+                          </Text>
+                        </Row>
+                      </View>
+                    )}
+                    {userData?.data?.smoking_opinion_data && (
+                      <View
+                        bg={'white'}
+                        ml={2}
+                        borderColor={'grey.400'}
+                        borderWidth={1}
+                        p={1}
+                        borderRadius={10}>
+                        <Row alignItems={'center'}>
+                          <Image
+                            source={require('../../assets/smoking.png')}
+                            h={5}
+                            w={5}
+                            resizeMode={'contain'}
+                            alt={'profile'}
+                          />
+                          <Text
+                            ml={2}
+                            fontSize={10}
+                            fontFamily={'Lexend-Medium'}>
+                            {userData?.data?.smoking_opinion_data}
+                          </Text>
+                        </Row>
+                      </View>
+                    )}
+                  </Row>
+                  <Row mt={4}>
+                    {userData?.data?.kids_opinion_data && (
+                      <View
+                        bg={'white'}
+                        borderColor={'grey.400'}
+                        borderWidth={1}
+                        p={1}
+                        borderRadius={10}>
+                        <Row alignItems={'center'}>
+                          <Image
+                            source={require('../../assets/kid.png')}
+                            h={5}
+                            w={5}
+                            resizeMode={'contain'}
+                            alt={'profile'}
+                          />
+                          <Text
+                            ml={2}
+                            fontSize={10}
+                            fontFamily={'Lexend-Medium'}>
+                            {userData?.data?.kids_opinion_data}
+                          </Text>
+                        </Row>
+                      </View>
+                    )}
+                    {userData?.data?.hobby_data && (
+                      <View
+                        bg={'white'}
+                        ml={2}
+                        borderColor={'grey.400'}
+                        borderWidth={1}
+                        p={1}
+                        borderRadius={10}>
+                        <Row alignItems={'center'}>
+                          <Image
+                            source={require('../../assets/healthy.png')}
+                            h={5}
+                            w={5}
+                            resizeMode={'contain'}
+                            alt={'profile'}
+                          />
+                          <Text
+                            ml={2}
+                            fontSize={10}
+                            fontFamily={'Lexend-Medium'}>
+                            {userData?.data?.hobby_data}
+                          </Text>
+                        </Row>
+                      </View>
+                    )}
+                  </Row>
+                </View>
+                <Text fontSize={16} fontFamily={'Lexend-Medium'}>
+                  Gallery
+                </Text>
+                <View
+                  mt={5}
+                  flexDir={'row'}
+                  flexWrap={'wrap'}
+                  justifyContent={'space-between'}>
+                  {userData?.data?.images?.map((item, index) => {
+                    return (
+                      <Pressable
+                        onPress={() =>
+                          navigation.navigate('Gallery', {otherUid: otherUid})
+                        }
+                        key={index}>
+                        <Image
+                          source={{uri: item}}
+                          h={24}
+                          borderRadius={10}
+                          w={24}
+                          alt={'gallery'}
+                        />
+                      </Pressable>
+                    );
+                  })}
+                </View>
+
+                <View mt={5}>
+                  <FButton
+                    label={'Report & Block Usser'}
+                    variant={'Solid'}
+                    onPress={() =>
+                      navigation.navigate('ReportUser', {otherId: otherUid})
+                    }
                   />
                 </View>
-              </Pressable>
-            </Row>
-
-            <Row alignItems={'center'} mt={2}>
-              <Image
-                alt="img"
-                source={require('../../assets/loc2.png')}
-                h={5}
-                w={5}
-                resizeMode={'contain'}
-              />
-              <Text
-                fontSize={12}
-                fontFamily={'Lexend-Light'}
-                color={'grey.400'}>
-                Chigaco, USA
-              </Text>
-            </Row>
-            <View my={5}>
-              <Row>
-                <View
-                  bg={'white'}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/love.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      Looking for Relationship
-                    </Text>
-                  </Row>
-                </View>
-                <View
-                  bg={'white'}
-                  ml={2}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/fitness.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      Occasional Exercise
-                    </Text>
-                  </Row>
-                </View>
-              </Row>
-              <Row mt={4}>
-                <View
-                  bg={'white'}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/chef.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      I am a excellent chef
-                    </Text>
-                  </Row>
-                </View>
-                <View
-                  bg={'white'}
-                  ml={2}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/hiking.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      Hiking & backpack
-                    </Text>
-                  </Row>
-                </View>
-              </Row>
-              <Row mt={4}>
-                <View
-                  bg={'white'}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/moon.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      I'm in bed by midnight
-                    </Text>
-                  </Row>
-                </View>
-                <View
-                  bg={'white'}
-                  ml={2}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/smoking.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      Zero Tolerance
-                    </Text>
-                  </Row>
-                </View>
-              </Row>
-              <Row mt={4}>
-                <View
-                  bg={'white'}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/kid.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      Thanks but no thanks
-                    </Text>
-                  </Row>
-                </View>
-                <View
-                  bg={'white'}
-                  ml={2}
-                  borderColor={'grey.400'}
-                  borderWidth={1}
-                  p={1}
-                  borderRadius={10}>
-                  <Row alignItems={'center'}>
-                    <Image
-                      source={require('../../assets/healthy.png')}
-                      h={5}
-                      w={5}
-                      resizeMode={'contain'}
-                      alt={'profile'}
-                    />
-                    <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                      A little bit of everything
-                    </Text>
-                  </Row>
-                </View>
-              </Row>
-            </View>
-            <Text fontSize={16} fontFamily={'Lexend-Medium'}>
-              Gallery
-            </Text>
-            <Row justifyContent={'space-between'} mt={5}>
-              <Pressable onPress={() => navigation.navigate('Gallery')}>
-                <Image
-                  source={require('../../assets/h1.png')}
-                  h={24}
-                  borderRadius={10}
-                  w={24}
-                  alt={'gallery'}
-                />
-              </Pressable>
-              <Pressable onPress={() => navigation.navigate('Gallery')}>
-                <Image
-                  source={require('../../assets/h2.png')}
-                  h={24}
-                  borderRadius={10}
-                  w={24}
-                  alt={'gallery'}
-                />
-              </Pressable>
-              <Pressable onPress={() => navigation.navigate('Gallery')}>
-                <Image
-                  source={require('../../assets/h3.png')}
-                  h={24}
-                  borderRadius={10}
-                  w={24}
-                  alt={'gallery'}
-                />
-              </Pressable>
-            </Row>
-            <Row justifyContent={'space-between'} mt={3}>
-              <Pressable onPress={() => navigation.navigate('Gallery')}>
-                <Image
-                  source={require('../../assets/h4.png')}
-                  h={24}
-                  borderRadius={10}
-                  w={24}
-                  alt={'gallery'}
-                />
-              </Pressable>
-              <Pressable onPress={() => navigation.navigate('Gallery')}>
-                <Image
-                  source={require('../../assets/h5.png')}
-                  h={24}
-                  borderRadius={10}
-                  w={24}
-                  alt={'gallery'}
-                />
-              </Pressable>
-              <Pressable onPress={() => navigation.navigate('Gallery')}>
-                <Image
-                  source={require('../../assets/h6.png')}
-                  h={24}
-                  borderRadius={10}
-                  w={24}
-                  alt={'gallery'}
-                />
-              </Pressable>
-            </Row>
-            <View mt={5}>
-              <FButton
-                label={'Report & Block Usser'}
-                variant={'Solid'}
-                onPress={() =>
-                  navigation.navigate('ReportUser', {otherId: otherUid})
-                }
-              />
-            </View>
-          </ScrollView>
-        </BottomSheet>
+              </ScrollView>
+            </BottomSheet>
+          </>
+        )}
       </View>
     </GestureHandlerRootView>
   );
