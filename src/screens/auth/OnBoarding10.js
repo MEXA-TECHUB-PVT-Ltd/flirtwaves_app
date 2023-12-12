@@ -42,7 +42,7 @@ const OnBoarding10 = ({navigation, route}) => {
   const [updateUser, {isError}] = useUpdateUserProfileMutation();
   const [page, setPage] = React.useState(1);
   const {data: isData, isLoading} = useGetAllHabbitsQuery(page);
-  console.log('is', isLoading);
+
   const data = [
     {
       id: 1,
@@ -59,10 +59,10 @@ const OnBoarding10 = ({navigation, route}) => {
     {id: 7, name: `halal`},
   ];
   const [visible, setVisible] = React.useState(false);
-  console.log(isData);
+
   const handleNavigation = async () => {
     if (id) {
-      const data = {...userProfile, eating_habits: id?.id};
+      const data = {...userProfile, hobby: id?.id};
       console.log('data', data);
       await dispatch(setUserProfile(data));
 
@@ -71,11 +71,13 @@ const OnBoarding10 = ({navigation, route}) => {
       } else {
         let body = {
           id: uid,
-          date: userProfile,
+          data: userProfile,
         };
         updateUser(body).then(res => {
           console.log(res);
-          setVisible(true);
+          if (res?.data?.error === false) {
+            setVisible(true);
+          }
         });
       }
     }
@@ -98,7 +100,6 @@ const OnBoarding10 = ({navigation, route}) => {
           </Text>
           <View mt={8}>
             {isData?.data?.map(item => {
-              console.log('item', item);
               return (
                 <Pressable
                   bg={'white'}
@@ -152,8 +153,14 @@ const OnBoarding10 = ({navigation, route}) => {
       <AlertModal
         modalVisible={visible}
         fromAuth={true}
-        onPress={() => navigation.navigate('Tabs', {screen: 'Home'})}
-        onPress1={() => navigation.navigate('Tabs', {screen: 'Home'})}
+        onPress={() => {
+          setVisible(false);
+          navigation.navigate('Map');
+        }}
+        onPress1={() => {
+          setVisible(false);
+          navigation.navigate('Tabs', {screen: 'Home'});
+        }}
       />
     </View>
   );

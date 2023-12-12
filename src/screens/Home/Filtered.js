@@ -23,7 +23,9 @@ import Header from '../../components/Header/Header';
 import Swiper from 'react-native-swiper';
 import Entypo from 'react-native-vector-icons/Entypo';
 
-const Filtered = ({navigation}) => {
+const Filtered = ({navigation, route}) => {
+  const otherUid = route?.params?.otherId;
+  console.log(otherUid);
   const data = [
     {
       id: 1,
@@ -604,7 +606,9 @@ const Filtered = ({navigation}) => {
               <FButton
                 label={'Report & Block Usser'}
                 variant={'Solid'}
-                onPress={() => navigation.navigate('ReportUser')}
+                onPress={() =>
+                  navigation.navigate('ReportUser', {otherId: otherUid})
+                }
               />
             </View>
           </ScrollView>

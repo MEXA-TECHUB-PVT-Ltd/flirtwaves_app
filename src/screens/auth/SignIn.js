@@ -13,6 +13,7 @@ import auth from '@react-native-firebase/auth';
 import {useDispatch, useSelector} from 'react-redux';
 import {useLoginUserMutation} from '../../redux/apis/auth';
 import {setUserData} from '../../redux/slices/auth';
+import messaging from '@react-native-firebase/messaging';
 const SignIn = ({navigation}) => {
   const disptach = useDispatch();
   const [loginUser, {data, isError, isLoading}] = useLoginUserMutation();
@@ -23,11 +24,15 @@ const SignIn = ({navigation}) => {
   });
   const [error, setError] = React.useState();
   const [emailError, setEmailError] = React.useState();
-  const handleCreate = (email, password) => {
+  const handleCreate = async (email, password) => {
+    const token = await messaging().getToken();
+
     let body = {
       email,
       password,
+      device_id: token,
     };
+
     loginUser(body).then(res => {
       console.log('res', res);
       if (res?.data?.error === false) {

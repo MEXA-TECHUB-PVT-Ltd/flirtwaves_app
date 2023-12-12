@@ -63,47 +63,58 @@ const AddPhotoComp = props => {
       height: 500,
     }).then(imageDetail => {
       const source = imageDetail.path;
+      console.log(imageDetail);
+      console.log(imageDetail.path.split('/').pop());
       switch (id) {
         case 1:
+          setImgarray([...imgArray, source]);
           setImageUrl(source);
 
           break;
 
         case 2:
+          setImgarray([...imgArray, source]);
           setImgurl1(source);
 
           break;
 
         case 3:
+          setImgarray([...imgArray, source]);
           setImgurl2(source);
 
           break;
 
         case 4:
+          setImgarray([...imgArray, source]);
           setImgurl3(source);
 
           break;
 
         case 5:
+          setImgarray([...imgArray, source]);
           setImgurl4(source);
           break;
 
         case 6:
+          setImgarray([...imgArray, source]);
           setImgurl5(source);
 
           break;
 
         case 7:
+          setImgarray([...imgArray, source]);
           setImgurl6(source);
 
           break;
 
         case 8:
+          setImgarray([...imgArray, source]);
           setImgurl7(source);
           setId();
           break;
 
         case 9:
+          setImgarray([...imgArray, source]);
           setImgurl8(source);
           setId();
           break;
@@ -121,50 +132,60 @@ const AddPhotoComp = props => {
       // cropping: true,
     }).then(imageDetail => {
       console.log(imageDetail);
-      console.log(imageDetail.path.split('/').pop());
+      // console.log(imageDetail.path.split('/').pop());
       const source = imageDetail.path;
-      console.log('id', change);
+
+      console.log('id', imageDetail);
       switch (id) {
         case 1:
+          setImgarray([...imgArray, source]);
           setImageUrl(source);
 
           break;
 
         case 2:
+          setImgarray([...imgArray, source]);
           setImgurl1(source);
 
           break;
 
         case 3:
+          setImgarray([...imgArray, source]);
           setImgurl2(source);
 
           break;
 
         case 4:
+          setImgarray([...imgArray, source]);
           setImgurl3(source);
 
           break;
 
         case 5:
+          setImgarray([...imgArray, source]);
           setImgurl4(source);
           break;
 
         case 6:
+          setImgarray([...imgArray, source]);
           setImgurl5(source);
 
           break;
 
         case 7:
+          setImgarray([...imgArray, source]);
           setImgurl6(source);
 
           break;
 
         case 8:
+          setImgarray([...imgArray, source]);
           setImgurl7(source);
           setId();
           break;
 
         case 9:
+          setImgarray([...imgArray, source]);
           setImgurl8(source);
           setId();
           break;
@@ -205,72 +226,133 @@ const AddPhotoComp = props => {
     }
   }, [props?.slide]);
 
-  React.useEffect(() => {
-    // if(id===1){
+  // React.useEffect(() => {
+  //   // if(id===1){
 
-    // }
-    switch (id) {
-      case 1:
-        setImgarray([...imgArray, imageUrl]);
+  //   // }
+  //   switch (id) {
+  //     case 1:
+  //       setImgarray([...imgArray, imageUrl]);
 
-        break;
+  //       break;
 
-      case 2:
-        setImgarray([...imgArray, imgurl1]);
+  //     case 2:
+  //       setImgarray([...imgArray, imgurl1]);
 
-        break;
+  //       break;
 
-      case 3:
-        setImgarray([...imgArray, imgurl2]);
+  //     case 3:
+  //       setImgarray([...imgArray, imgurl2]);
 
-        break;
+  //       break;
 
-      case 4:
-        setImgarray([...imgArray, imgurl3]);
+  //     case 4:
+  //       setImgarray([...imgArray, imgurl3]);
 
-        break;
+  //       break;
 
-      case 5:
-        setImgarray([...imgArray, imgurl4]);
-        break;
+  //     case 5:
+  //       setImgarray([...imgArray, imgurl4]);
+  //       break;
 
-      case 6:
-        setImgarray([...imgArray, imgurl5]);
+  //     case 6:
+  //       setImgarray([...imgArray, imgurl5]);
 
-        break;
+  //       break;
 
-      case 7:
-        setImgarray([...imgArray, imgurl6]);
+  //     case 7:
+  //       setImgarray([...imgArray, imgurl6]);
 
-        break;
+  //       break;
 
-      case 8:
-        setImgarray([...imgArray, imgurl7]);
-        setId();
-        break;
+  //     case 8:
+  //       setImgarray([...imgArray, imgurl7]);
+  //       setId();
+  //       break;
 
-      case 9:
-        setImgarray([...imgArray, imgurl8]);
-        setId();
-        break;
+  //     case 9:
+  //       setImgarray([...imgArray, imgurl8]);
+  //       setId();
+  //       break;
 
-      // code block
-    }
-  }, [
-    imageUrl,
-    imgurl1,
-    imgurl2,
-    imgurl3,
-    imgurl4,
-    imgurl5,
-    imgurl6,
-    imgurl7,
-    imgurl8,
-  ]);
+  //     // code block
+  //   }
+  // }, [
+  //   imageUrl,
+  //   imgurl1,
+  //   imgurl2,
+  //   imgurl3,
+  //   imgurl4,
+  //   imgurl5,
+  //   imgurl6,
+  //   imgurl7,
+  //   imgurl8,
+  // ]);
   console.log(imgArray);
   const handleNavigation = async () => {
-    if (imgArray.length > 0) {
-      const data = {...userProfile, image: imageUrl};
+    // if (imgArray.length > 0) {
+
+    //   const data = {...userProfile, image: imgArray};
+    //   let body = {
+    //     id: uid,
+    //     data: data,
+    //   };
+    //   console.log(body);
+    //   updateProfile(body).then(async res => {
+    //     console.log(res);
+    //     if (res?.data?.error === false) {
+    //       await dispatch(setUserProfile(data));
+    //       navigation.navigate('OnBoarding3');
+    //     }
+    //   });
+    // }
+
+    // const handleUploadImages = async imgArray => {
+    // setLoading(true);
+    const uploadPromises = imgArray.map(async imageInfo => {
+      const uri = imageInfo;
+      const filename = uri.split('/').pop();
+      const imageData = {
+        uri: uri,
+        type: 'image/jpeg', // Change the type based on the image type you're dealing with
+        name: filename,
+      };
+
+      console.log(uri);
+      const dataImage = new FormData();
+      dataImage.append('file', imageData);
+      dataImage.append('upload_preset', 'e6zfilan');
+      dataImage.append('cloud_name', 'dxfdrtxi3');
+      try {
+        const response = await fetch(
+          'https://api.cloudinary.com/v1_1/dxfdrtxi3/image/upload',
+          {
+            method: 'POST',
+            body: dataImage,
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'multipart/form-data',
+            },
+          },
+        );
+        if (!response.ok) {
+          throw new Error('Image upload failed');
+        }
+        const data = await response.json();
+        console.log('Image Url', data.url);
+        // Assuming you have a function like uploadXpiVideo, you can call it here
+        //uploadXpiVideo(data.url, data);
+        return data.url;
+      } catch (error) {
+        console.log('Error While Uploading Image', error);
+        throw error; // Rethrow the error so that the Promise.all catches it
+      }
+    });
+    try {
+      const imageUrls = await Promise.all(uploadPromises);
+      console.log('All images uploaded successfully:', imageUrls);
+      setImgarray(imageUrls);
+      const data = {...userProfile, images: imageUrls};
       let body = {
         id: uid,
         data: data,
@@ -283,7 +365,13 @@ const AddPhotoComp = props => {
           navigation.navigate('OnBoarding3');
         }
       });
+      // Do something with the imageUrls array, e.g., store it in state or send it to the server
+    } catch (error) {
+      console.log('Error uploading images:', error);
+    } finally {
+      // setLoading(false);
     }
+    // };
   };
   return (
     <>

@@ -34,11 +34,15 @@ import AlertModal from '../../components/Modal/AlertModal';
 import Entypo from 'react-native-vector-icons/Entypo';
 import BottomSheet from '../../components/bottomSheet/BottomSheet';
 import FButton from '../../components/button/FButton';
+import firestore from '@react-native-firebase/firestore';
+import {useSelector} from 'react-redux';
 var {width, height} = Dimensions.get('window');
 
 function AllChats({navigation}) {
+  const uid = useSelector(state => state.auth?.userData?.id);
   const [mode, setMode] = useState('Basic');
   const [layer, setLayer] = React.useState(false);
+
   const [connections, setConnections] = useState([
     {
       id: 1,

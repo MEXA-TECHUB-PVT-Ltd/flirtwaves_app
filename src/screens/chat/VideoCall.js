@@ -33,7 +33,7 @@ const VideoCall = ({navigation, route}) => {
       // use the helper function to get permissions
       agoraEngineRef.current = createAgoraRtcEngine();
       const agoraEngine = agoraEngineRef.current;
-      agoraEngineRef.current?.enableAudio();
+      agoraEngine.disableVideo();
 
       console.log('agora', agoraEngine);
       agoraEngine.registerEventHandler({
