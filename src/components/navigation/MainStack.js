@@ -52,6 +52,14 @@ import {
 } from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {setFromSignIn} from '../../redux/slices/auth';
+import Cooking from '../../screens/browse/Cooking';
+import Travel from '../../screens/browse/Travel';
+import Exercise from '../../screens/browse/Exercise';
+import Partner from '../../screens/browse/Partner';
+import Eating from '../../screens/browse/Eating';
+import Night from '../../screens/browse/Night';
+import Kids from '../../screens/browse/Kids';
+import Smoke from '../../screens/browse/Smoke';
 export default function MainStack() {
   const navigationRef = useNavigationContainerRef(); // Access navigation container reference
   const Stack = createNativeStackNavigator();
@@ -292,6 +300,14 @@ export default function MainStack() {
         <Stack.Screen name="Privacy" component={Privacy} />
         <Stack.Screen name="PrivacySetting" component={PrivacySettings} />
         <Stack.Screen name="Content" component={Content} />
+        <Stack.Screen name="Cooking" component={Cooking} />
+        <Stack.Screen name="Travel" component={Travel} />
+        <Stack.Screen name="Exercise" component={Exercise} />
+        <Stack.Screen name="Partner" component={Partner} />
+        <Stack.Screen name="Eating" component={Eating} />
+        <Stack.Screen name="Night" component={Night} />
+        <Stack.Screen name="Kids" component={Kids} />
+        <Stack.Screen name="Smoke" component={Smoke} />
       </Stack.Navigator>
     </NavigationContainer>
   );

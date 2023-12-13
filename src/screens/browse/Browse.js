@@ -18,6 +18,17 @@ import Header from '../../components/Header/Header';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Lottie from 'lottie-react-native';
+import {
+  useGetAllCookingsQuery,
+  useGetAllExcercisesQuery,
+  useGetAllHabbitsQuery,
+  useGetAllKidsQuery,
+  useGetAllNightLifeQuery,
+  useGetAllRelationsQuery,
+  useGetAllSmokingsQuery,
+  useSerchUserMutation,
+  useWhichTwoWordsQuery,
+} from '../../redux/apis/auth';
 
 const Browse = ({navigation}) => {
   const [selected, setSelected] = React.useState();
@@ -29,80 +40,8 @@ const Browse = ({navigation}) => {
   const [clicked, setClicked] = React.useState(false);
 
   const [focused, setFocued] = React.useState(false);
-  const data2 = [
-    {
-      id: 1,
-      img: require('../../assets/h1.png'),
-      name: 'Rosie',
-      age: 20,
-      status: 'Active Now',
-      distance: '1.3 km',
-      isVerified: true,
-    },
-    {
-      id: 2,
-      img: require('../../assets/h2.png'),
-      name: 'Olivia',
-      age: 22,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 3,
-      img: require('../../assets/h3.png'),
-      name: 'Sophia',
-      age: 26,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 4,
-      img: require('../../assets/h4.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 5,
-      img: require('../../assets/h5.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 6,
-      img: require('../../assets/h6.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 7,
-      img: require('../../assets/h1.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 8,
-      img: require('../../assets/h2.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-  ];
+  const [searchUser, {data: searchedUsers, isLoading: searchLoading}] =
+    useSerchUserMutation();
   const [searchText, setSearchText] = React.useState('');
   const [searchHistory, setSearchHistory] = React.useState([
     'Sofia Rodriguez',
@@ -113,25 +52,28 @@ const Browse = ({navigation}) => {
   const [found, setFound] = React.useState();
 
   const handleSearch = () => {
-    const lowerCaseSearchText = searchText.toLowerCase();
-    const isFound = searchHistory.includes(lowerCaseSearchText);
+    let body = {
+      name: searchText,
+    };
+    searchUser(body);
+
+    // const lowerCaseSearchText = searchText.toLowerCase();
+    // const isFound = searchHistory.includes(lowerCaseSearchText);
 
     // Update search history
-    setSearchHistory(prevHistory =>
-      isFound ? prevHistory : [...prevHistory, lowerCaseSearchText],
-    );
 
     // Clear the input
-    setSearchText('');
-    setTimeout(() => {
-      setClicked(false);
-      setFocued(false);
-      setIsLoading(false);
-    }, 2000);
+    // setSearchText('');
+    // setTimeout(() => {
+    //   // setClicked(false);
+    //   // setFocued(false);
+    //   // setIsLoading(false);
+    // }, 2000);
   };
-
+  // console.log(searchHistory);
   const highlightMatches = item => {
     const lowerCaseSearchText = searchText.toLowerCase();
+    // console.log(lowerCaseSearchText);
 
     if (!lowerCaseSearchText) {
       // No search text, return the original item
@@ -141,15 +83,20 @@ const Browse = ({navigation}) => {
             setClicked(false);
             setFocued(false);
             setIsLoading(true);
+            console.log('id', item?.id);
+            navigation.navigate('Filter', {otherId: item.id});
           }}>
-          <Text style={styles.historyItem}>{item}</Text>
+          <Text style={styles.historyItem}>{item?.name}</Text>
           <Divider my={2} />
         </Pressable>
       );
     }
 
     // Split the item into parts based on the search text
-    const parts = item.split(new RegExp(`(${lowerCaseSearchText})`, 'gi'));
+    const parts = item?.name?.split(
+      new RegExp(`(${lowerCaseSearchText})`, 'gi'),
+    );
+    // console.log(parts);
 
     return (
       <Pressable
@@ -157,6 +104,8 @@ const Browse = ({navigation}) => {
           setClicked(false);
           setFocued(false);
           setIsLoading(true);
+          console.log('id', item?.id);
+          navigation.navigate('Filter', {otherId: item.id});
         }}>
         <Text style={styles.historyItem}>
           {parts.map((part, index) =>
@@ -190,104 +139,89 @@ const Browse = ({navigation}) => {
     {
       id: 1,
       name: 'A Relationship',
+      prefrenceId: 4,
+      screen: 'Partner',
     },
     {
       id: 2,
       name: 'Nothing Serious ',
+      prefrenceId: 5,
+      screen: 'Partner',
     },
     {
       id: 3,
       name: 'I’ll know when i find it',
+      prefrenceId: 6,
+      screen: 'Partner',
     },
     {
       id: 4,
       name: 'Night owl',
+      prefrenceId: 4,
+      screen: 'Night',
     },
     {
       id: 5,
       name: 'Junk Food',
+      prefrenceId: 8,
+      screen: 'Eating',
     },
     {
       id: 6,
       name: 'Vegetarian',
+      prefrenceId: 7,
+      screen: 'Eating',
     },
     {
       id: 7,
       name: 'Halal',
+      prefrenceId: 10,
+      screen: 'Eating',
     },
     {
       id: 8,
       name: 'Exercise all the time',
+      prefrenceId: 6,
+      screen: 'Exercise',
     },
     {
       id: 9,
       name: 'Occasional Exercise',
+      prefrenceId: 4,
+      screen: 'Exercise',
     },
   ];
-  const partner = [
-    {
-      id: 1,
-      img: require('../../assets/p1.png'),
-      name: 'A Relationship',
-    },
-    {
-      id: 2,
-      img: require('../../assets/p2.png'),
-      name: 'Nothing Serious',
-    },
-    {
-      id: 3,
-      img: require('../../assets/p3.png'),
-      name: `You'll know when i find it`,
-    },
-  ];
-  const excercise = [
-    {
-      id: 1,
-      name: 'To excercise with',
-      img: require('../../assets/e1.png'),
-    },
-    {id: 2, name: 'Excercise all time', img: require('../../assets/e2.png')},
-    {
-      id: 3,
-      name: 'Excercise all time',
-      img: require('../../assets/e3.png'),
-    },
-  ];
-  const cooking = [
-    {
-      id: 1,
-      name: `I'm a microwave master`,
-      img: require('../../assets/c1.png'),
-    },
-    {
-      id: 2,
-      name: `I'm a delivery expert`,
-      img: require('../../assets/c2.png'),
-    },
-    {
-      id: 3,
-      img: require('../../assets/c3.png'),
-      name: `I know a few recipes`,
-    },
-  ];
-  const travel = [
-    {
-      id: 1,
-      name: 'Hiking & Backpack',
-      img: require('../../assets/t1.png'),
-    },
-    {
-      id: 2,
-      name: 'Musuem & Postcards',
-      img: require('../../assets/t2.png'),
-    },
-    {
-      id: 3,
-      name: 'Deckchair & Sunscreen',
-      img: require('../../assets/t3.png'),
-    },
-  ];
+  const [page, setPage] = React.useState(1);
+  const {
+    data: RelationData,
+    isError,
+    isLoading: loading,
+  } = useGetAllRelationsQuery(page);
+  const {
+    data: exerciseData,
+    isError: exerciseError,
+    isLoading: exerciseLoading,
+  } = useGetAllExcercisesQuery(page);
+  const {
+    data: travelData,
+    isError: travelError,
+    isLoading: travelLoading,
+  } = useWhichTwoWordsQuery(page);
+  const {
+    data: cookingData,
+    isError: cookingError,
+    isLoading: cookingLoading,
+  } = useGetAllCookingsQuery(page);
+  const {
+    data: nightData,
+    isError: nightError,
+    isLoading: nightLoading,
+  } = useGetAllNightLifeQuery(page);
+  const {data: smookingData, isLoading: smookingLoading} =
+    useGetAllSmokingsQuery(page);
+  const {data: eatingHabbit, isLoading: eatingLoading} =
+    useGetAllHabbitsQuery(page);
+  const {data: kidsData, isLoading: kidsLoading} = useGetAllKidsQuery(page);
   const [isLoading, setIsLoading] = React.useState(false);
   React.useEffect(() => {
     if (isLoading === true) {
@@ -296,6 +230,21 @@ const Browse = ({navigation}) => {
       }, 2000);
     }
   }, [isLoading]);
+  React.useEffect(() => {
+    if (
+      cookingLoading ||
+      travelLoading ||
+      exerciseLoading ||
+      loading ||
+      kidsLoading ||
+      nightLoading ||
+      smookingLoading ||
+      eatingLoading
+    ) {
+      setIsLoading(true);
+    }
+  }, [cookingData, travelData, RelationData, exerciseData]);
+  // console.log('rees', searchedUsers);
   return (
     <View bg={'white'} flex={1}>
       {clicked === true ? (
@@ -314,10 +263,25 @@ const Browse = ({navigation}) => {
                 onTouchStart={() => setFocued(true)}
                 onFocus={() => console.log('focus')}
                 onBlur={() => {
-                  handleSearch();
+                  // handleSearch();
                   // setTimeout(() => {
-                  //   setFocued(false);
+                  setFocued(false);
                   // }, 2000);
+                }}
+                onSubmitEditing={() => {
+                  handleSearch();
+                  setClicked(false);
+                  // setFocued(false);
+                  setTimeout(() => {
+                    setFocued(false);
+                  }, 2100);
+                }}
+                onEndEditing={() => {
+                  handleSearch();
+                  setClicked(false);
+                  setTimeout(() => {
+                    setFocued(false);
+                  }, 2100);
                 }}
                 _focus={{borderColor: 'primary.400'}}
                 backgroundColor={'white'}
@@ -384,6 +348,10 @@ const Browse = ({navigation}) => {
                         onPress={() => {
                           setClicked(false);
                           setIsLoading(true);
+                          navigation.navigate(item?.screen, {
+                            fromVerif: true,
+                            prefrenceId: item?.prefrenceId,
+                          });
                         }}
                         //   setLoading(true)
                         mr={2}
@@ -416,12 +384,31 @@ const Browse = ({navigation}) => {
                 top={20}
                 right={5}>
                 <View m={2} mx={4} my={4}>
-                  <FlatList
-                    data={searchHistory}
-                    renderItem={renderItem}
-                    keyExtractor={item => item}
-                    //   style={styles.historyList}
-                  />
+                  {!searchLoading ? (
+                    <FlatList
+                      data={searchedUsers?.data}
+                      renderItem={renderItem}
+                      keyExtractor={(item, index) => item?.id}
+                      //   style={styles.historyList}
+                    />
+                  ) : (
+                    <View
+                      flex={1}
+                      // mt={'50%'}
+                      alignItems={'center'}
+                      justifyContent={'center'}>
+                      <Lottie
+                        source={require('../../assets/spinner.json')}
+                        autoPlay
+                        loop
+                        style={{
+                          // marginBottom: 5,
+                          height: 20,
+                          width: 20,
+                          // backgroundColor: 'black',
+                        }}></Lottie>
+                    </View>
+                  )}
                 </View>
               </View>
             )}
@@ -600,23 +587,32 @@ const Browse = ({navigation}) => {
                   <ScrollView
                     horizontal={true}
                     showsHorizontalScrollIndicator={false}>
-                    {partner?.map(item => {
+                    {RelationData?.data?.map(item => {
+                      console.log(item);
                       return (
                         <Pressable
                           key={item?.id}
                           mx={3}
                           mt={4}
                           onPress={() => {
-                            navigation.navigate('Content');
+                            navigation.navigate('Partner', {
+                              fromVerif: true,
+                              prefrenceId: item?.id,
+                            });
                           }}>
-                          <Image source={item?.img} h={24} w={24} alt={'img'} />
+                          <Image
+                            source={{uri: item?.image}}
+                            h={24}
+                            w={24}
+                            alt={'img'}
+                          />
                           <Text
                             fontSize={12}
                             w={24}
                             mt={2}
                             fontFamily={'Lexend-Light'}
                             color={'grey.400'}>
-                            {item?.name}
+                            {item?.relation_type}
                           </Text>
                         </Pressable>
                       );
@@ -637,23 +633,31 @@ const Browse = ({navigation}) => {
                   <ScrollView
                     horizontal={true}
                     showsHorizontalScrollIndicator={false}>
-                    {excercise?.map(item => {
+                    {exerciseData?.data?.map(item => {
                       return (
                         <Pressable
                           onPress={() => {
-                            navigation.navigate('Content');
+                            navigation.navigate('Exercise', {
+                              fromVerif: true,
+                              prefrenceId: item?.id,
+                            });
                           }}
                           key={item?.id}
                           mx={3}
                           mt={4}>
-                          <Image source={item?.img} h={24} w={24} alt={'img'} />
+                          <Image
+                            source={{uri: item?.image}}
+                            h={24}
+                            w={24}
+                            alt={'img'}
+                          />
                           <Text
                             fontSize={12}
                             mt={2}
                             w={24}
                             fontFamily={'Lexend-Light'}
                             color={'grey.400'}>
-                            {item?.name}
+                            {item?.exercise}
                           </Text>
                         </Pressable>
                       );
@@ -674,23 +678,31 @@ const Browse = ({navigation}) => {
                   <ScrollView
                     horizontal={true}
                     showsHorizontalScrollIndicator={false}>
-                    {cooking?.map(item => {
+                    {cookingData?.data?.map(item => {
                       return (
                         <Pressable
                           onPress={() => {
-                            navigation.navigate('Content');
+                            navigation.navigate('Cooking', {
+                              fromVerif: true,
+                              prefrenceId: item?.id,
+                            });
                           }}
                           key={item?.id}
                           mx={3}
                           mt={4}>
-                          <Image source={item?.img} h={24} w={24} alt={'img'} />
+                          <Image
+                            source={{uri: item?.image}}
+                            h={24}
+                            w={24}
+                            alt={'img'}
+                          />
                           <Text
                             fontSize={12}
                             w={24}
                             mt={2}
                             fontFamily={'Lexend-Light'}
                             color={'grey.400'}>
-                            {item?.name}
+                            {item?.cooking_skill}
                           </Text>
                         </Pressable>
                       );
@@ -711,23 +723,212 @@ const Browse = ({navigation}) => {
                   <ScrollView
                     horizontal={true}
                     showsHorizontalScrollIndicator={false}>
-                    {travel?.map(item => {
+                    {travelData?.data?.map(item => {
                       return (
                         <Pressable
                           onPress={() => {
-                            navigation.navigate('Content');
+                            navigation.navigate('Travel', {
+                              fromVerif: true,
+                              prefrenceId: item?.id,
+                            });
                           }}
                           key={item?.id}
                           mx={3}
                           my={4}>
-                          <Image source={item?.img} h={24} w={24} alt={'img'} />
+                          <Image
+                            source={{uri: item?.image}}
+                            h={24}
+                            w={24}
+                            alt={'img'}
+                          />
                           <Text
                             fontSize={12}
                             mt={2}
                             w={24}
                             fontFamily={'Lexend-Light'}
                             color={'grey.400'}>
-                            {item?.name}
+                            {item?.habit}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </ScrollView>
+                  <Row alignItems={'center'} mt={5}>
+                    <Image
+                      source={require('../../assets/moon.png')}
+                      alt={'love'}
+                      h={6}
+                      w={6}
+                      resizeMode="contain"
+                    />
+                    <Text ml={2} fontSize={16} fontFamily={'Lexend-SemiBold'}>
+                      Night Life
+                    </Text>
+                  </Row>
+                  <ScrollView
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}>
+                    {nightData?.data?.map(item => {
+                      return (
+                        <Pressable
+                          onPress={() => {
+                            navigation.navigate('Night', {
+                              fromVerif: true,
+                              prefrenceId: item?.id,
+                            });
+                          }}
+                          key={item?.id}
+                          mx={3}
+                          my={4}>
+                          <Image
+                            source={{uri: item?.image}}
+                            h={24}
+                            w={24}
+                            alt={'img'}
+                          />
+                          <Text
+                            fontSize={12}
+                            mt={2}
+                            w={24}
+                            fontFamily={'Lexend-Light'}
+                            color={'grey.400'}>
+                            {item?.night_life}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </ScrollView>
+
+                  <Row alignItems={'center'} mt={5}>
+                    <Image
+                      source={require('../../assets/kid.png')}
+                      alt={'love'}
+                      h={6}
+                      w={6}
+                      resizeMode="contain"
+                    />
+                    <Text ml={2} fontSize={16} fontFamily={'Lexend-SemiBold'}>
+                      Kids Opinion
+                    </Text>
+                  </Row>
+                  <ScrollView
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}>
+                    {kidsData?.data?.map(item => {
+                      return (
+                        <Pressable
+                          onPress={() => {
+                            navigation.navigate('Kids', {
+                              fromVerif: true,
+                              prefrenceId: item?.id,
+                            });
+                          }}
+                          key={item?.id}
+                          mx={3}
+                          my={4}>
+                          <Image
+                            source={{uri: item?.image}}
+                            h={24}
+                            w={24}
+                            alt={'img'}
+                          />
+                          <Text
+                            fontSize={12}
+                            mt={2}
+                            w={24}
+                            fontFamily={'Lexend-Light'}
+                            color={'grey.400'}>
+                            {item?.kids_opinion}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </ScrollView>
+                  <Row alignItems={'center'} mt={5}>
+                    <Image
+                      source={require('../../assets/smoking.png')}
+                      alt={'love'}
+                      h={6}
+                      w={6}
+                      resizeMode="contain"
+                    />
+                    <Text ml={2} fontSize={16} fontFamily={'Lexend-SemiBold'}>
+                      Smooking Opinion
+                    </Text>
+                  </Row>
+                  <ScrollView
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}>
+                    {smookingData?.data?.map(item => {
+                      return (
+                        <Pressable
+                          onPress={() => {
+                            navigation.navigate('Smoke', {
+                              fromVerif: true,
+                              prefrenceId: item?.id,
+                            });
+                          }}
+                          key={item?.id}
+                          mx={3}
+                          my={4}>
+                          <Image
+                            source={{uri: item?.image}}
+                            h={24}
+                            w={24}
+                            alt={'img'}
+                          />
+                          <Text
+                            fontSize={12}
+                            mt={2}
+                            w={24}
+                            fontFamily={'Lexend-Light'}
+                            color={'grey.400'}>
+                            {item?.smoking_opinion}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </ScrollView>
+                  <Row alignItems={'center'} mt={5}>
+                    <Image
+                      source={require('../../assets/healthy.png')}
+                      alt={'love'}
+                      h={6}
+                      w={6}
+                      resizeMode="contain"
+                    />
+                    <Text ml={2} fontSize={16} fontFamily={'Lexend-SemiBold'}>
+                      Eating Habbits
+                    </Text>
+                  </Row>
+                  <ScrollView
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}>
+                    {eatingHabbit?.data?.map(item => {
+                      return (
+                        <Pressable
+                          onPress={() => {
+                            navigation.navigate('Eating', {
+                              fromVerif: true,
+                              prefrenceId: item?.id,
+                            });
+                          }}
+                          key={item?.id}
+                          mx={3}
+                          my={4}>
+                          <Image
+                            source={{uri: item?.image}}
+                            h={24}
+                            w={24}
+                            alt={'img'}
+                          />
+                          <Text
+                            fontSize={12}
+                            mt={2}
+                            w={24}
+                            fontFamily={'Lexend-Light'}
+                            color={'grey.400'}>
+                            {item?.hobby}
                           </Text>
                         </Pressable>
                       );

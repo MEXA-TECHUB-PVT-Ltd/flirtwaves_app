@@ -39,17 +39,17 @@ const OnBoarding3 = ({navigation, route}) => {
   } = useGetAllRelationsQuery(page);
   const dispatch = useDispatch();
   const [id, setId] = React.useState(0);
-  const data = [
-    {
-      id: 1,
-      name: 'A Relationship',
-    },
-    {
-      id: 2,
-      name: 'Nothing Serious',
-    },
-    {id: 3, name: `I'll know when i find it`},
-  ];
+  // const data = [
+  //   {
+  //     id: 1,
+  //     name: 'A Relationship',
+  //   },
+  //   {
+  //     id: 2,
+  //     name: 'Nothing Serious',
+  //   },
+  //   {id: 3, name: `I'll know when i find it`},
+  // ];
   const handleNavigation = async () => {
     if (id) {
       const data = {...userProfile, relation_type: id?.id};

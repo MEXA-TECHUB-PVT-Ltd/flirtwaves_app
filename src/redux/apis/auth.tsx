@@ -271,6 +271,78 @@ export const authApis = createApi({
         `user/get_onlineusers/userId=${body?.uid}?page=${body?.page}&limit=10`,
       providesTags: ['getUser', 'getFav'],
     }),
+    getUserofCooking: builder.mutation({
+      query: body => {
+        return {
+          url: `cookingskill/get_usersof_cookingskill`,
+          method: 'POST',
+          body,
+        };
+      },
+    }),
+    getUserofRelation: builder.mutation({
+      query: body => {
+        return {
+          url: `relationship/get_users_relation`,
+          method: 'POST',
+          body,
+        };
+      },
+    }),
+    getUserofNight: builder.mutation({
+      query: body => {
+        return {
+          url: `nightlife/get_usersof_nightlifeopinion`,
+          method: 'POST',
+          body,
+        };
+      },
+    }),
+    getUserofExercise: builder.mutation({
+      query: body => {
+        return {
+          url: `exercises/get_usersof_exercise`,
+          method: 'POST',
+          body,
+        };
+      },
+    }),
+    getUserofHabit: builder.mutation({
+      query: body => {
+        return {
+          url: `habits/get_usersof_habit`,
+          method: 'POST',
+          body,
+        };
+      },
+    }),
+    getUserofHoby: builder.mutation({
+      query: body => {
+        return {
+          url: `hobbies/get_users_ofhobby`,
+          method: 'POST',
+          body,
+        };
+      },
+    }),
+    getUserofSmoking: builder.mutation({
+      query: body => {
+        return {
+          url: `smoking/get_usersof_smokingopinion`,
+          method: 'POST',
+          body,
+        };
+      },
+    }),
+    getUserofKids: builder.mutation({
+      query: body => {
+        return {
+          url: `kids/get_usersof_kidopinion`,
+          method: 'POST',
+          body,
+        };
+      },
+    }),
   }),
 });
 
@@ -316,4 +388,12 @@ export const {
   useGetNewUsersQuery,
   useGetLikesQuery,
   useGetOnlineUsersQuery,
+  useGetUserofCookingMutation,
+  useGetUserofExerciseMutation,
+  useGetUserofHabitMutation,
+  useGetUserofHobyMutation,
+  useGetUserofKidsMutation,
+  useGetUserofNightMutation,
+  useGetUserofRelationMutation,
+  useGetUserofSmokingMutation,
 } = authApis;
