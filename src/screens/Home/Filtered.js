@@ -25,18 +25,35 @@ import Swiper from 'react-native-swiper';
 import Entypo from 'react-native-vector-icons/Entypo';
 import {
   useAddToFavMutation,
+  useGetFavStatusMutation,
   useGetUserByIdQuery,
   useRemoveFavMutation,
 } from '../../redux/apis/auth';
 import {useSelector} from 'react-redux';
+import AlertModal from '../../components/Modal/AlertModal';
 
 const Filtered = ({navigation, route}) => {
   const otherUid = route?.params?.otherId;
+  console.log(otherUid);
+  const [active, setActive] = React.useState(false);
   const uid = useSelector(state => state.auth?.userData?.id);
   const [postFav, {isData: FavData, isError: Error}] = useAddToFavMutation();
   const [removeFav, {isData: RFavData, isError: RError}] =
     useRemoveFavMutation();
+  const [getFavStatus, {data: favStatus, isLoading: favLoading}] =
+    useGetFavStatusMutation();
   const [like, setLiked] = React.useState(false);
+  React.useEffect(() => {
+    let body = {
+      user_id: uid,
+      favorite_user_id: otherUid,
+    };
+    getFavStatus(body).then(res => {
+      console.log('res', res);
+      setLiked(res?.data?.saved_status);
+    });
+  }, []);
+
   const [selected, setSelected] = React.useState();
   const bottomSheetRef = React.useRef(null);
   const [isBottomSheetExpanded, setIsBottomSheetExpanded] =
@@ -79,6 +96,10 @@ const Filtered = ({navigation, route}) => {
 
       removeFav(body).then(Res => {
         console.log('Res', Res);
+        if (Res?.data?.error === false) {
+          setActive(false);
+          navigation.goBack();
+        }
       });
     }
   }, [like, favId]);
@@ -126,8 +147,12 @@ const Filtered = ({navigation, route}) => {
                 top={5}
                 rounded={'full'}
                 onPress={() => {
-                  setLiked(!like);
-                  setFavId(userData?.data?.id);
+                  if (like === true) {
+                    setActive(true);
+                  } else {
+                    setLiked(!like);
+                    setFavId(userData?.data?.id);
+                  }
                 }}>
                 <View
                   bg={'white'}
@@ -280,7 +305,21 @@ const Filtered = ({navigation, route}) => {
             </ScrollView>
           )} */}
             </View>
-
+            <AlertModal
+              modalVisible={active}
+              cancelPress={() => {
+                // props.close && props.close('open');
+              }}
+              fromSettings
+              heading={'Remove'}
+              message={'Do you want to remove Zahra from favorites?'}
+              btntxt1={'Cancel'}
+              btntxt2={'Yes,Remove'}
+              comon={true}
+              onPress={() => {
+                setFavId(userData?.data?.id);
+                setLiked(!like);
+              }}></AlertModal>
             <BottomSheet
               ref={bottomSheetRef}
               enableDismissOnClose={true}

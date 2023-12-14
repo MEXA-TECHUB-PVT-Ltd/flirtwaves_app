@@ -141,7 +141,7 @@ export const authApis = createApi({
     browseByPrefrence: builder.mutation({
       query: body => {
         return {
-          url: `user/get_preferences_with_filters/${body?.id}`,
+          url: `user/get_preferences_with_filters/${body?.id}?page=${body?.page}&limit=10`,
           method: 'POST',
           body: body?.data,
         };
@@ -343,6 +343,16 @@ export const authApis = createApi({
         };
       },
     }),
+    getFavStatus: builder.mutation({
+      query: body => {
+        return {
+          url: `favourites/get_favourite_status`,
+          method: 'POST',
+          body,
+        };
+      },
+      invalidatesTags: ['getFav'],
+    }),
   }),
 });
 
@@ -396,4 +406,5 @@ export const {
   useGetUserofNightMutation,
   useGetUserofRelationMutation,
   useGetUserofSmokingMutation,
+  useGetFavStatusMutation,
 } = authApis;

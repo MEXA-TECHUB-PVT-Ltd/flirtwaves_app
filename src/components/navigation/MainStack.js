@@ -60,6 +60,8 @@ import Eating from '../../screens/browse/Eating';
 import Night from '../../screens/browse/Night';
 import Kids from '../../screens/browse/Kids';
 import Smoke from '../../screens/browse/Smoke';
+import {useUpdateOnlineStatusMutation} from '../../redux/apis/auth';
+import {AppState} from 'react-native';
 export default function MainStack() {
   const navigationRef = useNavigationContainerRef(); // Access navigation container reference
   const Stack = createNativeStackNavigator();
@@ -68,18 +70,19 @@ export default function MainStack() {
   messaging()
     .getToken()
     .then(res => {
-      console.log(res);
+      // console.log(res);
     });
   const [initialRoute, setInitialRoute] = React.useState(false);
+  const uid = useSelector(state => state.auth?.userData?.id);
   Sound.setCategory('Playback');
 
   var ding = new Sound('call.mp3', Sound.MAIN_BUNDLE, error => {
     if (error) {
-      console.log('failed to load the sound', error);
+      // console.log('failed to load the sound', error);
       return;
     }
     // when loaded successfully
-    console.log('duration in seconds: ');
+    // console.log('duration in seconds: ');
   });
   PushNotification.createChannel(
     {
@@ -218,42 +221,59 @@ export default function MainStack() {
       });
     }
   });
-  //notification
-  // messaging().onNotificationOpenedApp(remoteMessage => {
-  //   console.log(
-  //     'Notification caused app to open from background state:',
-  //     remoteMessage.notification,
-  //   );
-  //   PushNotification.localNotification({
-  //     /* Android Only Properties */
-  //     channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
-  //     ticker: 'My Notification Ticker', // (optional)
-  //     /* iOS and Android properties */
-  //     largeIcon: 'ic_launcher',
-  //     largeIconUrl: 'https://www.example.tld/picture.jpg',
-  //     title: remoteMessage.notification.title, // (optional)
-  //     message: remoteMessage.notification.body, // (required)
-  //     playSound: true,
-  //     timeoutAfter: 3000,
-  //     priority: 'high',
-  //     smallIcon: 'ic_notification',
-  //     soundName: 'call.mp3',
-  //     actions: ['Answer', 'Decline'],
-  //     userInfo: remoteMessage?.data,
-  //   });
-  //   //navigation.navigate(remoteMessage.data.type);
-  // });
-  // Check whether an initial notification is available
+  const [updateStaus, {isError: onlineError}] = useUpdateOnlineStatusMutation();
+  const appState = React.useRef(AppState.currentState);
+  const [appStateVisible, setAppStateVisible] = React.useState(
+    appState.current,
+  );
 
-  // React.useEffect(() => {
-  //   // Perform navigation to a specific screen without conditional rendering
-  //   if (fromNotifi === true) {
-  //     navigationRef.current.navigate('VideoCall'); // Navigates to 'OnBoarding' screen
-  //   } else {
-  //     return;
-  //   }
-  // }, [navigationRef, fromNotifi]);
+  React.useEffect(() => {
+    AppState.addEventListener('change', _handleAppStateChange);
 
+    // return () => {
+    //   AppState.removeEventListener('change', _handleAppStateChange);
+    // };
+  }, []);
+
+  const _handleAppStateChange = nextAppState => {
+    if (
+      appState.current.match(/inactive|background/) &&
+      nextAppState === 'active'
+    ) {
+      // TODO SET USERS ONLINE STATUS TO TRUE
+      let body = {
+        id: uid,
+        data: {
+          online_status: AppState?.currentState === 'active' ? true : false,
+          // verified_status: true,
+        },
+      };
+      // console.log(body);
+      updateStaus(body).then(res => {
+        console.log(res);
+      });
+    } else {
+      // TODO SET USERS ONLINE STATUS TO FALSE
+      let body = {
+        id: uid,
+        data: {
+          online_status: false,
+          // verified_status: true,
+        },
+      };
+      // console.log(body);
+      updateStaus(body).then(res => {
+        console.log(res);
+      });
+    }
+
+    appState.current = nextAppState;
+    setAppStateVisible(appState.current);
+    console.log('AppState', appState.current);
+  };
+  // React?.useEffect(() => {
+
+  // }, [AppState?.currentState]);
   return (
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator screenOptions={{headerShown: false}}>

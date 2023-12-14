@@ -11,9 +11,9 @@ import {
   Switch,
   FlatList,
 } from 'native-base';
-import {Platform, PermissionsAndroid, AppState} from 'react-native';
-import RangeSlider from 'rn-range-slider';
-import React from 'react';
+import {Platform, PermissionsAndroid, AppState, Animated} from 'react-native';
+
+import React, {useState} from 'react';
 import HomeComp from './components/HomeComp';
 import {ImageBackground, StyleSheet} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -28,22 +28,32 @@ import Entypo from 'react-native-vector-icons/Entypo';
 
 import Geocoder from 'react-native-geocoding';
 import {MapKey} from '../../constants/MapKey';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {
+  GestureHandlerRootView,
+  GestureDetector,
+  Gesture,
+  PanGestureHandler,
+} from 'react-native-gesture-handler';
 import FInputs from '../../components/inputs/inputs';
 import FButton from '../../components/button/FButton';
 import Lottie from 'lottie-react-native';
 import RnRangeSlider from 'rn-range-slider';
-import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
+import BottomSheet, {
+  BottomSheetView,
+  BottomSheetScrollView,
+} from '@gorhom/bottom-sheet';
 import {useDispatch, useSelector} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
 import {
   useAddToFavMutation,
+  useBrowseByPrefrenceMutation,
   useGetAllDashboardProfileQuery,
   useGetUserByIdQuery,
   useRemoveFavMutation,
   useUpdateOnlineStatusMutation,
   useUpdateUserProfileMutation,
 } from '../../redux/apis/auth';
+import RangeSlider from './components/RangeSlider';
 
 const HomeScreen = ({navigation, route}) => {
   const [updateUser, {isError}] = useUpdateUserProfileMutation();
@@ -149,19 +159,7 @@ const HomeScreen = ({navigation, route}) => {
   //     });
   //   }
   // }, [address, LocationCords]);
-  React?.useEffect(() => {
-    let body = {
-      id: uid,
-      data: {
-        online_status: AppState?.currentState === 'active' ? true : false,
-        // verified_status: true,
-      },
-    };
-    // console.log(body);
-    updateStaus(body).then(res => {
-      // console.log(res);
-    });
-  }, [AppState]);
+
   const dispatch = useDispatch();
 
   const userProfile = useSelector(state => state.auth?.userProfile);
@@ -175,45 +173,10 @@ const HomeScreen = ({navigation, route}) => {
     isError: error,
     isLoading: loading,
   } = useGetAllDashboardProfileQuery({uid: uid, page: page});
-
-  const data = [
-    {
-      id: 1,
-      img: require('../../assets/h1.png'),
-      name: 'Rosie',
-      age: 20,
-      status: 'Active Now',
-      distance: '1.3 km',
-      isVerified: true,
-    },
-    {
-      id: 2,
-      img: require('../../assets/h2.png'),
-      name: 'Olivia',
-      age: 22,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 3,
-      img: require('../../assets/h3.png'),
-      name: 'Sophia',
-      age: 26,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 4,
-      img: require('../../assets/h4.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-  ];
+  const [
+    filterUser,
+    {data: filteredUsers, isError: filterError, isLoading: filterLoading},
+  ] = useBrowseByPrefrenceMutation();
 
   const [like, setLiked] = React.useState(false);
 
@@ -264,20 +227,17 @@ const HomeScreen = ({navigation, route}) => {
   const renderLabel = React.useCallback(value => <Text>{value}</Text>, []);
   // const renderNotch = React.useCallback(() => <, []);
   const handleValueChange = React.useCallback((low, high) => {
+    console.log('red', low, high);
     setLow(low);
     setHigh(high);
   }, []);
   const [h, setH] = React.useState('50%');
-  const [pre, setPre] = React.useState(0);
+  const [pre, setPre] = React.useState();
   const [dashData, setDashData] = React.useState([]);
   const [postFav, {isData: FavData, isError: Error}] = useAddToFavMutation();
   const [removeFav, {isData: RFavData, isError: RError}] =
     useRemoveFavMutation();
   React.useEffect(() => {
-    // if(isData?.count>0){
-    //   const newData={...dashData};
-    // }
-
     if (isData?.data) {
       if (isData?.data[0]?.id === dashData[0]?.id) {
         return;
@@ -288,32 +248,19 @@ const HomeScreen = ({navigation, route}) => {
         setDashData(prev => [...prev, ...isData?.data]);
       }
     }
-  }, [isData]);
+    if (filteredUsers?.data) {
+      if (filteredUsers?.data[0]?.id === dashData[0]?.id) {
+        return;
+      } else {
+        if (filteredUsers?.count === 0) {
+          return;
+        }
+        setDashData(prev => [...prev, ...filteredUsers?.data]);
+      }
+    }
+  }, [isData, filteredUsers]);
   const [favId, setFavId] = React.useState();
-  const handleFav = React.useCallback(id => {
-    console.log('fav', like);
-    // if (like === true) {
-    //   let body = {
-    //     uid: uid,
-    //     data: {
-    //       favorite_user_id: id,
-    //     },
-    //   };
 
-    //   postFav(body).then(Res => {
-    //     console.log(Res);
-    //   });
-    // } else {
-    //   let body = {
-    //     uid: uid,
-    //     fav: id,
-    //   };
-
-    //   removeFav(body).then(Res => {
-    //     console.log('Res', Res);
-    //   });
-    // }
-  }, []);
   React.useEffect(() => {
     console.log('object', like, favId);
     if (like === true && favId) {
@@ -346,6 +293,41 @@ const HomeScreen = ({navigation, route}) => {
   } = useGetUserByIdQuery(uid);
   // console.log('name', userData?.data?.id);
   const img = require('../../assets/avatars.png');
+  const innerTap = Gesture.Tap().onStart(() => {
+    console.log('inner tap');
+  });
+
+  const outerTap = Gesture.Tap()
+    .onStart(() => {
+      console.log('outer tap');
+    })
+    .simultaneousWithExternalGesture(innerTap);
+  const [distance, setDistance] = React.useState();
+  const [city, setCity] = React.useState();
+  const handlerFilter = () => {
+    const gender = id === 1 ? 'Male' : 'Female';
+    let body = {
+      id: uid,
+      page: page,
+      data: {
+        gender: id ? gender : null,
+        distance: distance ? distance : null,
+        location: city ? city : null,
+        relation_type_id: pre ? pre : null,
+        online_status: on,
+        age: maxValue - minValue,
+      },
+    };
+    filterUser(body).then(res => {
+      console.log(res);
+    });
+    console.log('body', body);
+  };
+
+  const MIN_DEFAULT = 0;
+  const MAX_DEFAULT = 100;
+  const [minValue, setMinValue] = useState(20);
+  const [maxValue, setMaxValue] = useState(25);
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View
@@ -597,41 +579,19 @@ const HomeScreen = ({navigation, route}) => {
                   );
                 }}
               />
-              // <ScrollView
-              //   showsVerticalScrollIndicator={false}
-              //   mt={2}
-
-              //   onScrollEndDrag={() => console.log('ok')}>
-              //   <View mt={8} mb={16}>
-              //     {data?.map((item, index) => {
-
-              //     })}
-              //   </View>
-              // </ScrollView>
             )}
           </View>
           {isBottomSheetExpanded === true ? (
             <BottomSheet
               ref={bottomSheetRef}
               enableDismissOnClose={true}
+              enableContentPanningGesture={false}
               index={0} // Set to -1 to start with collapsed state
               snapPoints={['60%', '98%']} // Adjust snap points as needed
-              onScroll={event => {
-                console.log('Event', event);
-                const offsetY = event.nativeEvent.contentOffset.y;
-
-                if (isBottomSheetExpanded && offsetY === 0) {
-                  setIsBottomSheetExpanded(false);
-                } else if (!isBottomSheetExpanded && offsetY > 0) {
-                  setIsBottomSheetExpanded(true);
-                }
-              }}
-              //snapPoints={snapPoints}
-              //onChange={handleSheetChange}
               height={210}
               openDuration={250}
               closeOnDragDown={false}
-              draggableIcon={false}
+              draggableIcon={true}
               closeOnPressMask={true}
               customStyles={{
                 container: {
@@ -646,8 +606,13 @@ const HomeScreen = ({navigation, route}) => {
                   backgroundColor: 'white',
                 },
               }}>
+              {/* <BottomSheetView style={{flex: 1}}> */}
               <Pressable>
-                <ScrollView m={5} showsVerticalScrollIndicator={false}>
+                <ScrollView
+                  m={5}
+                  horizontal={false}
+                  showsVerticalScrollIndicator={false}
+                  nestedScrollEnabled={true}>
                   <Text fontSize={16} fontFamily={'Lexend-Medium'}>
                     Apply Filter
                   </Text>
@@ -664,24 +629,21 @@ const HomeScreen = ({navigation, route}) => {
                     fontFamily={'Lexend-Light'}
                     color={'grey.400'}
                     mt={3}>
-                    {low} - {high} years old
+                    {minValue} - {maxValue} years old
                   </Text>
-                  <View>
-                    <RnRangeSlider
-                      min={0}
-                      max={100}
-                      style={{padding: 5}}
-                      step={2}
-                      allowLabelOverflow={true}
-                      floatingLabel
-                      renderThumb={renderThumb}
-                      renderRail={renderRail}
-                      renderRailSelected={renderRailSelected}
-                      renderLabel={renderLabel}
-                      // renderNotch={renderNotch}
-                      onValueChanged={handleValueChange}
+                  <View alignSelf={'center'}>
+                    <RangeSlider
+                      sliderWidth={280}
+                      min={MIN_DEFAULT}
+                      max={MAX_DEFAULT}
+                      step={10}
+                      onValueChange={range => {
+                        setMinValue(range.min);
+                        setMaxValue(range.max);
+                      }}
                     />
                   </View>
+
                   <View mt={5}>
                     <Text
                       color={'primary.400'}
@@ -777,8 +739,8 @@ const HomeScreen = ({navigation, route}) => {
                   </Text>
                   <Row alignItems={'center'} mt={5}>
                     <Pressable
-                      onPress={() => setPre(1)}
-                      borderColor={pre === 1 ? 'primary.400' : 'grey.400'}
+                      onPress={() => setPre(4)}
+                      borderColor={pre === 4 ? 'primary.400' : 'grey.400'}
                       borderWidth={1}
                       borderRadius={12}
                       p={1}
@@ -787,15 +749,15 @@ const HomeScreen = ({navigation, route}) => {
                       <Text
                         fontSize={12}
                         fontFamily={
-                          pre === 1 ? 'Lexend-SemiBold' : 'Lexend-Regular'
+                          pre === 4 ? 'Lexend-SemiBold' : 'Lexend-Regular'
                         }
                         mx={2}>
                         A Relationship
                       </Text>
                     </Pressable>
                     <Pressable
-                      onPress={() => setPre(2)}
-                      borderColor={pre === 2 ? 'primary.400' : 'grey.400'}
+                      onPress={() => setPre(5)}
+                      borderColor={pre === 5 ? 'primary.400' : 'grey.400'}
                       ml={5}
                       borderWidth={1}
                       borderRadius={12}
@@ -805,7 +767,7 @@ const HomeScreen = ({navigation, route}) => {
                       <Text
                         fontSize={12}
                         fontFamily={
-                          pre === 2 ? 'Lexend-SemiBold' : 'Lexend-Regular'
+                          pre === 5 ? 'Lexend-SemiBold' : 'Lexend-Regular'
                         }
                         mx={2}>
                         Nothing Serious
@@ -813,8 +775,8 @@ const HomeScreen = ({navigation, route}) => {
                     </Pressable>
                   </Row>
                   <Pressable
-                    onPress={() => setPre(3)}
-                    borderColor={pre === 3 ? 'primary.400' : 'grey.400'}
+                    onPress={() => setPre(6)}
+                    borderColor={pre === 6 ? 'primary.400' : 'grey.400'}
                     mt={5}
                     borderWidth={1}
                     borderRadius={12}
@@ -825,7 +787,7 @@ const HomeScreen = ({navigation, route}) => {
                     <Text
                       fontSize={12}
                       fontFamily={
-                        pre === 3 ? 'Lexend-SemiBold' : 'Lexend-Regular'
+                        pre === 6 ? 'Lexend-SemiBold' : 'Lexend-Regular'
                       }
                       mx={2}>
                       I'll know when i find it
@@ -858,7 +820,11 @@ const HomeScreen = ({navigation, route}) => {
                       mb={2}>
                       Distance
                     </Text>
-                    <FInputs placeholder={'Enter Distance'} />
+                    <FInputs
+                      placeholder={'Enter Distance'}
+                      value={distance}
+                      onChangeText={setDistance}
+                    />
                   </View>
                   <Text
                     fontSize={14}
@@ -867,19 +833,25 @@ const HomeScreen = ({navigation, route}) => {
                     mb={2}>
                     City
                   </Text>
-                  <FInputs placeholder={'Enter City'} />
+                  <FInputs
+                    placeholder={'Enter City'}
+                    value={city}
+                    onChangeText={setCity}
+                  />
                   <View mt={5}>
                     <FButton
                       label={'Apply'}
                       variant={'Solid'}
                       onPress={() => {
                         setIsBottomSheetExpanded(false);
+                        handlerFilter();
                         setLoading(true);
                       }}
                     />
                   </View>
                 </ScrollView>
               </Pressable>
+              {/* </BottomSheetView> */}
             </BottomSheet>
           ) : null}
         </Pressable>
