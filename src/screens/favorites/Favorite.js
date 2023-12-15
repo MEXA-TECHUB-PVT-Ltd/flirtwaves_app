@@ -9,88 +9,26 @@ import {
   Divider,
   Image,
   FavouriteIcon,
+  Center,
 } from 'native-base';
 import React from 'react';
 import {FlatList, StyleSheet, ImageBackground} from 'react-native';
 import Header from '../../components/Header/Header';
 import Entypo from 'react-native-vector-icons/Entypo';
+import {useSelector} from 'react-redux';
+import {useGetFavofUserQuery} from '../../redux/apis/auth';
+import Lottie from 'lottie-react-native';
 
 const FavoriteScreen = ({navigation}) => {
   const [focused, setFocued] = React.useState(false);
-  const data = [
-    {
-      id: 1,
-      img: require('../../assets/h1.png'),
-      name: 'Rosie',
-      age: 20,
-      status: 'Active Now',
-      distance: '1.3 km',
-      isVerified: true,
-    },
-    {
-      id: 2,
-      img: require('../../assets/h2.png'),
-      name: 'Olivia',
-      age: 22,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 3,
-      img: require('../../assets/h3.png'),
-      name: 'Sophia',
-      age: 26,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 4,
-      img: require('../../assets/h4.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 5,
-      img: require('../../assets/h5.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 6,
-      img: require('../../assets/h6.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 7,
-      img: require('../../assets/h1.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 8,
-      img: require('../../assets/h2.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-  ];
+  const uid = useSelector(state => state?.auth?.userData?.id);
+  const [page, setPage] = React.useState(1);
+  const {
+    data: favoriteUsers,
+    isError,
+    isLoading,
+  } = useGetFavofUserQuery({id: uid, page: page});
+
   const [searchText, setSearchText] = React.useState('');
   const [searchHistory, setSearchHistory] = React.useState([
     'Sofia Rodriguez',
@@ -124,22 +62,24 @@ const FavoriteScreen = ({navigation}) => {
       return (
         <Pressable
           onPress={() => {
-            navigation.navigate('FavoriteUser');
+            navigation.navigate('Filter', {otherId: item?.id});
             setFocued(false);
           }}>
-          <Text style={styles.historyItem}>{item}</Text>
+          <Text style={styles.historyItem}>{item?.name}</Text>
           <Divider my={2} />
         </Pressable>
       );
     }
 
     // Split the item into parts based on the search text
-    const parts = item.split(new RegExp(`(${lowerCaseSearchText})`, 'gi'));
+    const parts = item?.name?.split(
+      new RegExp(`(${lowerCaseSearchText})`, 'gi'),
+    );
 
     return (
       <Pressable
         onPress={() => {
-          navigation.navigate('FavoriteUser');
+          navigation.navigate('Filter', {otherId: item?.id});
           setFocued(false);
         }}>
         <Text style={styles.historyItem}>
@@ -154,17 +94,6 @@ const FavoriteScreen = ({navigation}) => {
           )}
         </Text>
         <Divider my={2} />
-        {/* <Text ml={2} color={'white'} fontSize={14} fontFamily={'Jost-Regular'}>
-          Sofia Lopez
-        </Text>
-        <Divider my={2} />
-        <Text ml={2} color={'white'} fontSize={14} fontFamily={'Jost-Regular'}>
-          Sofia Ramirez
-        </Text>
-        <Divider my={2} />
-        <Text ml={2} color={'white'} fontSize={14} fontFamily={'Jost-Regular'}>
-          Sofia Morales
-        </Text> */}
       </Pressable>
     );
   };
@@ -181,6 +110,7 @@ const FavoriteScreen = ({navigation}) => {
         color={'primary.400'}>
         Favorites
       </Text>
+
       <Input
         alignSelf={'center'}
         mt={5}
@@ -243,59 +173,84 @@ const FavoriteScreen = ({navigation}) => {
           )
         }
       />
-      <ScrollView>
-        <View
-          mx={5}
-          my={5}
-          flexWrap={'wrap'}
-          flexDir={'row'}
-          justifyContent={'space-between'}>
-          {data?.map((item, index) => {
-            return (
-              <Pressable
-                key={index}
-                my={2}
-                onPress={() => navigation.navigate('FavoriteUser')}>
-                <ImageBackground
-                  source={item?.img}
-                  imageStyle={{borderRadius: 12, resizeMode: 'cover'}}
-                  style={{
-                    height: 180,
-                    width: 152,
-                    flex: 1,
-                    padding: 5,
-                  }}>
-                  <FavouriteIcon
-                    size={'md'}
-                    color={'primary.400'}
-                    m={1}
-                    alignSelf={'flex-end'}
-                  />
-                  <View position={'absolute'} bottom={3} left={2}>
-                    <Text
-                      alignSelf={'baseline'}
-                      fontSize={14}
-                      mb={2}
-                      color={'white'}
-                      fontFamily={'Lexend-SemiBold'}>
-                      {item?.name}, {item?.age}
-                    </Text>
-                    <View bg={'#FFFFFF4D'} p={1} borderRadius={10}>
+      {isLoading ? (
+        <Center
+          flex={1}
+          // mt={'50%'}
+          alignItems={'center'}
+          justifyContent={'center'}>
+          <Lottie
+            source={require('../../assets/spinner.json')}
+            autoPlay
+            loop
+            style={{
+              // marginBottom: 5,
+              height: 50,
+              width: 50,
+              // backgroundColor: 'black',
+            }}></Lottie>
+        </Center>
+      ) : (
+        <ScrollView
+          onScroll={() => {
+            // if(favoriteUsers?.data)
+          }}>
+          <View
+            mx={5}
+            my={5}
+            flexWrap={'wrap'}
+            flexDir={'row'}
+            justifyContent={'space-between'}>
+            {favoriteUsers?.data?.map((item, index) => {
+              return (
+                <Pressable
+                  key={index}
+                  my={2}
+                  onPress={() =>
+                    navigation.navigate('Filter', {otherId: item?.id})
+                  }>
+                  <ImageBackground
+                    source={item?.images?.length > 0 && {uri: item?.images[0]}}
+                    imageStyle={{borderRadius: 12, resizeMode: 'cover'}}
+                    style={{
+                      height: 180,
+                      width: 152,
+                      flex: 1,
+                      padding: 5,
+                    }}>
+                    <FavouriteIcon
+                      size={'md'}
+                      color={'primary.400'}
+                      m={1}
+                      alignSelf={'flex-end'}
+                    />
+                    <View position={'absolute'} bottom={3} left={2}>
                       <Text
                         alignSelf={'baseline'}
-                        fontSize={10}
+                        fontSize={14}
+                        mb={2}
                         color={'white'}
-                        fontFamily={'Lexend-Medium'}>
-                        {item?.distance} away
+                        fontFamily={'Lexend-SemiBold'}>
+                        {item?.name}, {item?.age}
                       </Text>
+                      <View bg={'#FFFFFF4D'} p={1} borderRadius={10}>
+                        <Text
+                          alignSelf={'baseline'}
+                          fontSize={10}
+                          color={'white'}
+                          fontFamily={'Lexend-Medium'}>
+                          {item?.distance} away
+                        </Text>
+                      </View>
                     </View>
-                  </View>
-                </ImageBackground>
-              </Pressable>
-            );
-          })}
-        </View>
-      </ScrollView>
+                  </ImageBackground>
+                </Pressable>
+              );
+            })}
+          </View>
+        </ScrollView>
+      )}
+
       {focused === true && (
         <View
           bg={'white'}
@@ -308,9 +263,9 @@ const FavoriteScreen = ({navigation}) => {
           right={6}>
           <View m={2} mx={4} my={4}>
             <FlatList
-              data={searchHistory}
+              data={favoriteUsers?.data}
               renderItem={renderItem}
-              keyExtractor={item => item}
+              keyExtractor={item => item?.id}
               //   style={styles.historyList}
             />
           </View>

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {NativeBaseProvider, extendTheme, Button, View} from 'native-base';
-import {Text} from 'react-native';
+import {AppState, Text} from 'react-native';
 import OnBoarding from './src/screens/auth/onBoarding';
 import Privacy from './src/screens/auth/Privacy';
 import MainStack from './src/components/navigation/MainStack';

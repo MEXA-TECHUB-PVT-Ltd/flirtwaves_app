@@ -337,7 +337,11 @@ const Browse = ({navigation}) => {
             </View>
 
             <ScrollView>
-              <View m={5}>
+              <Pressable
+                m={5}
+                onPress={() => {
+                  setFocued(false);
+                }}>
                 <Text fontSize={16} fontFamily={'Lexend-SemiBold'}>
                   Search by Prefrences
                 </Text>
@@ -371,7 +375,7 @@ const Browse = ({navigation}) => {
                     );
                   })}
                 </View>
-              </View>
+              </Pressable>
             </ScrollView>
             {focused === true && (
               <View
