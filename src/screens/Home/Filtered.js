@@ -24,6 +24,7 @@ import Header from '../../components/Header/Header';
 import Swiper from 'react-native-swiper';
 import Entypo from 'react-native-vector-icons/Entypo';
 import {
+  useAddCrushMutation,
   useAddToFavMutation,
   useGetFavStatusMutation,
   useGetUserByIdQuery,
@@ -74,6 +75,7 @@ const Filtered = ({navigation, route}) => {
   } = useGetUserByIdQuery(otherUid);
   // console.log(userData?.data);
   const [favId, setFavId] = React.useState();
+  const [favName, setFavName] = React.useState();
 
   React.useEffect(() => {
     console.log('object', like, favId);
@@ -103,6 +105,28 @@ const Filtered = ({navigation, route}) => {
       });
     }
   }, [like, favId]);
+  const [postCrush, {data: crushData, isLoading: crusLoading}] =
+    useAddCrushMutation();
+  const handleCrush = crushId => {
+    let body = {
+      uid: uid,
+      data: {
+        crushIds: [userData?.data?.id],
+      },
+    };
+    postCrush(body).then(res => {
+      console.log(res);
+      if (res?.data?.error === false) {
+        navigation.navigate('Chatting', {
+          uid: userData?.data?.id,
+        });
+      }
+    });
+  };
+  // const handleCrush=()=>{
+
+  // }
+
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View bg={'white'} flex={1}>
@@ -152,6 +176,7 @@ const Filtered = ({navigation, route}) => {
                   } else {
                     setLiked(!like);
                     setFavId(userData?.data?.id);
+                    setFavName(userData?.data?.name);
                   }
                 }}>
                 <View
@@ -312,7 +337,7 @@ const Filtered = ({navigation, route}) => {
               }}
               fromSettings
               heading={'Remove'}
-              message={'Do you want to remove Zahra from favorites?'}
+              message={`Do you want to remove ${favName} from favorites?`}
               btntxt1={'Cancel'}
               btntxt2={'Yes,Remove'}
               comon={true}
@@ -384,9 +409,7 @@ const Filtered = ({navigation, route}) => {
                   <Pressable
                     p={2}
                     onPress={() => {
-                      navigation.navigate('Chatting', {
-                        uid: userData?.data?.id,
-                      });
+                      handleCrush();
                     }}>
                     <View bg={'primary.400'} borderRadius={10} p={3}>
                       <Image

@@ -6,6 +6,7 @@ import {
   ImageBackground,
   StyleSheet,
 } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
 import {
   NativeBaseProvider,
   Box,
@@ -29,19 +30,26 @@ import {SwipeListView} from 'react-native-swipe-list-view';
 // import {MaterialIcons, Ionicons} from '@expo/vector-icons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import AlertModal from '../../components/Modal/AlertModal';
 import Entypo from 'react-native-vector-icons/Entypo';
 import BottomSheet from '../../components/bottomSheet/BottomSheet';
 import FButton from '../../components/button/FButton';
-import firestore from '@react-native-firebase/firestore';
+import database from '@react-native-firebase/database';
 import {useSelector} from 'react-redux';
+import {useGetUserCrushesQuery} from '../../redux/apis/auth';
 var {width, height} = Dimensions.get('window');
 
 function AllChats({navigation}) {
-  const uid = useSelector(state => state.auth?.userData?.id);
+  // const uid = useSelector(state => state.auth?.userData?.id);
   const [mode, setMode] = useState('Basic');
   const [layer, setLayer] = React.useState(false);
+  const [page, setPage] = React.useState(1);
+  const id = useSelector(state => state?.auth?.userData?.id);
+  const {data: crushUsers, isLoading: crushLoading} = useGetUserCrushesQuery({
+    id: id,
+    page: page,
+  });
 
   const [connections, setConnections] = useState([
     {
@@ -240,7 +248,7 @@ function AllChats({navigation}) {
               My Flames
             </Text>
             <Text color={'grey.400'} fontSize={10} ml={2}>
-              ({connections?.length})
+              ({crushUsers?.count})
             </Text>
           </Row>
           <Pressable
@@ -254,16 +262,22 @@ function AllChats({navigation}) {
         </Row>
         <View style={{flexDirection: 'row'}}>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            {connections?.map(item => {
+            {crushUsers?.userCrushes?.map((item, index) => {
               return (
-                <Stack
+                <Pressable
+                  onPress={() =>
+                    navigation.navigate('Chatting', {uid: item?.id})
+                  }
                   alignItems={'center'}
                   key={item?.id}
                   mr={4}
-                  ml={item?.id === 1 ? 6 : 0}>
+                  ml={index === 0 ? 6 : 0}>
                   <Stack>
-                    <Avatar source={item?.img} size={'md'} />
-                    {item?.status === 'online' ? (
+                    <Avatar
+                      source={item?.images && {uri: item?.images[0]}}
+                      size={'md'}
+                    />
+                    {item?.online_status === true ? (
                       <Stack
                         h={2}
                         w={2}
@@ -281,7 +295,7 @@ function AllChats({navigation}) {
                     fontFamily={'Lexend-Regular'}>
                     {item?.name}
                   </Text>
-                </Stack>
+                </Pressable>
               );
             })}
           </ScrollView>
@@ -296,74 +310,9 @@ function AllChats({navigation}) {
           color={'black'}>
           Messages
         </Text>
-        <>
-          <Box bg={'primary.20'}>
-            <Pressable
-              bg={'primary.20'}
-              my={2}
-              onPress={() => {
-                navigation.navigate('AcceptRequest');
-              }}
-              alignItems="center"
-              borderWidth={0}
-              borderRadius={12}
-              justifyContent="center"
-              height={50}
-              underlayColor={'#AAA'}
-              _pressed={{
-                bg: 'white',
-              }}
-              p={1}>
-              <HStack
-                width="100%"
-                px={4}
-                alignItems={'center'}
-                justifyContent={'space-between'}>
-                <HStack alignItems={'center'}>
-                  <Stack>
-                    <Avatar
-                      size={'md'}
-                      source={require('../../assets/h6.png')}
-                    />
 
-                    <Stack
-                      h={2}
-                      w={2}
-                      rounded={'full'}
-                      position={'absolute'}
-                      bottom={0}
-                      right={0}
-                      bg={'#04C200'}></Stack>
-                  </Stack>
-                  <Box ml={5}>
-                    <Text
-                      color={'black'}
-                      fontFamily={'Lexend-SemiBold'}
-                      fontSize={14}>
-                      {'Sahara Ardia Fadia'}
-                    </Text>
-                    <Text color={'grey.400'} fontSize={12} numberOfLines={1}>
-                      {'Okay see you soon'}
-                    </Text>
-                  </Box>
-                </HStack>
-                <Stack
-                  ml={2}
-                  alignItems={'center'}
-                  bg={'primary.400'}
-                  mt={2}
-                  borderRadius={8}
-                  p={1}>
-                  <Text fontSize={12} fontFamily={'Lexend-Medium'}>
-                    Waiting for Reply
-                  </Text>
-                </Stack>
-              </HStack>
-            </Pressable>
-          </Box>
-          <Divider w={'75%'} alignSelf={'flex-end'} mx={3} mt={1} />
-        </>
         <Basic
+          chats={crushUsers?.userCrushes}
           close={() => {
             setLayer(false);
           }}
@@ -438,8 +387,104 @@ const styles = StyleSheet.create({
     width: width,
   },
 });
+
 function Basic(props) {
   const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [chats, setChats] = useState([]);
+  const uid = useSelector(state => state.auth?.userData?.id);
+  const [chatingList, setChattingList] = React.useState([]);
+  // React.useEffect(() => {
+  //   props?.chats?.forEach(item => {
+  //     AllMessages(item?.id);
+  //   });
+  // }, [props?.chats]);
+  useFocusEffect(
+    React.useCallback(() => {
+      // setIsLoading(true);
+      //  fetchChatsStatus();
+      fetchChats();
+    }, [uid, dis]),
+  );
+  const fetchChats = async () => {
+    const snapshotref = await database().ref('chatBase/' + `${uid}`);
+    snapshotref.on('value', snapshot => {
+      if (snapshot.exists()) {
+        const chatData = snapshot.val();
+        const chatList = Object.keys(chatData).map(chatId => ({
+          id: chatId,
+          ...chatData[chatId],
+        }));
+        chatList.sort((a, b) => {
+          const key = Object.keys(a)[1];
+          const A = a[key];
+          const key1 = Object.keys(b)[1];
+          const B = b[key1];
+          const timeA = A.createdAt.split(':').map(Number);
+          const timeB = B.createdAt.split(':').map(Number);
+          if (timeA[0] > timeB[0]) {
+            return -1;
+          }
+          if (timeA[0] < timeB[0]) {
+            return 1;
+          }
+          if (timeA[1] !== timeB[1]) {
+            return timeA[1] - timeB[1];
+          }
+          if (timeA[2] !== timeB[2]) {
+            return timeA[2] - timeB[2];
+          }
+          return timeA[3] - timeB[3];
+        });
+        setChats(chatList);
+
+        // setIsLoading(false);
+      }
+    });
+  };
+
+  // const AllMessages = async otherId => {
+  //   // var user = await AsyncStorage.getItem('Userid');
+  //   const doc_id = otherId > uid ? uid + '-' + otherId : otherId + '-' + uid;
+
+  //   console.log('doc_id  :  ', doc_id);
+
+  //   const messageRef = firestore()
+  //     .collection('chats')
+  //     .doc(doc_id)
+  //     .collection('messages')
+  //     .orderBy('createdAt', 'desc');
+
+  //   messageRef.get().then(querySnap => {
+  //     const allmsg = querySnap?.docs?.map(docsnap => {
+  //       const data = docsnap.data();
+  //       if (data.createdAt) {
+  //         return {
+  //           ...docsnap.data(),
+  //           createdAt: docsnap.data().createdAt.toDate(),
+  //         };
+  //       } else {
+  //         return {
+  //           ...docsnap.data(),
+  //           createdAt: new Date(),
+  //         };
+  //       }
+  //     });
+  //     // if (allmsg?.length > 0) {
+  //     console.log(allmsg[0]);
+  //     setChattingList(prev => [...prev, allmsg[0]]);
+  //     // }
+  //     //  setLoading(false);
+  //     //  setCount(count + 1);
+
+  //     // setChat(allmsg);
+  //   });
+  //   // setTimeout(() => {
+  //   //   setLoading(false);
+  //   // }, 2000);
+  // };
+  const [chatId, setChatId] = React.useState();
   const [active, setActive] = useState(false);
   const [listData, setListData] = useState([
     {
@@ -513,78 +558,140 @@ function Basic(props) {
     newData.splice(prevIndex, 1);
     setListData(newData);
   };
+  const removemMessages = async () => {
+    console.log('chatId', chatId);
+    if (chatId) {
+      const databaseRef = database()
+        .ref('chatBase/' + `${uid}`)
+        .child(`${chatId}`);
+      // Remove the data
+      await databaseRef
+        .remove()
+        .then(() => {
+          console.log('Data deleted successfully.');
+          setDis(false);
+          // navigation.navigate('ChatList');
+        })
+        .catch(error => {
+          console.error('Error deleting data:', error);
+        });
+    }
+  };
   const [dis, setDis] = React.useState(false);
+  const [alertName, setAlertName] = React.useState();
   const onRowDidOpen = rowKey => {
-    console.log('This row opened', rowKey);
+    // console.log('This row opened', rowKey);
   };
 
-  const renderItem = ({item, index}) => (
-    <Box key={item?.id}>
+  const renderItem = ({item, index}) => {
+    const key = Object.keys(item)[1];
+    const dataItem = item[key];
+
+    const parts = dataItem?.createdAt.split(':');
+
+    const totalHours = parseInt(parts[0]);
+    const minutes = parseInt(parts[1]);
+    let hours = totalHours % 12;
+    if (hours === 0) {
+      hours = 12;
+    }
+
+    const ampm = totalHours < 12 ? 'AM' : 'PM';
+
+    const messageTime = `${hours
+      .toString()
+      .padStart(2, '0')}:${minutes} ${ampm}`;
+
+    return (
       <Pressable
-        my={2}
-        // borderColor={'grey.500'}
-        onPress={() => navigation.navigate('Chatting', {uid: item?.user_id})}
-        alignItems="center"
-        bg="white"
-        // borderBottomColor="trueGray.200"View
-        borderWidth={0}
-        borderRadius={12}
-        justifyContent="center"
-        height={50}
-        underlayColor={'#AAA'}
-        _pressed={{
-          bg: 'white',
+        key={item?.id}
+        onTouchStart={() => {
+          console.log('press');
+          setChatId(item?.id);
+          setAlertName(
+            dataItem.sender === item.id
+              ? dataItem?.userName
+              : dataItem.reciverName,
+          );
         }}
-        p={2}>
-        <HStack
-          width="100%"
-          px={4}
-          alignItems={'center'}
-          justifyContent={'space-between'}>
-          <HStack alignItems={'center'}>
-            <Stack>
-              <Avatar size={'md'} source={item?.img} />
-              {item?.id === 1 ? (
-                <Stack
-                  h={2}
-                  w={2}
-                  rounded={'full'}
-                  position={'absolute'}
-                  bottom={0}
-                  right={0}
-                  bg={'#04C200'}></Stack>
+        onPress={() => {
+          console.log('press');
+        }}>
+        <Pressable
+          my={2}
+          // borderColor={'grey.500'}
+          onPress={() => navigation.navigate('Chatting', {uid: item?.id})}
+          alignItems="center"
+          bg="white"
+          // borderBottomColor="trueGray.200"View
+          borderWidth={0}
+          borderRadius={12}
+          justifyContent="center"
+          height={50}
+          underlayColor={'#AAA'}
+          _pressed={{
+            bg: 'white',
+          }}
+          p={2}>
+          <HStack
+            width="100%"
+            px={4}
+            alignItems={'center'}
+            justifyContent={'space-between'}>
+            <HStack alignItems={'center'}>
+              <Stack>
+                <Avatar
+                  size={'md'}
+                  source={{
+                    uri:
+                      dataItem?.sender === item.id
+                        ? dataItem?.userAvatar
+                        : dataItem?.avatar,
+                  }}
+                />
+                {item?.online_status === true ? (
+                  <Stack
+                    h={2}
+                    w={2}
+                    rounded={'full'}
+                    position={'absolute'}
+                    bottom={0}
+                    right={0}
+                    bg={'#04C200'}></Stack>
+                ) : null}
+              </Stack>
+              <Box ml={5}>
+                <Text
+                  color={'black'}
+                  fontFamily={'Lexend-SemiBold'}
+                  fontSize={14}>
+                  {dataItem.sender === item.id
+                    ? dataItem?.userName
+                    : dataItem.reciverName}
+                </Text>
+                <Text color={'grey.400'} fontSize={12} numberOfLines={1}>
+                  {dataItem?.message}
+                </Text>
+              </Box>
+            </HStack>
+            <Box alignItems={'center'}>
+              <Text color={'grey.400'} mb={1} fontSize={10} numberOfLines={1}>
+                {messageTime}
+              </Text>
+              {dataItem.sender !== item.id ? (
+                <Icon
+                  size="4"
+                  _light={{
+                    color: dataItem.status === 'seen' ? 'blue' : 'grey.400',
+                  }}
+                  _dark={{
+                    color: 'coolGray.400',
+                  }}
+                  as={MaterialIcons}
+                  name={'done-all'}
+                />
               ) : null}
-            </Stack>
-            <Box ml={5}>
-              <Text
-                color={'black'}
-                fontFamily={'Lexend-SemiBold'}
-                fontSize={14}>
-                {item?.name}
-              </Text>
-              <Text color={'grey.400'} fontSize={12} numberOfLines={1}>
-                {item?.message}
-              </Text>
-            </Box>
-          </HStack>
-          <Box alignItems={'center'}>
-            <Text color={'grey.400'} mb={1} fontSize={10} numberOfLines={1}>
-              {item?.time}
-            </Text>
-            {item?.status === 'sent' ? (
-              <Icon
-                size="4"
-                _light={{
-                  color: 'grey.400',
-                }}
-                _dark={{
-                  color: 'coolGray.400',
-                }}
-                as={MaterialIcons}
-                name={'done-all'}
-              />
-            ) : null}
-            {/* {item?.status === 'rec' ? (
+              {/* {item?.status === 'rec' ? (
               <Box
                 rounded={'full'}
                 h={4}
@@ -595,12 +702,13 @@ function Basic(props) {
                 <Text fontSize={10}>{item?.recieved}</Text>
               </Box>
             ) : null} */}
-          </Box>
-        </HStack>
-        <Divider w={'75%'} mx={3} mt={2} alignSelf={'flex-end'} />
+            </Box>
+          </HStack>
+          <Divider w={'75%'} mx={3} mt={2} alignSelf={'flex-end'} />
+        </Pressable>
       </Pressable>
-    </Box>
-  );
+    );
+  };
 
   const renderHiddenItem = (data, rowMap) => (
     <HStack pr={6} mt={2}>
@@ -673,7 +781,7 @@ function Basic(props) {
   return (
     <Box>
       <SwipeListView
-        data={listData}
+        data={chats}
         renderItem={renderItem}
         renderHiddenItem={renderHiddenItem}
         rightOpenValue={-170}
@@ -690,7 +798,7 @@ function Basic(props) {
         }}
         fromSettings
         heading={'Uncrush'}
-        message={'Do you want to uncrush Zahra?'}
+        message={`Do you want to uncrush ${alertName}?`}
         btntxt1={'Cancel'}
         btntxt2={'Yes,Uncrush'}
         comon={true}
@@ -711,9 +819,8 @@ function Basic(props) {
         btntxt2={'Yes,Delete'}
         comon={true}
         onPress={() => {
+          removemMessages();
           props.close && props.close('open');
-
-          setDis(false);
         }}></AlertModal>
     </Box>
   );

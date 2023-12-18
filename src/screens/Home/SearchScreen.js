@@ -13,83 +13,19 @@ import React from 'react';
 import {FlatList, StyleSheet, ImageBackground} from 'react-native';
 import Header from '../../components/Header/Header';
 import Entypo from 'react-native-vector-icons/Entypo';
+import {useGetUserCrushesQuery} from '../../redux/apis/auth';
+import {useSelector} from 'react-redux';
 
 const SearchScreen = ({navigation}) => {
   const [focused, setFocued] = React.useState(false);
-  const data = [
-    {
-      id: 1,
-      img: require('../../assets/h1.png'),
-      name: 'Rosie',
-      age: 20,
-      status: 'Active Now',
-      distance: '1.3 km',
-      isVerified: true,
-    },
-    {
-      id: 2,
-      img: require('../../assets/h2.png'),
-      name: 'Olivia',
-      age: 22,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 3,
-      img: require('../../assets/h3.png'),
-      name: 'Sophia',
-      age: 26,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 4,
-      img: require('../../assets/h4.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 5,
-      img: require('../../assets/h5.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 6,
-      img: require('../../assets/h6.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 7,
-      img: require('../../assets/h1.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 8,
-      img: require('../../assets/h2.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-  ];
+  const uid = useSelector(state => state?.auth?.userData?.id);
+  const [page, setPage] = React.useState(1);
+  const {data: crushData, isLoading: crushLoading} = useGetUserCrushesQuery({
+    id: uid,
+    page: page,
+  });
+  console.log(crushData);
+
   const [searchText, setSearchText] = React.useState('');
   const [searchHistory, setSearchHistory] = React.useState([
     'Sofia Rodriguez',
@@ -123,22 +59,24 @@ const SearchScreen = ({navigation}) => {
       return (
         <Pressable
           onPress={() => {
-            navigation.navigate('Filter');
+            navigation.navigate('Filter', {otherId: item?.id});
             setFocued(false);
           }}>
-          <Text style={styles.historyItem}>{item}</Text>
+          <Text style={styles.historyItem}>{item?.name}</Text>
           <Divider my={2} />
         </Pressable>
       );
     }
 
     // Split the item into parts based on the search text
-    const parts = item.split(new RegExp(`(${lowerCaseSearchText})`, 'gi'));
+    const parts = item?.name?.split(
+      new RegExp(`(${lowerCaseSearchText})`, 'gi'),
+    );
 
     return (
       <Pressable
         onPress={() => {
-          navigation.navigate('Filter');
+          navigation.navigate('Filter', {otherId: item?.id});
           setFocued(false);
         }}>
         <Text style={styles.historyItem}>
@@ -242,14 +180,16 @@ const SearchScreen = ({navigation}) => {
           flexWrap={'wrap'}
           flexDir={'row'}
           justifyContent={'space-between'}>
-          {data?.map((item, index) => {
+          {crushData?.userCrushes?.map((item, index) => {
             return (
               <Pressable
                 key={index}
                 my={2}
-                onPress={() => navigation.navigate('Filter')}>
+                onPress={() =>
+                  navigation.navigate('Filter', {otherId: item?.id})
+                }>
                 <ImageBackground
-                  source={item?.img}
+                  source={item?.images ? {uri: item?.images[0]} : null}
                   imageStyle={{borderRadius: 12, resizeMode: 'cover'}}
                   style={{
                     height: 180,
@@ -294,9 +234,9 @@ const SearchScreen = ({navigation}) => {
           right={6}>
           <View m={2} mx={4} my={4}>
             <FlatList
-              data={searchHistory}
+              data={crushData?.userCrushes}
               renderItem={renderItem}
-              keyExtractor={item => item}
+              keyExtractor={item => item?.id}
               //   style={styles.historyList}
             />
           </View>

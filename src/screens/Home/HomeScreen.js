@@ -45,6 +45,7 @@ import BottomSheet, {
 import {useDispatch, useSelector} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
 import {
+  useAddCrushMutation,
   useAddToFavMutation,
   useBrowseByPrefrenceMutation,
   useGetAllDashboardProfileQuery,
@@ -56,6 +57,9 @@ import {
 import RangeSlider from './components/RangeSlider';
 
 const HomeScreen = ({navigation, route}) => {
+  const [postCrush, {data: crushData, isLoading: crusLoading}] =
+    useAddCrushMutation();
+
   const [updateUser, {isError}] = useUpdateUserProfileMutation();
   const [updateStaus, {isError: onlineError}] = useUpdateOnlineStatusMutation();
   const [LocationCords, setLocationCords] = React.useState({
@@ -138,27 +142,7 @@ const HomeScreen = ({navigation, route}) => {
         distanceFilter: 10, // Update the location only if the user has moved at least 10 meters
       },
     );
-
-    // Clean up the watch position when the component is unmounted
-    // return () => {
-    //   navigator.geolocation.clearWatch(watchId);
-    // };
   };
-  // React.useEffect(() => {
-  //   if (address && LocationCords) {
-  //     let body = {
-  //       id: uid,
-  //       data: {
-  //         location: address,
-  //         longitude: LocationCords.longitude,
-  //         latitude: LocationCords.latitude,
-  //       },
-  //     };
-  //     updateUser(body).then(res => {
-  //       console.log('res', res);
-  //     });
-  //   }
-  // }, [address, LocationCords]);
 
   const dispatch = useDispatch();
 
@@ -328,6 +312,24 @@ const HomeScreen = ({navigation, route}) => {
   const MAX_DEFAULT = 100;
   const [minValue, setMinValue] = useState(20);
   const [maxValue, setMaxValue] = useState(25);
+
+  const handleCrush = crushId => {
+    let body = {
+      uid: uid,
+      data: {
+        crushIds: [crushId],
+      },
+    };
+    postCrush(body).then(res => {
+      console.log(res);
+      if (res?.data?.error === false) {
+        navigation.navigate('Chatting', {
+          uid: crushId,
+        });
+      }
+    });
+  };
+
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View
@@ -514,9 +516,7 @@ const HomeScreen = ({navigation, route}) => {
                               </Row>
                               <Pressable
                                 onPress={() => {
-                                  navigation.navigate('Chatting', {
-                                    uid: item?.id,
-                                  });
+                                  handleCrush(item?.id);
                                 }}
                                 bg={'primary.400'}
                                 p={2}

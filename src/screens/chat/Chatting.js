@@ -11,6 +11,7 @@ import {
 } from 'native-base';
 import {FlatList} from 'react-native';
 import React, {useLayoutEffect, useState} from 'react';
+import database from '@react-native-firebase/database';
 import ChatScreen from './components/ChatScreen';
 import {
   GiftedChat,
@@ -35,11 +36,26 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
+import {useGetUserByIdQuery} from '../../redux/apis/auth';
+import moment from 'moment';
 
 const Chatting = ({navigation, route}) => {
   const otherid = route?.params?.uid;
-
+  const {data: userData, isLoading} = useGetUserByIdQuery(otherid);
+  const [messages, setMessages] = useState([]);
+  const [messageReciver, setMessageReciver] = useState([]);
+  const [indexss, setIndexss] = useState(0);
+  const [reciverIndex, setReciverIndex] = useState(0);
+  const [messageID, setMessageID] = useState('');
+  const [reciverMessageID, setReciverMessageID] = useState('');
+  const [receiverIds, setReciverIds] = useState([]);
+  const [ids, setIds] = useState([]);
+  const [blockedByUser, setBlockedByUser] = useState([]);
+  const [status, setStatus] = useState();
   const uid = useSelector(state => state.auth?.userData?.id);
+  const senderName = useSelector(state => state.auth?.userData?.name);
+  const senderImage = useSelector(state => state.auth?.userData?.images);
+  console.log(senderName);
 
   const scrollRef = React.useRef(null);
   const [focus, setFocus] = React.useState(false);
@@ -149,9 +165,107 @@ const Chatting = ({navigation, route}) => {
     // Add more emojis as needed
   ];
   const isFocused = useIsFocused();
+  // React.useEffect(() => {
+  //   AllMessages();
+  // }, [isFocused]);
   React.useEffect(() => {
-    AllMessages();
-  }, [isFocused]);
+    const messagesRef = database()
+      .ref('chatBase/' + `${uid}`)
+      .child(`${otherid}`);
+    const messagesreciverRef = database()
+      .ref('chatBase/' + `${otherid}`)
+      .child(`${uid}`);
+    messagesRef.on('value', snapshot => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const messagesArray = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key],
+        }));
+        const simpleMessagesArray = messagesArray.map(message => ({
+          id: message.id,
+          message: message.message,
+          sender: message.sender,
+          receiver: message.receiver,
+          createdAt: message.createdAt,
+          recieverName: message.recieverName,
+          senderName: message.senderName,
+          avatar: message.avatar,
+          userAvatar: message.userAvatar,
+          status: message.status,
+        }));
+        simpleMessagesArray.sort((a, b) => {
+          const timeA = a?.createdAt?.split(':').map(Number);
+          const timeB = b?.createdAt?.split(':').map(Number);
+          if (timeA[0] < timeB[0]) {
+            return -1;
+          }
+          if (timeA[0] > timeB[0]) {
+            return 1;
+          }
+          if (timeA[1] !== timeB[1]) {
+            return timeA[1] - timeB[1];
+          }
+          if (timeA[2] !== timeB[2]) {
+            return timeA[2] - timeB[2];
+          }
+          return timeA[3] - timeB[3];
+        });
+        setIndexss(simpleMessagesArray.length);
+        setMessages(simpleMessagesArray);
+      }
+    });
+    messagesreciverRef.on('value', snapshot => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const messagesArray = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key],
+        }));
+
+        const simpleMessagesArray = messagesArray.map(message => ({
+          id: message.id,
+          message: message.message,
+          sender: message.sender,
+          receiver: message.receiver,
+          createdAt: message.createdAt,
+          recieverName: message.recieverName,
+          senderName: message.senderName,
+          avatar: message.avatar,
+          userAvatar: message.userAvatar,
+          status: message.status,
+        }));
+        simpleMessagesArray.sort((a, b) => {
+          const timeA = a?.createdAt?.split(':').map(Number);
+          const timeB = b?.createdAt?.split(':').map(Number);
+          if (timeA[0] < timeB[0]) {
+            return -1;
+          }
+          if (timeA[0] > timeB[0]) {
+            return 1;
+          }
+          if (timeA[1] !== timeB[1]) {
+            return timeA[1] - timeB[1];
+          }
+          if (timeA[2] !== timeB[2]) {
+            return timeA[2] - timeB[2];
+          }
+          return timeA[3] - timeB[3];
+        });
+        setReciverIndex(simpleMessagesArray.length);
+        setReciverMessageID(
+          simpleMessagesArray[simpleMessagesArray.length - 1]?.id,
+        );
+        const RecieverMessagesId = messagesArray?.map(mes => ({
+          RecMesId: mes?.id,
+        }));
+        setReciverIds(RecieverMessagesId);
+      }
+    });
+
+    // return () => messagesRef.off('value');
+  }, [otherid]);
+
   const AllMessages = async () => {
     // var user = await AsyncStorage.getItem('Userid');
     const doc_id =
@@ -328,61 +442,74 @@ const Chatting = ({navigation, route}) => {
   //   } catch (error) {}
   // };
   const sendMessage = mes => {
-    console.log(mes[0]);
-    let newmes = mes[0];
-    // const newMessage = {
-    //   user_id: uid,
-    //   receiver: {
-    //     userid: otherid,
-    //     message: message,
-    //     status: 'received',
-    //   },
-    //   recieved: message,
-    //   status: 'sent',
-    //   time: getCurrentTime(),
-    // };
-    let docid =
-      route.params.uid > uid
-        ? uid + '-' + route.params.uid
-        : route.params.uid + '-' + uid;
-    let myMsg = {
-      ...newmes,
+    const date = new Date();
 
-      _id: `${uid}-${otherid}${chat?.length + 1}`,
-      // text_image: 'image',
-      //type: "image_text",
-      senderId: uid,
-      receiverId: otherid,
-      read: false,
-      user: {
-        _id: uid,
-        name: 'ali',
-      },
-    };
+    const messagesRefsender = database()
+      .ref('chatBase/' + `${uid}`)
+      .child(`${otherid}`);
 
-    setChat(previousMessages => GiftedChat.append(previousMessages, myMsg));
+    const messagesRefreciver = database()
+      .ref('chatBase/' + `${otherid}`)
+      .child(`${uid}`);
 
-    firestore()
-      .collection('chats')
-      .doc(docid)
-      .collection('messages')
-      .add({
-        ...myMsg,
-        createdAt: firestore.FieldValue.serverTimestamp(),
-      });
-    // setChat(previousMessage => [...previousMessage, newMessage]);
-    console.log('new', myMsg);
+    messagesRefreciver.push({
+      sender: uid,
+      senderName: senderName,
+      userAvatar: senderImage[0],
+      avatar: userData?.data?.images[0],
+      receiver: otherid,
+      status: 'delivered',
+
+      recieverName: userData?.data?.name,
+      message: message,
+
+      createdAt: moment(date).format('DD:HH:mm:ss'),
+    });
+
+    messagesRefsender.push({
+      sender: uid,
+      userName: senderName,
+      userAvatar: senderImage[0],
+      avatar: userData?.data?.images[0],
+      receiver: otherid,
+      status: 'delivered',
+
+      reciverName: userData?.data?.name,
+      message: message,
+
+      createdAt: moment(date).format('DD:HH:mm:ss'),
+    });
+    setMessage('');
   };
-
+  useFocusEffect(
+    React.useCallback(() => {
+      handleSeendStatus();
+    }, [messages]),
+  );
+  const handleSeendStatus = () => {
+    if (messageID && reciverMessageID) {
+      receiverIds?.map(updated => {
+        const messagesRefreciver = database()
+          .ref('chatBase/' + `${otherid}`)
+          .child(`${uid}`)
+          .child(updated?.RecMesId);
+        messagesRefreciver.update({
+          status: 'seen',
+        });
+      });
+    }
+  };
+  handleSeendStatus();
   const renderConversation = ({item}) => {
+    console.log('renderConversation', item);
     return (
       <View
-        bg={item?.sent ? 'primary.20' : '#F3F3F3'}
+        bg={item?.senderId === uid ? 'primary.20' : '#F3F3F3'}
         style={{
           flex: 1,
           borderRadius: 12,
           justifyContent: 'center',
-          alignSelf: item?.sent ? 'flex-start' : 'flex-end',
+          alignSelf: item?.senderId === uid ? 'flex-start' : 'flex-end',
           padding: 8,
           marginBottom: 25,
           padding: 10,
@@ -405,33 +532,46 @@ const Chatting = ({navigation, route}) => {
               height={130}
               borderRadius={5}
             />
-          ) : item?.sent ? (
+          ) : item?.senderId === uid ? (
             <Text
               fontSize={13}
               fontFamily={'Lexend-Regular'}
-              color={item?.sent ? 'black' : 'black'}>
-              {item?.sent}
+              color={item?.senderId === uid ? 'black' : 'black'}>
+              {item?.message}
             </Text>
           ) : (
             <Text
-              color={item?.sent ? 'white' : 'black'}
+              color={item?.senderId === uid ? 'white' : 'black'}
               fontFamily={'Lexend-Regular'}>
-              {item?.recieved}
+              {item?.message}
             </Text>
           )}
 
           <Row alignSelf={'flex-end'} alignItems={'center'} mt={2}>
             <Text
-              color={item?.sent ? 'txtColor' : 'black'}
+              color={item?.senderId === uid ? 'txtColor' : 'black'}
               mr={2}
               fontSize={10}>
               {item?.time}
             </Text>
-            {item?.recieved ? (
+            {item?.status === 'delivered' ? (
               <Icon
                 size="4"
                 _light={{
                   color: 'black',
+                }}
+                _dark={{
+                  color: 'coolGray.400',
+                }}
+                as={MaterialIcons}
+                name={'done-all'}
+              />
+            ) : null}
+            {item?.status === 'seen' ? (
+              <Icon
+                size="4"
+                _light={{
+                  color: 'blue.400',
                 }}
                 _dark={{
                   color: 'coolGray.400',
@@ -613,26 +753,74 @@ const Chatting = ({navigation, route}) => {
         <ChatScreen otherid={otherid} />
       </View>
       <Divider opacity={0.2} mt={2} />
-      <View mx={5} mt={5} mb={16} flex={1}>
-        <GiftedChat
-          scrollToBottom={true}
-          // keyboardShouldPersistTaps={true}
-          alwaysShowSend
-          messages={chat}
-          onSend={messages => sendMessage(messages)}
-          user={{
-            _id: uid,
-          }}
-          custontext={{}}
-          renderSend={renderSend}
-          renderBubble={renderBubble}
-          renderAvatar={null}
-          renderInputToolbar={CustomInputToolbar}
-          messagesContainerStyle={{
-            backgroundColor: 'white',
-          }}
-          alignTop={true}
-        />
+      <View mx={5} mt={5} mb={5} flex={1}>
+        <View mt={5} mb={16} flex={1}>
+          <FlatList
+            style={{flex: 1}}
+            data={messages}
+            ref={flatListRef}
+            showsVerticalScrollIndicator={false}
+            renderItem={renderConversation}
+            keyExtractor={(item, index) => index.toString()}
+            onContentSizeChange={() => flatListRef.current.scrollToEnd()}
+            onLayout={() => flatListRef.current.scrollToEnd()}
+          />
+        </View>
+        {/* <View mt={5}> */}
+        <Row alignItems={'center'} position={'absolute'} bottom={0} mx={5}>
+          <Input
+            bg={'white'}
+            _focus={{bg: 'white', borderColor: 'primary.400', borderWidth: 1}}
+            placeholder={'Type a message'}
+            w={'85%'}
+            color={'txtColor'}
+            value={message}
+            onChangeText={setMessage}
+            p={2}
+            onFocus={() => {
+              setFocus(true);
+            }}
+            onTouchStart={() => {
+              setFocus(true);
+            }}
+            onBlur={() => {
+              setFocus(false);
+            }}
+            borderWidth={0}
+            borderRadius={12}
+            InputLeftElement={
+              <Pressable
+                onPress={() => {
+                  openBottomSheet1();
+                }}>
+                <Icon
+                  as={
+                    <Image
+                      source={require('../../assets/happiness.png')}
+                      h={5}
+                      w={5}
+                      resizeMode="contain"
+                      alt={'img'}
+                    />
+                  }
+                  ml={2}
+                />
+              </Pressable>
+            }
+          />
+          <Pressable
+            onPress={() => {
+              sendMessage();
+            }}>
+            <Image
+              source={require('../../assets/send.png')}
+              h={10}
+              w={10}
+              alt={'img'}
+              ml={2}
+            />
+          </Pressable>
+        </Row>
         {/* <FlatList
           data={chat}
           ref={flatListRef}
