@@ -113,7 +113,9 @@ const ChatScreen = props => {
                   color={'txtColor'}
                   fontSize={12}
                   fontFamily={'Jost-Regular'}>
-                  Online
+                  {userData?.data?.online_status === true
+                    ? 'Online'
+                    : 'Offline'}
                 </Text>
               </View>
             </Row>

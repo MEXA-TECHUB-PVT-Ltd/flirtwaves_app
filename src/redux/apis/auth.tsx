@@ -85,13 +85,10 @@ export const authApis = createApi({
       },
       invalidatesTags: ['getUser'],
     }),
-    getUserCrushes: builder.mutation({
-      query: (id, page) => {
-        return {
-          url: `crush/getusercrushes/${id}?page=${page}&limit=10`,
-          method: 'GET',
-        };
-      },
+    getUserCrushes: builder.query({
+      query: body =>
+        `crush/getusercrushes/${body?.id}?page=${body?.page}&limit=10`,
+      providesTags: ['getCrushes'],
     }),
     addCrush: builder.mutation({
       query: body => {
@@ -368,7 +365,7 @@ export const {
   useSerchUserMutation,
   useGetUserByIdQuery,
   useDeleteUserMutation,
-  useGetUserCrushesMutation,
+  useGetUserCrushesQuery,
   useRemoveCrushMutation,
   useAddCrushMutation,
   useGetFaqByIdQuery,
