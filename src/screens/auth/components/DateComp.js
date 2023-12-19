@@ -245,9 +245,15 @@ const DateComp = props => {
           mt={5}
           borderRadius={8}
           borderColor={'txtColor'}>
-          <Text color={'grey.400'} fontFamily={'Lexend-Light'}>
-            {dobirth ? dobirth : `Date of Birth`}
-          </Text>
+          {props?.fromEdit === true ? (
+            <Text color={'grey.400'} fontFamily={'Lexend-Light'}>
+              {dobirth ? dobirth : props?.val}
+            </Text>
+          ) : (
+            <Text color={'grey.400'} fontFamily={'Lexend-Light'}>
+              {dobirth ? dobirth : `Date of Birth`}
+            </Text>
+          )}
         </Pressable>
         <BottomSheet
           defaultOff={true}

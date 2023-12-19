@@ -101,10 +101,11 @@ export const authApis = createApi({
       invalidatesTags: ['getUser', 'getCrushes'],
     }),
     removeCrush: builder.mutation({
-      query: id => {
+      query: body => {
         return {
-          url: `crush/remove_user_crush/${id}`,
+          url: `crush/remove_user_crush/${body?.id}`,
           method: 'DELETE',
+          body: body?.data,
         };
       },
       invalidatesTags: ['getUser', 'getCrushes'],
@@ -271,81 +272,81 @@ export const authApis = createApi({
     getUserofCooking: builder.mutation({
       query: body => {
         return {
-          url: `cookingskill/get_usersof_cookingskill`,
+          url: `cookingskill/get_usersof_cookingskill?page=${body?.page}&limit=10`,
           method: 'POST',
-          body,
+          body: body.data,
         };
       },
     }),
     getUserofRelation: builder.mutation({
       query: body => {
         return {
-          url: `relationship/get_users_relation`,
+          url: `relationship/get_users_relation?page=${body.page}&limit=10`,
           method: 'POST',
-          body,
+          body: body.data,
         };
       },
     }),
     getUserofNight: builder.mutation({
       query: body => {
         return {
-          url: `nightlife/get_usersof_nightlifeopinion`,
+          url: `nightlife/get_usersof_nightlifeopinion?page=${body.page}&limit=10`,
           method: 'POST',
-          body,
+          body: body.data,
         };
       },
     }),
     getUserofExercise: builder.mutation({
       query: body => {
         return {
-          url: `exercises/get_usersof_exercise`,
+          url: `exercises/get_usersof_exercise?page=${body.page}&limit=10`,
           method: 'POST',
-          body,
+          body: body.data,
         };
       },
     }),
     getUserofHabit: builder.mutation({
       query: body => {
         return {
-          url: `habits/get_usersof_habit`,
+          url: `habits/get_usersof_habit?page=${body.page}&limit=10`,
           method: 'POST',
-          body,
+          body: body.data,
         };
       },
     }),
     getUserofHoby: builder.mutation({
       query: body => {
         return {
-          url: `hobbies/get_users_ofhobby`,
+          url: `hobbies/get_users_ofhobby?page=${body.page}&limit=10`,
           method: 'POST',
-          body,
+          body: body.data,
         };
       },
     }),
     getUserofSmoking: builder.mutation({
       query: body => {
         return {
-          url: `smoking/get_usersof_smokingopinion`,
+          url: `smoking/get_usersof_smokingopinion?page=${body.page}&limit=10`,
           method: 'POST',
-          body,
+          body: body.data,
         };
       },
     }),
     getUserofKids: builder.mutation({
       query: body => {
         return {
-          url: `kids/get_usersof_kidopinion`,
+          url: `kids/get_usersof_kidopinion?page=${body.page}&limit=10`,
           method: 'POST',
-          body,
+          body: body.data,
         };
       },
     }),
     getFavStatus: builder.mutation({
       query: body => {
         return {
-          url: `favourites/get_favourite_status`,
+          url: `favourites/get_favourite_status?page=${body.page}&limit=10`,
           method: 'POST',
-          body,
+          body: body.data,
         };
       },
       invalidatesTags: ['getFav'],

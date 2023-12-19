@@ -55,7 +55,11 @@ const OnBoarding3 = ({navigation, route}) => {
       const data = {...userProfile, relation_type: id?.id};
       console.log(data);
       await dispatch(setUserProfile(data));
-      navigation.navigate('AddHeight');
+      if (fromEdit === true) {
+        navigation.goBack();
+      } else {
+        navigation.navigate('AddHeight');
+      }
     }
   };
   return (
@@ -112,7 +116,7 @@ const OnBoarding3 = ({navigation, route}) => {
               <FButton
                 label={'Save Changes'}
                 variant={'Solid'}
-                onPress={() => navigation.goBack()}
+                onPress={() => handleNavigation()}
               />
             </View>
           ) : (

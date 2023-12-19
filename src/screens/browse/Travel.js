@@ -25,6 +25,7 @@ import {
   useRemoveFavMutation,
 } from '../../redux/apis/auth';
 import {useSelector} from 'react-redux';
+import {useFocusEffect} from '@react-navigation/native';
 
 const Travel = ({navigation, route}) => {
   const fromVerif = route?.params?.fromVerif;
@@ -41,7 +42,11 @@ const Travel = ({navigation, route}) => {
   useFocusEffect(
     React.useCallback(() => {
       let body = {
-        habit_id: prefrenceId,
+        page: page,
+        data: {
+          user_id: uid,
+          habit_id: prefrenceId,
+        },
       };
       getPrefrences(body);
     }, [prefrenceId]),
@@ -93,7 +98,22 @@ const Travel = ({navigation, route}) => {
       });
     }
   }, [like, favId]);
+  function calculateAge(dateOfBirth) {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
 
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  }
   return (
     <View bg={'white'} flex={1}>
       <Header />
@@ -151,16 +171,13 @@ const Travel = ({navigation, route}) => {
                       <Row
                         alignItems={'center'}
                         justifyContent={'space-between'}>
-                        <View
-                          bg={index === 3 ? '#FFFFFF2B' : '#1919192B'}
-                          borderRadius={10}
-                          p={1}>
+                        <View bg={'#353535'} borderRadius={10} p={1}>
                           <Text
                             mx={1}
                             fontSize={12}
                             fontFamily={'Lexend-Light'}
-                            color={index === 3 ? 'white' : 'black'}>
-                            {item?.distance} away
+                            color={'white'}>
+                            {item?.distance?.toFixed(2)} km away
                           </Text>
                         </View>
                         <Pressable
@@ -195,6 +212,7 @@ const Travel = ({navigation, route}) => {
                               color={'white'}
                               fontFamily={'Lexend-Regular'}>
                               {item?.name}
+                              {calculateAge(item?.dob)}
                             </Text>
                             {item?.verified_status === true ? (
                               <Image

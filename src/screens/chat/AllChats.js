@@ -37,7 +37,10 @@ import BottomSheet from '../../components/bottomSheet/BottomSheet';
 import FButton from '../../components/button/FButton';
 import database from '@react-native-firebase/database';
 import {useSelector} from 'react-redux';
-import {useGetUserCrushesQuery} from '../../redux/apis/auth';
+import {
+  useGetUserCrushesQuery,
+  useRemoveCrushMutation,
+} from '../../redux/apis/auth';
 var {width, height} = Dimensions.get('window');
 
 function AllChats({navigation}) {
@@ -550,7 +553,8 @@ function Basic(props) {
       rowMap[rowKey].closeRow();
     }
   };
-
+  const [removeCrush, {data: crushRemoved, isLoading: crushLoading}] =
+    useRemoveCrushMutation();
   const deleteRow = (rowMap, rowKey) => {
     closeRow(rowMap, rowKey);
     const newData = [...listData];
@@ -575,6 +579,19 @@ function Basic(props) {
         .catch(error => {
           console.error('Error deleting data:', error);
         });
+    }
+  };
+  const handleRemoveCrush = () => {
+    if (chatId) {
+      let body = {
+        id: uid,
+        data: {
+          crushId: chatId,
+        },
+      };
+      removeCrush(body).then(res => {
+        console.log(res);
+      });
     }
   };
   const [dis, setDis] = React.useState(false);
@@ -762,6 +779,7 @@ function Basic(props) {
         justifyContent="center"
         onPress={() => {
           props.open && props.open('open');
+
           setActive(true);
         }}
         _pressed={{
@@ -804,6 +822,7 @@ function Basic(props) {
         comon={true}
         onPress={() => {
           props.close && props.close('open');
+          handleRemoveCrush();
           setActive(false);
         }}></AlertModal>
       <AlertModal

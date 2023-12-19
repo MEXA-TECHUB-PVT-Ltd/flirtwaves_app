@@ -82,7 +82,6 @@ export default function MainStack() {
       return;
     }
     // when loaded successfully
-    // console.log('duration in seconds: ');
   });
   PushNotification.createChannel(
     {
@@ -99,7 +98,7 @@ export default function MainStack() {
       //
       // (optional) default: true. Creates the default vibration pattern if true.
     },
-    created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
+    // (optional) callback returns whether the channel was created, false means it already existed.
   );
   PushNotification.configure({
     onNotification: function (notification) {
@@ -161,9 +160,7 @@ export default function MainStack() {
     console.log('Message handled in the background!', remoteMessage);
     ding.play(success => {
       if (success) {
-        console.log('successfully finished playing');
       } else {
-        console.log('playback failed due to audio decoding errors');
       }
     });
 
@@ -194,9 +191,7 @@ export default function MainStack() {
     console.log('Notification received in foreground:', remoteMessage);
     ding.play(success => {
       if (success) {
-        console.log('successfully finished playing');
       } else {
-        console.log('playback failed due to audio decoding errors');
       }
     });
     // Handle the notification content here
@@ -233,7 +228,7 @@ export default function MainStack() {
     // return () => {
     //   AppState.removeEventListener('change', _handleAppStateChange);
     // };
-  }, []);
+  }, [appStateVisible, uid]);
 
   const _handleAppStateChange = nextAppState => {
     if (
@@ -249,9 +244,7 @@ export default function MainStack() {
         },
       };
       // console.log(body);
-      updateStaus(body).then(res => {
-        console.log(res);
-      });
+      updateStaus(body).then(res => {});
     } else {
       // TODO SET USERS ONLINE STATUS TO FALSE
       let body = {
@@ -262,14 +255,11 @@ export default function MainStack() {
         },
       };
       // console.log(body);
-      updateStaus(body).then(res => {
-        console.log(res);
-      });
+      updateStaus(body).then(res => {});
     }
 
     appState.current = nextAppState;
     setAppStateVisible(appState.current);
-    console.log('AppState', appState.current);
   };
   // React?.useEffect(() => {
 

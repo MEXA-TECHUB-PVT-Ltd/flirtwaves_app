@@ -52,7 +52,6 @@ const Gallery = ({navigation, route}) => {
               activeDotColor={'#F5BF03'}
               loop={false}>
               {userData?.data?.images.map((item, index) => {
-                console.log(item);
                 return (
                   <View key={index}>
                     <Image

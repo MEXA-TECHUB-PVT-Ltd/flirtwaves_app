@@ -251,6 +251,7 @@ const Profile = ({navigation}) => {
                     bg={'white'}
                     borderColor={'grey.400'}
                     borderWidth={1}
+                    w={'40%'}
                     p={1}
                     borderRadius={10}>
                     <Row alignItems={'center'}>
@@ -261,8 +262,12 @@ const Profile = ({navigation}) => {
                         resizeMode={'contain'}
                         alt={'profile'}
                       />
-                      <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
-                        Looking For {profileData?.data?.relation_type_data}
+                      <Text
+                        ml={2}
+                        numberOfLines={1}
+                        fontSize={10}
+                        fontFamily={'Lexend-Medium'}>
+                        {profileData?.data?.relation_type_data}
                       </Text>
                     </Row>
                   </View>
@@ -295,6 +300,7 @@ const Profile = ({navigation}) => {
                   <View
                     bg={'white'}
                     borderColor={'grey.400'}
+                    w={'40%'}
                     borderWidth={1}
                     p={1}
                     borderRadius={10}>
@@ -306,7 +312,11 @@ const Profile = ({navigation}) => {
                         resizeMode={'contain'}
                         alt={'profile'}
                       />
-                      <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                      <Text
+                        ml={2}
+                        fontSize={10}
+                        fontFamily={'Lexend-Medium'}
+                        numberOfLines={1}>
                         {profileData?.data?.cooking_skill_data}
                       </Text>
                     </Row>
@@ -340,6 +350,7 @@ const Profile = ({navigation}) => {
                 {profileData?.data?.night_life_data && (
                   <View
                     bg={'white'}
+                    w={'40%'}
                     borderColor={'grey.400'}
                     borderWidth={1}
                     p={1}
@@ -352,7 +363,11 @@ const Profile = ({navigation}) => {
                         resizeMode={'contain'}
                         alt={'profile'}
                       />
-                      <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                      <Text
+                        ml={2}
+                        fontSize={10}
+                        fontFamily={'Lexend-Medium'}
+                        numberOfLines={1}>
                         {profileData?.data?.night_life_data}
                       </Text>
                     </Row>
@@ -390,6 +405,7 @@ const Profile = ({navigation}) => {
                     borderColor={'grey.400'}
                     borderWidth={1}
                     p={1}
+                    w={'40%'}
                     borderRadius={10}>
                     <Row alignItems={'center'}>
                       <Image
@@ -399,7 +415,11 @@ const Profile = ({navigation}) => {
                         resizeMode={'contain'}
                         alt={'profile'}
                       />
-                      <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                      <Text
+                        ml={2}
+                        fontSize={10}
+                        numberOfLines={1}
+                        fontFamily={'Lexend-Medium'}>
                         {profileData?.data?.kids_opinion_data}
                       </Text>
                     </Row>
