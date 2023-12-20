@@ -11,7 +11,13 @@ import {
   Switch,
   FlatList,
 } from 'native-base';
-import {Platform, PermissionsAndroid, AppState, Animated} from 'react-native';
+import {
+  Platform,
+  PermissionsAndroid,
+  AppState,
+  Animated,
+  RefreshControl,
+} from 'react-native';
 
 import React, {useState} from 'react';
 import HomeComp from './components/HomeComp';
@@ -156,6 +162,7 @@ const HomeScreen = ({navigation, route}) => {
     data: isData,
     isError: error,
     isLoading: loading,
+    refetch,
   } = useGetAllDashboardProfileQuery({uid: uid, page: page});
   const [
     filterUser,
@@ -232,17 +239,7 @@ const HomeScreen = ({navigation, route}) => {
         setDashData(prev => [...prev, ...isData?.data]);
       }
     }
-    if (filteredUsers?.data) {
-      if (filteredUsers?.data[0]?.id === dashData[0]?.id) {
-        return;
-      } else {
-        if (filteredUsers?.count === 0) {
-          return;
-        }
-        setDashData(prev => [...prev, ...filteredUsers?.data]);
-      }
-    }
-  }, [isData, filteredUsers]);
+  }, [isData]);
   const [favId, setFavId] = React.useState();
 
   React.useEffect(() => {
@@ -289,23 +286,24 @@ const HomeScreen = ({navigation, route}) => {
   const [distance, setDistance] = React.useState();
   const [city, setCity] = React.useState();
   const handlerFilter = () => {
-    const gender = id === 1 ? 'Male' : 'Female';
+    const gender = id === 1 ? 'male' : 'female';
     let body = {
       id: uid,
       page: page,
       data: {
         gender: id ? gender : null,
-        distance: distance ? distance : null,
-        location: city ? city : null,
-        relation_type_id: pre ? pre : null,
+        distance: distance,
+        location: city,
+        // relation_type_id: pre,
         online_status: on,
-        age: maxValue - minValue,
+        minAge: minValue,
+        maxAge: maxValue,
       },
     };
     filterUser(body).then(res => {
-      console.log(res);
+      console.log(res?.data);
+      setDashData(res?.data?.users);
     });
-    console.log('body', body);
   };
 
   const MIN_DEFAULT = 0;
@@ -329,6 +327,30 @@ const HomeScreen = ({navigation, route}) => {
       }
     });
   };
+  function calculateAge(dateOfBirth) {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  }
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setLoading(true);
+    setPage(1);
+    // setDashData([]);
+    refetch();
+  }, []);
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
@@ -416,169 +438,179 @@ const HomeScreen = ({navigation, route}) => {
                   }}></Lottie>
               </Center>
             ) : (
-              <FlatList
-                mt={2}
-                mb={2}
+              <ScrollView
                 showsVerticalScrollIndicator={false}
-                data={dashData}
-                onEndReached={() => {
-                  setPage(page + 1);
-                }}
-                keyExtractor={item => item?.id}
-                renderItem={({item, index}) => {
-                  return (
-                    <>
-                      {item?.block_status === false ||
-                      item?.report_status === false ? (
-                        <ImageBackground
-                          source={item?.images ? {uri: item?.images[0]} : img}
-                          key={index}
-                          style={{height: 350, marginBottom: 20}}
-                          imageStyle={{
-                            borderRadius: 10,
-                            resizeMode: 'cover',
-                          }}>
-                          <Pressable
-                            flex={1}
-                            flexDir={'column'}
-                            onPress={() => {
-                              setIsBottomSheetExpanded(false);
-                              navigation.navigate('Filter', {
-                                otherId: item?.id,
-                              });
-                            }}
-                            justifyContent={'space-between'}
-                            p={2}>
-                            <Row
-                              alignItems={'center'}
-                              justifyContent={'space-between'}>
-                              <View
-                                bg={index === 3 ? '#FFFFFF2B' : '#1919192B'}
-                                borderRadius={10}
-                                p={1}>
-                                <Text
-                                  mx={1}
-                                  fontSize={12}
-                                  fontFamily={'Lexend-Light'}
-                                  color={index === 3 ? 'white' : 'black'}>
-                                  {item?.distance} away
-                                </Text>
-                              </View>
-                              <Pressable
-                                onPress={() => {
-                                  setSelected(index);
-                                  setLiked(!like);
-                                  setFavId(item?.id);
-
-                                  // console.log('like', like);
-                                  // handleFav(item?.id);
-                                }}>
-                                <View
-                                  bg={'white'}
-                                  borderRadius={20}
-                                  p={2}
-                                  alignItems={'center'}
-                                  justifyContent={'center'}>
-                                  <AntDesign
-                                    name={
-                                      like === true && index === selected
-                                        ? 'heart'
-                                        : 'hearto'
-                                    }
-                                    size={20}
-                                    color={'#F5BF03'}
-                                  />
-                                </View>
-                              </Pressable>
-                            </Row>
-                            <View>
+                refreshControl={
+                  <RefreshControl
+                    refreshing={isLoading}
+                    onRefresh={onRefresh}></RefreshControl>
+                }>
+                <FlatList
+                  mt={2}
+                  mb={2}
+                  showsVerticalScrollIndicator={false}
+                  data={dashData}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={isLoading}
+                      onRefresh={onRefresh}></RefreshControl>
+                  }
+                  onEndReached={() => {
+                    setPage(page + 1);
+                  }}
+                  keyExtractor={item => item?.id}
+                  renderItem={({item, index}) => {
+                    return (
+                      <>
+                        {item?.block_status === false ||
+                        item?.report_status === false ? (
+                          <ImageBackground
+                            source={item?.images ? {uri: item?.images[0]} : img}
+                            key={index}
+                            style={{height: 350, marginBottom: 20}}
+                            imageStyle={{
+                              borderRadius: 10,
+                              resizeMode: 'cover',
+                            }}>
+                            <Pressable
+                              flex={1}
+                              flexDir={'column'}
+                              onPress={() => {
+                                setIsBottomSheetExpanded(false);
+                                navigation.navigate('Filter', {
+                                  otherId: item?.id,
+                                });
+                              }}
+                              justifyContent={'space-between'}
+                              p={2}>
                               <Row
                                 alignItems={'center'}
                                 justifyContent={'space-between'}>
-                                <Row alignItems={'center'}>
+                                <View bg={'#353535'} borderRadius={10} p={1}>
                                   <Text
-                                    fontSize={18}
-                                    color={'white'}
-                                    fontFamily={'Lexend-Regular'}>
-                                    {item?.name}, {item?.age}
+                                    mx={1}
+                                    fontSize={12}
+                                    fontFamily={'Lexend-Light'}
+                                    color={'white'}>
+                                    {item?.distance?.toFixed(2)} km away
                                   </Text>
-                                  {item?.verified_status === true ? (
-                                    <Image
-                                      ml={3}
-                                      source={require('../../assets/verified.png')}
-                                      h={6}
-                                      alt={'img'}
-                                      w={6}
-                                      resizeMode="contain"
+                                </View>
+                                <Pressable
+                                  onPress={() => {
+                                    setSelected(index);
+                                    setLiked(!like);
+                                    setFavId(item?.id);
+
+                                    // console.log('like', like);
+                                    // handleFav(item?.id);
+                                  }}>
+                                  <View
+                                    bg={'white'}
+                                    borderRadius={20}
+                                    p={2}
+                                    alignItems={'center'}
+                                    justifyContent={'center'}>
+                                    <AntDesign
+                                      name={
+                                        like === true && index === selected
+                                          ? 'heart'
+                                          : 'hearto'
+                                      }
+                                      size={20}
+                                      color={'#F5BF03'}
                                     />
-                                  ) : null}
-                                </Row>
+                                  </View>
+                                </Pressable>
                               </Row>
-                              <Pressable
-                                onPress={() => {
-                                  handleCrush(item?.id);
-                                }}
-                                bg={'primary.400'}
-                                p={2}
-                                rounded={'full'}
-                                position={'absolute'}
-                                bottom={1}
-                                right={0}>
-                                <Image
-                                  source={require('../../assets/mes.png')}
-                                  h={5}
-                                  w={5}
-                                  alt="png"
-                                />
-                              </Pressable>
-                              <Box mt={2}>
+                              <View>
                                 <Row
                                   alignItems={'center'}
-                                  bg={
-                                    item?.online_status === false
-                                      ? 'transparent'
-                                      : '#039D0040'
-                                  }
-                                  w={
-                                    item?.online_status === false
-                                      ? '22%'
-                                      : '28%'
-                                  }
-                                  borderColor={'#6E6E6E'}
-                                  borderWidth={
-                                    item?.online_status === false ? 1 : null
-                                  }
+                                  justifyContent={'space-between'}>
+                                  <Row alignItems={'center'}>
+                                    <Text
+                                      fontSize={18}
+                                      color={'white'}
+                                      fontFamily={'Lexend-Regular'}>
+                                      {item?.name}, {calculateAge(item?.dob)}
+                                    </Text>
+                                    {item?.verified_status === true ? (
+                                      <Image
+                                        ml={3}
+                                        source={require('../../assets/verified.png')}
+                                        h={6}
+                                        alt={'img'}
+                                        w={6}
+                                        resizeMode="contain"
+                                      />
+                                    ) : null}
+                                  </Row>
+                                </Row>
+                                <Pressable
+                                  onPress={() => {
+                                    handleCrush(item?.id);
+                                  }}
+                                  bg={'primary.400'}
                                   p={2}
-                                  borderRadius={10}>
-                                  <View
+                                  rounded={'full'}
+                                  position={'absolute'}
+                                  bottom={1}
+                                  right={0}>
+                                  <Image
+                                    source={require('../../assets/mes.png')}
+                                    h={5}
+                                    w={5}
+                                    alt="png"
+                                  />
+                                </Pressable>
+                                <Box mt={2}>
+                                  <Row
+                                    alignItems={'center'}
                                     bg={
                                       item?.online_status === false
-                                        ? '#6E6E6E'
-                                        : '#039D00'
+                                        ? 'transparent'
+                                        : '#039D0040'
                                     }
-                                    h={2}
-                                    w={2}
-                                    rounded={'full'}></View>
-                                  <Text
-                                    fontSize={10}
-                                    fontFamily={'Lexend-Light'}
-                                    ml={2}
-                                    color={'white'}>
-                                    {item?.online_status === false
-                                      ? 'offline'
-                                      : 'Active now'}
-                                  </Text>
-                                </Row>
-                              </Box>
-                            </View>
-                          </Pressable>
-                          <View style={[styles.overlay, {height: 400}]} />
-                        </ImageBackground>
-                      ) : null}
-                    </>
-                  );
-                }}
-              />
+                                    w={
+                                      item?.online_status === false
+                                        ? '22%'
+                                        : '28%'
+                                    }
+                                    borderColor={'#6E6E6E'}
+                                    borderWidth={
+                                      item?.online_status === false ? 1 : null
+                                    }
+                                    p={2}
+                                    borderRadius={10}>
+                                    <View
+                                      bg={
+                                        item?.online_status === false
+                                          ? '#6E6E6E'
+                                          : '#039D00'
+                                      }
+                                      h={2}
+                                      w={2}
+                                      rounded={'full'}></View>
+                                    <Text
+                                      fontSize={10}
+                                      fontFamily={'Lexend-Light'}
+                                      ml={2}
+                                      color={'white'}>
+                                      {item?.online_status === false
+                                        ? 'offline'
+                                        : 'Active now'}
+                                    </Text>
+                                  </Row>
+                                </Box>
+                              </View>
+                            </Pressable>
+                            <View style={[styles.overlay, {height: 400}]} />
+                          </ImageBackground>
+                        ) : null}
+                      </>
+                    );
+                  }}
+                />
+              </ScrollView>
             )}
           </View>
           {isBottomSheetExpanded === true ? (
@@ -845,6 +877,7 @@ const HomeScreen = ({navigation, route}) => {
                       onPress={() => {
                         setIsBottomSheetExpanded(false);
                         handlerFilter();
+
                         setLoading(true);
                       }}
                     />

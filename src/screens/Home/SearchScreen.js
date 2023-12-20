@@ -107,6 +107,22 @@ const SearchScreen = ({navigation}) => {
   };
 
   const renderItem = ({item}) => highlightMatches(item);
+  function calculateAge(dateOfBirth) {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  }
 
   return (
     <View flex={1} bg={'white'}>
@@ -204,15 +220,15 @@ const SearchScreen = ({navigation}) => {
                       mb={2}
                       color={'white'}
                       fontFamily={'Lexend-SemiBold'}>
-                      {item?.name}, {item?.age}
+                      {item?.name}, {calculateAge(item?.dob)}
                     </Text>
-                    <View bg={'#FFFFFF4D'} p={1} borderRadius={10}>
+                    <View bg={'#353535'} p={1} borderRadius={10}>
                       <Text
                         alignSelf={'baseline'}
                         fontSize={10}
                         color={'white'}
                         fontFamily={'Lexend-Medium'}>
-                        {item?.distance} away
+                        {item?.distance?.toFixed(2)} km away
                       </Text>
                     </View>
                   </View>

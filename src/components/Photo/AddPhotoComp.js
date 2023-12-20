@@ -23,7 +23,11 @@ import ImagePicker from 'react-native-image-crop-picker';
 import Footer from '../footer/footer';
 import {useDispatch, useSelector} from 'react-redux';
 import {setUserProfile} from '../../redux/slices/auth';
-import {useUpdateUserProfileMutation} from '../../redux/apis/auth';
+import {
+  useGetUserByIdQuery,
+  useUpdateUserProfileMutation,
+} from '../../redux/apis/auth';
+import LoaderModal from '../Loader/Loader';
 
 const AddPhotoComp = props => {
   const navigation = useNavigation();
@@ -31,23 +35,46 @@ const AddPhotoComp = props => {
   const [updateProfile, {isLoading}] = useUpdateUserProfileMutation();
   const uid = useSelector(state => state.auth?.userData?.id);
   const userProfile = useSelector(state => state.auth?.userProfile);
+  const {
+    data: userData,
+    isError: userError,
+    isLoading: Userloading,
+  } = useGetUserByIdQuery(uid);
 
   const bottomSheetRef = React.useRef(null);
   const [active, setActive] = React.useState(false);
   const [id, setId] = React.useState();
   const [change, setChange] = React.useState();
-  const [imgurl1, setImgurl1] = React.useState();
-  const [imgurl2, setImgurl2] = React.useState();
-  const [imgurl3, setImgurl3] = React.useState();
-  const [imgurl4, setImgurl4] = React.useState();
-  const [imgurl5, setImgurl5] = React.useState();
-  const [imgurl6, setImgurl6] = React.useState();
-  const [imgurl7, setImgurl7] = React.useState();
-  const [imgurl8, setImgurl8] = React.useState();
+  const [imgurl1, setImgurl1] = React.useState(
+    userData?.data?.images.length > 0 && userData?.data?.images[1],
+  );
+  const [imgurl2, setImgurl2] = React.useState(
+    userData?.data?.images.length > 0 && userData?.data?.images[2],
+  );
+  const [imgurl3, setImgurl3] = React.useState(
+    userData?.data?.images.length > 0 && userData?.data?.images[3],
+  );
+  const [imgurl4, setImgurl4] = React.useState(
+    userData?.data?.images.length > 0 && userData?.data?.images[4],
+  );
+  const [imgurl5, setImgurl5] = React.useState(
+    userData?.data?.images.length > 0 && userData?.data?.images[5],
+  );
+  const [imgurl6, setImgurl6] = React.useState(
+    userData?.data?.images.length > 0 && userData?.data?.images[6],
+  );
+  const [imgurl7, setImgurl7] = React.useState(
+    userData?.data?.images.length > 0 && userData?.data?.images[7],
+  );
+  const [imgurl8, setImgurl8] = React.useState(
+    userData?.data?.images.length > 0 && userData?.data?.images[8],
+  );
   const [camera, setCamera] = React.useState();
-  const [imageUrl, setImageUrl] = React.useState();
+  const [imageUrl, setImageUrl] = React.useState(
+    userData?.data?.images.length > 0 && userData?.data?.images[0],
+  );
   const [imgArray, setImgarray] = React.useState([]);
-
+  const [edit, setEdit] = React.useState(false);
   const openBottomSheet = uid => {
     setId(uid);
     setChange(uid);
@@ -55,7 +82,11 @@ const AddPhotoComp = props => {
       bottomSheetRef.current.open();
     }
   };
-
+  React.useEffect(() => {
+    if (userData?.data?.images.length > 0) {
+      setImgarray(userData?.data?.images);
+    }
+  }, [userData?.data]);
   const handlePickImage = async () => {
     // console.warn('gallery')
     const data = await ImagePicker.openPicker({
@@ -67,56 +98,128 @@ const AddPhotoComp = props => {
       console.log(imageDetail.path.split('/').pop());
       switch (id) {
         case 1:
-          setImgarray([...imgArray, source]);
-          setImageUrl(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[0] = source;
+            setImgarray(edited);
+            setImageUrl(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImageUrl(source);
+          }
 
           break;
 
         case 2:
-          setImgarray([...imgArray, source]);
-          setImgurl1(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[1] = source;
+            setImgarray(edited);
+            setImgurl1(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl1(source);
+          }
 
           break;
 
         case 3:
-          setImgarray([...imgArray, source]);
-          setImgurl2(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[2] = source;
+            setImgarray(edited);
+            setImgurl2(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl2(source);
+          }
 
           break;
 
         case 4:
-          setImgarray([...imgArray, source]);
-          setImgurl3(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[3] = source;
+            setImgarray(edited);
+            setImgurl3(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl3(source);
+          }
 
           break;
 
         case 5:
-          setImgarray([...imgArray, source]);
-          setImgurl4(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[4] = source;
+            setImgarray(edited);
+            setImgurl4(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl4(source);
+          }
           break;
 
         case 6:
-          setImgarray([...imgArray, source]);
-          setImgurl5(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[5] = source;
+            setImgarray(edited);
+            setImgurl5(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl5(source);
+          }
 
           break;
 
         case 7:
-          setImgarray([...imgArray, source]);
-          setImgurl6(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[6] = source;
+            setImgarray(edited);
+            setImgurl6(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl6(source);
+          }
 
           break;
 
         case 8:
-          setImgarray([...imgArray, source]);
-          setImgurl7(source);
-          setId();
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[7] = source;
+            setImgarray(edited);
+            setImgurl7(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl7(source);
+            setId();
+          }
           break;
 
         case 9:
-          setImgarray([...imgArray, source]);
-          setImgurl8(source);
-          setId();
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[8] = source;
+            setImgarray(edited);
+            setImgurl8(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl8(source);
+            setId();
+          }
           break;
 
         // code block
@@ -138,56 +241,129 @@ const AddPhotoComp = props => {
       console.log('id', imageDetail);
       switch (id) {
         case 1:
-          setImgarray([...imgArray, source]);
-          setImageUrl(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[0] = source;
+            console.log('edited', edited);
+            setImgarray(edited);
+            setImageUrl(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImageUrl(source);
+          }
 
           break;
 
         case 2:
-          setImgarray([...imgArray, source]);
-          setImgurl1(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[1] = source;
+            setImgarray(edited);
+            setImgurl1(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl1(source);
+          }
 
           break;
 
         case 3:
-          setImgarray([...imgArray, source]);
-          setImgurl2(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[2] = source;
+            setImgarray(edited);
+            setImgurl2(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl2(source);
+          }
 
           break;
 
         case 4:
-          setImgarray([...imgArray, source]);
-          setImgurl3(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[3] = source;
+            setImgarray(edited);
+            setImgurl3(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl3(source);
+          }
 
           break;
 
         case 5:
-          setImgarray([...imgArray, source]);
-          setImgurl4(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[4] = source;
+            setImgarray(edited);
+            setImgurl4(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl4(source);
+          }
           break;
 
         case 6:
-          setImgarray([...imgArray, source]);
-          setImgurl5(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[5] = source;
+            setImgarray(edited);
+            setImgurl5(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl5(source);
+          }
 
           break;
 
         case 7:
-          setImgarray([...imgArray, source]);
-          setImgurl6(source);
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[6] = source;
+            setImgarray(edited);
+            setImgurl6(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl6(source);
+          }
 
           break;
 
         case 8:
-          setImgarray([...imgArray, source]);
-          setImgurl7(source);
-          setId();
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[7] = source;
+            setImgarray(edited);
+            setImgurl7(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl7(source);
+            setId();
+          }
           break;
 
         case 9:
-          setImgarray([...imgArray, source]);
-          setImgurl8(source);
-          setId();
+          if (edit === true) {
+            const edited = [...imgArray];
+            edited[8] = source;
+            setImgarray(edited);
+            setImgurl8(source);
+            setEdit(false);
+          } else {
+            setImgarray([...imgArray, source]);
+            setImgurl8(source);
+            setId();
+          }
           break;
 
         // code block
@@ -226,89 +402,7 @@ const AddPhotoComp = props => {
     }
   }, [props?.slide]);
 
-  // React.useEffect(() => {
-  //   // if(id===1){
-
-  //   // }
-  //   switch (id) {
-  //     case 1:
-  //       setImgarray([...imgArray, imageUrl]);
-
-  //       break;
-
-  //     case 2:
-  //       setImgarray([...imgArray, imgurl1]);
-
-  //       break;
-
-  //     case 3:
-  //       setImgarray([...imgArray, imgurl2]);
-
-  //       break;
-
-  //     case 4:
-  //       setImgarray([...imgArray, imgurl3]);
-
-  //       break;
-
-  //     case 5:
-  //       setImgarray([...imgArray, imgurl4]);
-  //       break;
-
-  //     case 6:
-  //       setImgarray([...imgArray, imgurl5]);
-
-  //       break;
-
-  //     case 7:
-  //       setImgarray([...imgArray, imgurl6]);
-
-  //       break;
-
-  //     case 8:
-  //       setImgarray([...imgArray, imgurl7]);
-  //       setId();
-  //       break;
-
-  //     case 9:
-  //       setImgarray([...imgArray, imgurl8]);
-  //       setId();
-  //       break;
-
-  //     // code block
-  //   }
-  // }, [
-  //   imageUrl,
-  //   imgurl1,
-  //   imgurl2,
-  //   imgurl3,
-  //   imgurl4,
-  //   imgurl5,
-  //   imgurl6,
-  //   imgurl7,
-  //   imgurl8,
-  // ]);
-  console.log(imgArray);
   const handleNavigation = async () => {
-    // if (imgArray.length > 0) {
-
-    //   const data = {...userProfile, image: imgArray};
-    //   let body = {
-    //     id: uid,
-    //     data: data,
-    //   };
-    //   console.log(body);
-    //   updateProfile(body).then(async res => {
-    //     console.log(res);
-    //     if (res?.data?.error === false) {
-    //       await dispatch(setUserProfile(data));
-    //       navigation.navigate('OnBoarding3');
-    //     }
-    //   });
-    // }
-
-    // const handleUploadImages = async imgArray => {
-    // setLoading(true);
     const uploadPromises = imgArray.map(async imageInfo => {
       const uri = imageInfo;
       const filename = uri.split('/').pop();
@@ -350,19 +444,23 @@ const AddPhotoComp = props => {
     });
     try {
       const imageUrls = await Promise.all(uploadPromises);
-      console.log('All images uploaded successfully:', imageUrls);
+
       setImgarray(imageUrls);
       const data = {...userProfile, images: imageUrls};
       let body = {
         id: uid,
         data: data,
       };
-      console.log(body);
+
       updateProfile(body).then(async res => {
         console.log(res);
         if (res?.data?.error === false) {
           await dispatch(setUserProfile(data));
-          navigation.navigate('OnBoarding3');
+          if (props?.fromEdit === true) {
+            navigation.goBack();
+          } else {
+            navigation.navigate('OnBoarding3');
+          }
         }
       });
       // Do something with the imageUrls array, e.g., store it in state or send it to the server
@@ -402,7 +500,10 @@ const AddPhotoComp = props => {
                       resizeMode={'cover'}
                     />
                     <Pressable
-                      onPress={() => openBottomSheet(1)}
+                      onPress={() => {
+                        setEdit(true);
+                        openBottomSheet(1);
+                      }}
                       position={'absolute'}
                       p={1}
                       right={2}
@@ -469,7 +570,10 @@ const AddPhotoComp = props => {
                         resizeMode={'cover'}
                       />
                       <Pressable
-                        onPress={() => openBottomSheet(2)}
+                        onPress={() => {
+                          setEdit(true);
+                          openBottomSheet(2);
+                        }}
                         position={'absolute'}
                         p={1}
                         right={2}
@@ -534,7 +638,10 @@ const AddPhotoComp = props => {
                         resizeMode={'cover'}
                       />
                       <Pressable
-                        onPress={() => openBottomSheet(3)}
+                        onPress={() => {
+                          setEdit(true);
+                          openBottomSheet(3);
+                        }}
                         position={'absolute'}
                         p={1}
                         right={2}
@@ -603,7 +710,10 @@ const AddPhotoComp = props => {
                       resizeMode={'cover'}
                     />
                     <Pressable
-                      onPress={() => openBottomSheet(4)}
+                      onPress={() => {
+                        setEdit(true);
+                        openBottomSheet(4);
+                      }}
                       position={'absolute'}
                       p={1}
                       right={2}
@@ -670,7 +780,10 @@ const AddPhotoComp = props => {
                       resizeMode={'cover'}
                     />
                     <Pressable
-                      onPress={() => openBottomSheet(5)}
+                      onPress={() => {
+                        setEdit(true);
+                        openBottomSheet(5);
+                      }}
                       position={'absolute'}
                       p={1}
                       right={2}
@@ -736,7 +849,10 @@ const AddPhotoComp = props => {
                       resizeMode={'cover'}
                     />
                     <Pressable
-                      onPress={() => openBottomSheet(6)}
+                      onPress={() => {
+                        setEdit(true);
+                        openBottomSheet(6);
+                      }}
                       position={'absolute'}
                       p={1}
                       right={2}
@@ -776,12 +892,14 @@ const AddPhotoComp = props => {
               )}
             </Box>
           </Pressable>
+          <LoaderModal visible={isLoading} />
           {/* </View> */}
         </Row>
         {props?.fromEdit === true ? (
           <View mb={16} mt={24} mx={5}>
             <FButton
               label={'Save Changes'}
+              loading={isLoading}
               variant={'Solid'}
               onPress={() => {
                 if (
@@ -797,7 +915,7 @@ const AddPhotoComp = props => {
                 ) {
                   setActive(true);
                 } else {
-                  navigation.goBack();
+                  handleNavigation();
                 }
               }}
             />

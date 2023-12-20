@@ -123,9 +123,22 @@ const Filtered = ({navigation, route}) => {
       }
     });
   };
-  // const handleCrush=()=>{
+  function calculateAge(dateOfBirth) {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
 
-  // }
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  }
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
@@ -385,7 +398,8 @@ const Filtered = ({navigation, route}) => {
                   <Row>
                     <View>
                       <Text fontSize={16} fontFamily={'Lexend-Medium'}>
-                        {userData?.data?.name}
+                        {userData?.data?.name}{' '}
+                        {calculateAge(userData?.data?.dob)}
                       </Text>
                       <Text
                         fontSize={12}
@@ -448,6 +462,7 @@ const Filtered = ({navigation, route}) => {
                         borderColor={'grey.400'}
                         borderWidth={1}
                         p={1}
+                        w={'40%'}
                         borderRadius={10}>
                         <Row alignItems={'center'}>
                           <Image
@@ -460,8 +475,9 @@ const Filtered = ({navigation, route}) => {
                           <Text
                             ml={2}
                             fontSize={10}
+                            numberOfLines={1}
                             fontFamily={'Lexend-Medium'}>
-                            Looking for {userData?.data?.relation_type_data}
+                            {userData?.data?.relation_type_data}
                           </Text>
                         </Row>
                       </View>
@@ -497,6 +513,7 @@ const Filtered = ({navigation, route}) => {
                     {userData?.data?.cooking_skill_data && (
                       <View
                         bg={'white'}
+                        w={'35%'}
                         borderColor={'grey.400'}
                         borderWidth={1}
                         p={1}
@@ -512,7 +529,8 @@ const Filtered = ({navigation, route}) => {
                           <Text
                             ml={2}
                             fontSize={10}
-                            fontFamily={'Lexend-Medium'}>
+                            fontFamily={'Lexend-Medium'}
+                            numberOfLines={1}>
                             {userData?.data?.cooking_skill_data}
                           </Text>
                         </Row>
@@ -548,6 +566,7 @@ const Filtered = ({navigation, route}) => {
                     {userData?.data?.night_life_data && (
                       <View
                         bg={'white'}
+                        w={'35%'}
                         borderColor={'grey.400'}
                         borderWidth={1}
                         p={1}
@@ -563,6 +582,7 @@ const Filtered = ({navigation, route}) => {
                           <Text
                             ml={2}
                             fontSize={10}
+                            numberOfLines={1}
                             fontFamily={'Lexend-Medium'}>
                             {userData?.data?.night_life_data}
                           </Text>
@@ -598,6 +618,7 @@ const Filtered = ({navigation, route}) => {
                   <Row mt={4}>
                     {userData?.data?.kids_opinion_data && (
                       <View
+                        w={'35%'}
                         bg={'white'}
                         borderColor={'grey.400'}
                         borderWidth={1}
@@ -614,6 +635,7 @@ const Filtered = ({navigation, route}) => {
                           <Text
                             ml={2}
                             fontSize={10}
+                            numberOfLines={1}
                             fontFamily={'Lexend-Medium'}>
                             {userData?.data?.kids_opinion_data}
                           </Text>
@@ -651,13 +673,14 @@ const Filtered = ({navigation, route}) => {
                   Gallery
                 </Text>
                 <View
-                  mt={5}
+                  mt={3}
                   flexDir={'row'}
                   flexWrap={'wrap'}
                   justifyContent={'space-between'}>
                   {userData?.data?.images?.map((item, index) => {
                     return (
                       <Pressable
+                        my={2}
                         onPress={() =>
                           navigation.navigate('Gallery', {otherUid: otherUid})
                         }

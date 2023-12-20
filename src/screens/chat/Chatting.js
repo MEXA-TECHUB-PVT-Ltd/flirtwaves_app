@@ -831,21 +831,7 @@ const Chatting = ({navigation, route}) => {
           onLayout={() => flatListRef.current.scrollToEnd()}
         /> */}
       </View>
-      {/* <View mt={5}> */}
-      {/* <Row alignItems={'center'} position={'absolute'} bottom={3} mx={5}>
-        <Pressable
-          onPress={() => {
-            sendMessage();
-          }}>
-          <Image
-            source={require('../../assets/send.png')}
-            h={10}
-            w={10}
-            alt={'img'}
-            ml={2}
-          />
-        </Pressable>
-      </Row> */}
+
       <BottomSheet
         defaultOff={true}
         height={'20%'}
@@ -951,19 +937,6 @@ const Chatting = ({navigation, route}) => {
         </Pressable>
         {/* </View> */}
       </BottomSheet>
-      <AlertModal
-        modalVisible={visible}
-        cancelPress={() => {
-          setVisible(false);
-        }}
-        fromChat
-        heading={'Speak to AI'}
-        message={'Let’s speak to AI about John Doe'}
-        btntxt1={'Get Started'}
-        onPress={() => {
-          navigation.navigate('AiFeedback');
-          setVisible(false);
-        }}></AlertModal>
     </View>
     // </View>
   );

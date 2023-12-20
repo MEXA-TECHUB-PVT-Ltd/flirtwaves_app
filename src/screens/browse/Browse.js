@@ -452,7 +452,12 @@ const Browse = ({navigation}) => {
                   <Pressable
                     bg={'#F5BF0317'}
                     onPress={() =>
-                      navigation.navigate('Content', {fromLikes: true})
+                      navigation.navigate('Content', {
+                        fromLikes: true,
+                        fromNew: false,
+                        fromOnline: false,
+                        fromVerif: false,
+                      })
                     }
                     borderRadius={10}
                     p={4}
@@ -479,7 +484,12 @@ const Browse = ({navigation}) => {
                   <Pressable
                     bg={'#F5BF0317'}
                     onPress={() =>
-                      navigation.navigate('Content', {fromVerif: true})
+                      navigation.navigate('Content', {
+                        fromLikes: false,
+                        fromNew: false,
+                        fromOnline: false,
+                        fromVerif: true,
+                      })
                     }
                     borderRadius={10}
                     p={4}
@@ -506,7 +516,12 @@ const Browse = ({navigation}) => {
                   <Pressable
                     bg={'#F5BF0317'}
                     onPress={() =>
-                      navigation.navigate('Content', {fromNew: true})
+                      navigation.navigate('Content', {
+                        fromLikes: false,
+                        fromNew: true,
+                        fromOnline: false,
+                        fromVerif: false,
+                      })
                     }
                     borderRadius={10}
                     p={4}
@@ -534,7 +549,12 @@ const Browse = ({navigation}) => {
                     bg={'#F5BF0317'}
                     borderRadius={10}
                     onPress={() =>
-                      navigation.navigate('Content', {fromOnline: true})
+                      navigation.navigate('Content', {
+                        fromLikes: false,
+                        fromNew: false,
+                        fromOnline: true,
+                        fromVerif: false,
+                      })
                     }
                     p={4}
                     borderColor={'primary.400'}
