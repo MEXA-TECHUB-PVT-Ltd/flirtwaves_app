@@ -306,6 +306,15 @@ const Content = ({navigation, route}) => {
           />
         </View>
       )}
+
+      {onlineError === true ||
+      likesError === true ||
+      usersError === true ||
+      VerifError === true ? (
+        <Text textAlign={'center'} fontSize={18} fontFamily={'Lexend-SemiBild'}>
+          No Data To Display
+        </Text>
+      ) : null}
     </View>
   );
 };

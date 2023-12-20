@@ -16,10 +16,27 @@ import {
 } from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import {useSelector} from 'react-redux';
 import {ZegoLayoutMode, ZegoViewPosition} from '@zegocloud/zego-uikit-rn';
-const AudioCall = ({navigation}) => {
+import {
+  useUpdateCallDurationMutation,
+  useUpdateCallStatusMutation,
+} from '../../redux/apis/auth';
+const AudioCall = ({navigation, route}) => {
   const [mute, setMute] = React.useState(false);
   const uid = useSelector(state => state.auth?.userData?.id);
-
+  const [duration, setDuration] = React.useState(0);
+  const {
+    call_id,
+    call_status,
+    call_type,
+    caller_id,
+    channel_name,
+    receiver_id,
+    gettingCall,
+  } = route?.params;
+  const [updateCall, {data: isData, isLoading}] =
+    useUpdateCallDurationMutation();
+  const [updateCallStatus, {data: call, isLoading: callLoading}] =
+    useUpdateCallStatusMutation();
   // React.useEffect(() => {
   //   if (videoCall === false) {
   //     navigation.goBack();
@@ -27,11 +44,17 @@ const AudioCall = ({navigation}) => {
   // }, [videoCall]);
 
   const DeclineCall = () => {
-    console.warn('declinde call called');
-    //  database().ref(`/callid/${userData.user_id}`).set(null);
-    //  database().ref(`/callid/${otheruserid}`).set(null);
-    //  dispatch(setGettingCallData({}));/
-    navigation.goBack();
+    let body = {
+      caller_id: caller_id,
+      call_id: call_id,
+      call_duration: duration, //hh:mm:ss
+    };
+    updateCall(body).then(res => {
+      console.log(res);
+      if (res?.data?.error === false) {
+        navigation.goBack();
+      }
+    });
   };
   const RenderIcon = () => {
     return (
@@ -62,8 +85,8 @@ const AudioCall = ({navigation}) => {
           'e8f8f62ab2a2f835eeff9c9f7aa343c74fc762acb54299680b268447ddc6638b'
         }
         userID={`${uid}`} // userID can be something like a phone number or the user id on your own user system.
-        userName={`Testing done`}
-        callID={'test123'} // callID can be any unique string.
+        // userName={`${}`}
+        callID={channel_name} // callID can be any unique string.
         config={{
           // You can also use ONE_ON_ONE_VOICE_CALL_CONFIG/GROUP_VIDEO_CALL_CONFIG/GROUP_VOICE_CALL_CONFIG to make more types of calls.
           ...ONE_ON_ONE_VIDEO_CALL_CONFIG,
@@ -101,11 +124,27 @@ const AudioCall = ({navigation}) => {
           durationConfig: {
             isVisible: true,
             onDurationUpdate: duration => {
-              if (duration === 30) {
-                DeclineCall();
+              // 👇️ get the number of full minutes
+              const minutes = Math.floor(duration / 60);
+
+              // 👇️ get the remainder of the seconds
+              const seconds = duration % 60;
+
+              function padTo2Digits(num) {
+                return num.toString().padStart(2, '0');
               }
+
+              // ✅ format as MM:SS
+              const result = `${padTo2Digits(minutes)}:${padTo2Digits(
+                seconds,
+              )}`;
+
+              setDuration(result);
               // console.warn('duration', duration);
             },
+          },
+          onOnlySelfInRoom: () => {
+            DeclineCall();
           },
           onHangUp: () => {
             DeclineCall();

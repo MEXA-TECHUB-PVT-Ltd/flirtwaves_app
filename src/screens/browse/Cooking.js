@@ -135,7 +135,7 @@ const Cooking = ({navigation, route}) => {
               // backgroundColor: 'black',
             }}></Lottie>
         </Center>
-      ) : (
+      ) : VerifError === true ? (
         <View mx={5} my={5}>
           <FlatList
             mt={2}
@@ -270,6 +270,10 @@ const Cooking = ({navigation, route}) => {
             }}
           />
         </View>
+      ) : (
+        <Text textAlign={'center'} fontSize={18} fontFamily={'Lexend-SemiBild'}>
+          No Data To Display
+        </Text>
       )}
     </View>
   );

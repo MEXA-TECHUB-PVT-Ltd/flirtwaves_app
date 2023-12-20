@@ -3,38 +3,32 @@ import React from 'react';
 import Header from '../../components/Header/Header';
 import FButton from '../../components/button/FButton';
 import CustomSnackbar from '../../components/customSnackBar/CustomSnackBar';
+import Logo from '../../components/logo/Logo';
+import {useAddFeedBackMutation} from '../../redux/apis/auth';
+import {useSelector} from 'react-redux';
 
 const Feedback = ({navigation}) => {
-  const data = [
-    {
-      id: 1,
-      name: 'Block for no reason',
-    },
-    {
-      id: 2,
-      name: 'Commercial profile',
-    },
-    {
-      id: 3,
-      name: 'Scam',
-    },
-    {
-      id: 4,
-      name: 'Fake profile',
-    },
-    {
-      id: 5,
-      name: 'Inappropriate picture',
-    },
-    {
-      id: 6,
-      name: 'Bad behavior',
-    },
-    {id: 7, name: 'Underage'},
-  ];
-  const [id, setId] = React.useState(0);
-  const [isSubmited, setSubmit] = React.useState(true);
+  const uid = useSelector(state => state.auth?.userData?.id);
+
   const [visible, setVisible] = React.useState(false);
+  const [detail, setDetail] = React.useState();
+  const [postFeedback, {data, isLoading}] = useAddFeedBackMutation();
+
+  const handleSubmit = () => {
+    if (detail && detail !== '' && detail !== ' ') {
+      let body = {
+        uid: uid,
+        data: {
+          feedback_description: detail,
+        },
+      };
+      postFeedback(body).then(res => {
+        if (res?.data?.error === false) {
+          setVisible(true);
+        }
+      });
+    }
+  };
   return (
     <View bg={'white'} flex={1}>
       <Header />
@@ -44,101 +38,48 @@ const Feedback = ({navigation}) => {
         height={'8%'}
         onDismiss={() => {
           setVisible(false);
-          navigation.navigate('Tabs', {screen: 'Home'});
+          navigation.goBack();
         }}
-        messageDescription={'Reason submitted Successfully'}
+        messageDescription={'Feedback submitted Successfully'}
       />
-      {isSubmited ? (
-        <Text
-          mt={5}
-          fontSize={22}
-          fontFamily={'Lexend-SemiBold'}
-          textAlign={'center'}
-          mx={5}>
-          {`Please describe the issue`}
-        </Text>
-      ) : (
-        <>
-          <Text
-            mt={5}
-            fontSize={22}
-            fontFamily={'Lexend-SemiBold'}
-            textAlign={'center'}
-            mx={5}>
-            {`Tell us the reason why are${'\n'}you reporting Zahra?`}
-          </Text>
-          <Text
-            mt={3}
-            textAlign={'center'}
-            mx={5}
-            color={
-              'grey.400'
-            }>{`You will no longer see this person or receive any${'\n'}message from them. Let us know what happened. `}</Text>
-        </>
-      )}
+
       <ScrollView flex={1} showsVerticalScrollIndicator={false}>
-        {isSubmited ? (
-          <TextArea
-            mt={16}
-            mx={5}
-            placeholder={'Add reason'}
-            bg={'white'}
-            color={'grey.500'}
-            h={32}
-            borderRadius={10}
-            borderColor={'grey.400'}
-            borderWidth={0.5}
-            _focus={{bg: 'white', borderColor: 'primary.400', borderWidth: 1}}
+        <View mt={10}>
+          <Logo height={12} width={12} align={'center'} />
+        </View>
+        <Text
+          fontSize={16}
+          mx={5}
+          mb={2}
+          fontFamily={'Lexend-Regular'}
+          color={'primary.400'}
+          mt={16}>
+          What do you think of Flirt Waves?
+        </Text>
+        <TextArea
+          mx={5}
+          placeholder={'Add Message'}
+          bg={'white'}
+          color={'grey.500'}
+          h={32}
+          value={detail}
+          onChangeText={setDetail}
+          borderRadius={10}
+          borderColor={'grey.400'}
+          borderWidth={0.5}
+          _focus={{bg: 'white', borderColor: 'primary.400', borderWidth: 1}}
+        />
+
+        <View m={5} mt={'70%'}>
+          <FButton
+            label={'Submit'}
+            loading={isLoading}
+            onPress={() => {
+              handleSubmit();
+            }}
+            variant={'Solid'}
           />
-        ) : (
-          <View m={5}>
-            {data?.map(item => {
-              return (
-                <Pressable
-                  bg={'white'}
-                  p={2}
-                  mb={5}
-                  onPress={() => {
-                    setId(item?.id);
-                  }}
-                  //   key={item?.id}
-                  alignItems={'center'}
-                  borderRadius={10}
-                  borderColor={id === item?.id ? 'primary.400' : 'grey.400'}
-                  borderWidth={id === item?.id ? 1 : 0.5}
-                  justifyContent={'center'}>
-                  <Text
-                    fontSize={16}
-                    fontFamily={
-                      id === item?.id ? 'Lexend-Regular' : 'Lexend-Light'
-                    }
-                    color={id === item?.id ? 'black' : 'grey.400'}
-                    textAlign={'center'}>
-                    {item?.name}
-                  </Text>
-                </Pressable>
-              );
-            })}
-            <FButton
-              label={'Submit'}
-              onPress={() => {
-                setSubmit(true);
-              }}
-              variant={'Solid'}
-            />
-          </View>
-        )}
-        {isSubmited ? (
-          <View m={5} mt={'70%'}>
-            <FButton
-              label={'Submit'}
-              onPress={() => {
-                setVisible(true);
-              }}
-              variant={'Solid'}
-            />
-          </View>
-        ) : null}
+        </View>
       </ScrollView>
     </View>
   );

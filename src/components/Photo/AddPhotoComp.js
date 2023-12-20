@@ -40,39 +40,22 @@ const AddPhotoComp = props => {
     isError: userError,
     isLoading: Userloading,
   } = useGetUserByIdQuery(uid);
+  console.log(userData);
 
   const bottomSheetRef = React.useRef(null);
   const [active, setActive] = React.useState(false);
   const [id, setId] = React.useState();
   const [change, setChange] = React.useState();
-  const [imgurl1, setImgurl1] = React.useState(
-    userData?.data?.images.length > 0 && userData?.data?.images[1],
-  );
-  const [imgurl2, setImgurl2] = React.useState(
-    userData?.data?.images.length > 0 && userData?.data?.images[2],
-  );
-  const [imgurl3, setImgurl3] = React.useState(
-    userData?.data?.images.length > 0 && userData?.data?.images[3],
-  );
-  const [imgurl4, setImgurl4] = React.useState(
-    userData?.data?.images.length > 0 && userData?.data?.images[4],
-  );
-  const [imgurl5, setImgurl5] = React.useState(
-    userData?.data?.images.length > 0 && userData?.data?.images[5],
-  );
-  const [imgurl6, setImgurl6] = React.useState(
-    userData?.data?.images.length > 0 && userData?.data?.images[6],
-  );
-  const [imgurl7, setImgurl7] = React.useState(
-    userData?.data?.images.length > 0 && userData?.data?.images[7],
-  );
-  const [imgurl8, setImgurl8] = React.useState(
-    userData?.data?.images.length > 0 && userData?.data?.images[8],
-  );
+  const [imgurl1, setImgurl1] = React.useState();
+  const [imgurl2, setImgurl2] = React.useState();
+  const [imgurl3, setImgurl3] = React.useState();
+  const [imgurl4, setImgurl4] = React.useState();
+  const [imgurl5, setImgurl5] = React.useState();
+  const [imgurl6, setImgurl6] = React.useState();
+  const [imgurl7, setImgurl7] = React.useState();
+  const [imgurl8, setImgurl8] = React.useState();
   const [camera, setCamera] = React.useState();
-  const [imageUrl, setImageUrl] = React.useState(
-    userData?.data?.images.length > 0 && userData?.data?.images[0],
-  );
+  const [imageUrl, setImageUrl] = React.useState();
   const [imgArray, setImgarray] = React.useState([]);
   const [edit, setEdit] = React.useState(false);
   const openBottomSheet = uid => {
@@ -83,8 +66,20 @@ const AddPhotoComp = props => {
     }
   };
   React.useEffect(() => {
-    if (userData?.data?.images.length > 0) {
-      setImgarray(userData?.data?.images);
+    if (props?.fromEdit === true) {
+      if (userData?.data?.images?.length > 0) {
+        setImageUrl(userData?.data?.images[0]);
+        setImgurl1(userData?.data?.images[1]);
+        setImgurl2(userData?.data?.images[2]);
+        setImgurl3(userData?.data?.images[3]);
+        setImgurl4(userData?.data?.images[4]);
+        setImgurl5(userData?.data?.images[5]);
+        setImgurl6(userData?.data?.images[6]);
+        setImgurl7(userData?.data?.images[7]);
+        setImgurl8(userData?.data?.images[8]);
+
+        setImgarray(userData?.data?.images);
+      }
     }
   }, [userData?.data]);
   const handlePickImage = async () => {

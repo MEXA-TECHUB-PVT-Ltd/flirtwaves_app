@@ -3,10 +3,21 @@ import React from 'react';
 import Header from '../../components/Header/Header';
 import FButton from '../../components/button/FButton';
 import AlertModal from '../../components/Modal/AlertModal';
-
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {setUserData} from '../../redux/slices/auth';
+import EncryptedStorage from 'react-native-encrypted-storage';
 const Settings = ({navigation}) => {
   const [visible, setVisible] = React.useState(false);
   const [active, setActive] = React.useState(false);
+  async function removeUserSession() {
+    try {
+      await EncryptedStorage.removeItem('user_session');
+      // Congrats! You've just removed your first value!
+    } catch (error) {
+      // There was an error on the native side
+    }
+  }
   return (
     <View bg={'white'} flex={1}>
       <Header title={'Settings'} />
@@ -28,6 +39,36 @@ const Settings = ({navigation}) => {
 
               <Text fontSize={16} fontFamily={'Lexend-Medium'} ml={4}>
                 Go Premium
+              </Text>
+            </Row>
+          </View>
+        </Pressable>
+        <Pressable onPress={() => navigation.navigate('ChangePassword')} mt={5}>
+          <View
+            borderColor={'#00000017'}
+            borderWidth={1}
+            p={3}
+            borderRadius={10}>
+            <Row alignItems={'center'}>
+              <MaterialCommunityIcons name="lock" size={20} color={'#f5bf03'} />
+
+              <Text fontSize={16} fontFamily={'Lexend-Medium'} ml={4}>
+                Change Password
+              </Text>
+            </Row>
+          </View>
+        </Pressable>
+        <Pressable onPress={() => navigation.navigate('Feedback')} mt={5}>
+          <View
+            borderColor={'#00000017'}
+            borderWidth={1}
+            p={3}
+            borderRadius={10}>
+            <Row alignItems={'center'}>
+              <MaterialIcons name="feedback" size={20} color={'#f5bf03'} />
+
+              <Text fontSize={16} fontFamily={'Lexend-Medium'} ml={4}>
+                Give Feedback
               </Text>
             </Row>
           </View>
@@ -122,7 +163,8 @@ const Settings = ({navigation}) => {
         comon={true}
         onPress={() => {
           setVisible(false);
-          navigation.navigate('OnBoarding');
+          removeUserSession();
+          dispatch(setUserData({}));
         }}></AlertModal>
       <AlertModal
         modalVisible={active}

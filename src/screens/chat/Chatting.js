@@ -55,7 +55,6 @@ const Chatting = ({navigation, route}) => {
   const uid = useSelector(state => state.auth?.userData?.id);
   const senderName = useSelector(state => state.auth?.userData?.name);
   const senderImage = useSelector(state => state.auth?.userData?.images);
-  console.log(senderName);
 
   const scrollRef = React.useRef(null);
   const [focus, setFocus] = React.useState(false);
@@ -273,8 +272,6 @@ const Chatting = ({navigation, route}) => {
         ? uid + '-' + route.params.uid
         : route.params.uid + '-' + uid;
 
-    console.log('doc_id  :  ', doc_id);
-
     const messageRef = firestore()
       .collection('chats')
       .doc(doc_id)
@@ -442,44 +439,50 @@ const Chatting = ({navigation, route}) => {
   //   } catch (error) {}
   // };
   const sendMessage = mes => {
-    const date = new Date();
+    if (message !== '' && message !== ' ') {
+      const date = new Date();
 
-    const messagesRefsender = database()
-      .ref('chatBase/' + `${uid}`)
-      .child(`${otherid}`);
+      const messagesRefsender = database()
+        .ref('chatBase/' + `${uid}`)
+        .child(`${otherid}`);
 
-    const messagesRefreciver = database()
-      .ref('chatBase/' + `${otherid}`)
-      .child(`${uid}`);
+      const messagesRefreciver = database()
+        .ref('chatBase/' + `${otherid}`)
+        .child(`${uid}`);
 
-    messagesRefreciver.push({
-      sender: uid,
-      senderName: senderName,
-      userAvatar: senderImage[0],
-      avatar: userData?.data?.images[0],
-      receiver: otherid,
-      status: 'delivered',
+      messagesRefreciver.push({
+        sender: uid,
+        senderName: senderName,
+        userAvatar: senderImage[0],
+        avatar: userData?.data?.images[0],
+        receiver: otherid,
+        status: 'delivered',
+        chatId: otherid,
+        chatName: userData?.data?.name,
 
-      recieverName: userData?.data?.name,
-      message: message,
+        recieverName: userData?.data?.name,
+        message: message,
+        chatterName: senderName,
+        createdAt: moment(date).format('DD:HH:mm:ss'),
+      });
 
-      createdAt: moment(date).format('DD:HH:mm:ss'),
-    });
+      messagesRefsender.push({
+        sender: uid,
+        senderName: senderName,
+        userAvatar: senderImage[0],
+        avatar: userData?.data?.images[0],
+        receiver: otherid,
+        status: 'delivered',
+        chatId: otherid,
+        chatName: userData?.data?.name,
+        reciverName: userData?.data?.name,
+        message: message,
+        chatterName: senderName,
 
-    messagesRefsender.push({
-      sender: uid,
-      userName: senderName,
-      userAvatar: senderImage[0],
-      avatar: userData?.data?.images[0],
-      receiver: otherid,
-      status: 'delivered',
-
-      reciverName: userData?.data?.name,
-      message: message,
-
-      createdAt: moment(date).format('DD:HH:mm:ss'),
-    });
-    setMessage('');
+        createdAt: moment(date).format('DD:HH:mm:ss'),
+      });
+      setMessage('');
+    }
   };
   useFocusEffect(
     React.useCallback(() => {
@@ -487,7 +490,8 @@ const Chatting = ({navigation, route}) => {
     }, [messages]),
   );
   const handleSeendStatus = () => {
-    if (messageID && reciverMessageID) {
+    if (reciverMessageID) {
+      console.log('handle');
       receiverIds?.map(updated => {
         const messagesRefreciver = database()
           .ref('chatBase/' + `${otherid}`)
@@ -501,28 +505,34 @@ const Chatting = ({navigation, route}) => {
   };
   handleSeendStatus();
   const renderConversation = ({item}) => {
-    console.log('renderConversation', item);
+    const parts = item?.createdAt.split(':');
+
+    const totalHours = parseInt(parts[1]);
+    const minutes = parseInt(parts[2]);
+    let hours = totalHours % 12;
+
+    if (hours === 0) {
+      hours = 12;
+    }
+
+    const ampm = totalHours < 12 ? 'AM' : 'PM';
+
+    const messageTime = `${hours
+      .toString()
+      .padStart(2, '0')}:${minutes} ${ampm}`;
     return (
       <View
-        bg={item?.senderId === uid ? 'primary.20' : '#F3F3F3'}
+        bg={item?.sender === uid ? 'primary.20' : '#F3F3F3'}
         style={{
           flex: 1,
           borderRadius: 12,
           justifyContent: 'center',
-          alignSelf: item?.senderId === uid ? 'flex-start' : 'flex-end',
+          alignSelf: item?.sender === uid ? 'flex-end' : 'flex-start',
           padding: 8,
           marginBottom: 25,
           padding: 10,
           width: '88%',
         }}>
-        {/* <View
-          bg={item?.sent ? 'grey.500' : 'pro'}
-          borderRadius={10}
-          flex={1}
-          p={2}
-          w={'85%'}
-          mb={5}
-          alignSelf={item?.sent ? 'flex-start' : 'flex-end'}> */}
         <Pressable onPress={() => setVisible(true)}>
           {item?.image ? ( // Check if there's an image
             <Image
@@ -532,17 +542,8 @@ const Chatting = ({navigation, route}) => {
               height={130}
               borderRadius={5}
             />
-          ) : item?.senderId === uid ? (
-            <Text
-              fontSize={13}
-              fontFamily={'Lexend-Regular'}
-              color={item?.senderId === uid ? 'black' : 'black'}>
-              {item?.message}
-            </Text>
           ) : (
-            <Text
-              color={item?.senderId === uid ? 'white' : 'black'}
-              fontFamily={'Lexend-Regular'}>
+            <Text fontSize={13} fontFamily={'Lexend-Regular'} color={'black'}>
               {item?.message}
             </Text>
           )}
@@ -552,9 +553,9 @@ const Chatting = ({navigation, route}) => {
               color={item?.senderId === uid ? 'txtColor' : 'black'}
               mr={2}
               fontSize={10}>
-              {item?.time}
+              {messageTime}
             </Text>
-            {item?.status === 'delivered' ? (
+            {item?.status === 'delivered' && item?.sender === uid ? (
               <Icon
                 size="4"
                 _light={{
@@ -567,7 +568,7 @@ const Chatting = ({navigation, route}) => {
                 name={'done-all'}
               />
             ) : null}
-            {item?.status === 'seen' ? (
+            {item?.status === 'seen' && item?.sender === uid ? (
               <Icon
                 size="4"
                 _light={{

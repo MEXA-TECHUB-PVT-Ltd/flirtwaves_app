@@ -18,7 +18,7 @@ import * as Yup from 'yup';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
 import {usePostUserMutation} from '../../redux/apis/auth';
-import {setUserData} from '../../redux/slices/auth';
+import {setPassword, setUserData} from '../../redux/slices/auth';
 import {useDispatch, useSelector} from 'react-redux';
 const SignUp = ({navigation}) => {
   const dispatch = useDispatch();
@@ -45,10 +45,11 @@ const SignUp = ({navigation}) => {
 
         signup_type: 'email',
       };
-      createUser(body).then(res => {
+      createUser(body).then(async res => {
         console.log(res);
         if (res?.data?.error === false) {
-          dispatch(setUserData(res?.data?.data));
+          await dispatch(setUserData(res?.data?.data));
+          await distpatch(setPassword(password));
           navigation.navigate('About');
         } else {
           setError(res?.error?.data?.msg);
@@ -97,6 +98,7 @@ const SignUp = ({navigation}) => {
             Sign Up
           </Text>
           <Formik
+            validateOnChange
             initialValues={{
               confirmPassword: '',
               email: '',

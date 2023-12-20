@@ -12,9 +12,16 @@ import React from 'react';
 import Header from '../../components/Header/Header';
 import PushNotification from 'react-native-push-notification';
 import {useSelector} from 'react-redux';
+import {useGetUserByIdQuery, useGetUserCallsQuery} from '../../redux/apis/auth';
 
 const CallHistory = ({navigation}) => {
   const uid = useSelector(state => state.auth?.userData?.id);
+  const [page, setPage] = React.useState(1);
+  const {data: callHistory, loading} = useGetUserCallsQuery({
+    uid: uid,
+    page: page,
+  });
+
   const data = [
     {
       id: 1,
@@ -205,7 +212,10 @@ const CallHistory = ({navigation}) => {
       <Header title={'Call History'} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View m={5} ml={3}>
-          {data?.map((item, index) => {
+          {callHistory?.calls?.data?.map((item, index) => {
+            const {data: userData, isLoading} = useGetUserByIdQuery(
+              item?.receiver_id,
+            );
             return (
               <View borderRadius={10} p={1} key={index}>
                 <Row
@@ -213,19 +223,22 @@ const CallHistory = ({navigation}) => {
                   justifyContent={'space-between'}
                   mx={2}>
                   <Row alignItems={'center'}>
-                    <Avatar source={item?.img} size={'md'} />
+                    <Avatar
+                      source={{uri: userData?.data?.images[0]}}
+                      size={'md'}
+                    />
                     <View ml={2}>
                       <Text
                         color={'black'}
                         fontSize={14}
                         fontFamily={'Lexend-Medium'}>
-                        {item?.name}
+                        {userData?.data?.name}
                       </Text>
                       <Text
                         color={'txtColor'}
                         fontSize={10}
                         fontFamily={'Lexend-Regular'}>
-                        {item?.callType} {item?.duration}
+                        {item?.call_type} {item?.call_duration}
                       </Text>
                     </View>
                   </Row>

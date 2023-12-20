@@ -7,11 +7,11 @@ import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import {useNavigation} from '@react-navigation/native';
 import {useUpdateUserProfileMutation} from '../../redux/apis/auth';
 import {useSelector} from 'react-redux';
-
+import LoaderModal from '../Loader/Loader';
 const Header = props => {
   const uid = useSelector(state => state.auth?.userData?.id);
   const userProfile = useSelector(state => state.auth?.userProfile);
-  const [updateUser, {isError}] = useUpdateUserProfileMutation();
+  const [updateUser, {isError, isLoading}] = useUpdateUserProfileMutation();
   const navigation = useNavigation();
   return (
     <View
@@ -73,7 +73,7 @@ const Header = props => {
               <EvilIcons name="search" size={30} color={'black'} />
             </Pressable>
           )}
-
+          <LoaderModal visible={isLoading} />
           {/* </Pressable> */}
         </>
       )}

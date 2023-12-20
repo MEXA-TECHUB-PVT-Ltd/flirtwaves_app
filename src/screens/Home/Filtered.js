@@ -35,9 +35,9 @@ import AlertModal from '../../components/Modal/AlertModal';
 
 const Filtered = ({navigation, route}) => {
   const otherUid = route?.params?.otherId;
-  console.log(otherUid);
   const [active, setActive] = React.useState(false);
   const uid = useSelector(state => state.auth?.userData?.id);
+  console.log(otherUid, uid);
   const [postFav, {isData: FavData, isError: Error}] = useAddToFavMutation();
   const [removeFav, {isData: RFavData, isError: RError}] =
     useRemoveFavMutation();
@@ -51,9 +51,9 @@ const Filtered = ({navigation, route}) => {
     };
     getFavStatus(body).then(res => {
       console.log('res', res);
-      setLiked(res?.data?.saved_status);
+      setLiked(res?.data?.savedStatus);
     });
-  }, []);
+  }, [otherUid, uid]);
 
   const [selected, setSelected] = React.useState();
   const bottomSheetRef = React.useRef(null);
@@ -65,7 +65,7 @@ const Filtered = ({navigation, route}) => {
     if (isLoading === true) {
       setTimeout(() => {
         setLoading(false);
-      }, 2000);
+      }, 3000);
     }
   });
   const {
@@ -454,220 +454,203 @@ const Filtered = ({navigation, route}) => {
                     {userData?.data?.location}
                   </Text>
                 </Row>
-                <View my={5}>
-                  <Row>
-                    {userData?.data?.relation_type_data && (
-                      <View
-                        bg={'white'}
-                        borderColor={'grey.400'}
-                        borderWidth={1}
-                        p={1}
-                        w={'40%'}
-                        borderRadius={10}>
-                        <Row alignItems={'center'}>
-                          <Image
-                            source={require('../../assets/love.png')}
-                            h={5}
-                            w={5}
-                            resizeMode={'contain'}
-                            alt={'profile'}
-                          />
-                          <Text
-                            ml={2}
-                            fontSize={10}
-                            numberOfLines={1}
-                            fontFamily={'Lexend-Medium'}>
-                            {userData?.data?.relation_type_data}
-                          </Text>
-                        </Row>
-                      </View>
-                    )}
+                <View
+                  my={5}
+                  flexDir={'row'}
+                  flexWrap={'wrap'}
+                  alignItems={'center'}
+                  w={'100%'}
+                  justifyContent={'space-between'}>
+                  {userData?.data?.relation_type_data && (
+                    <View
+                      m={1}
+                      bg={'white'}
+                      borderColor={'grey.400'}
+                      borderWidth={1}
+                      p={1}
+                      borderRadius={10}>
+                      <Row alignItems={'center'}>
+                        <Image
+                          source={require('../../assets/love.png')}
+                          h={5}
+                          w={5}
+                          resizeMode={'contain'}
+                          alt={'profile'}
+                        />
+                        <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                          {userData?.data?.relation_type_data}
+                        </Text>
+                      </Row>
+                    </View>
+                  )}
 
-                    {userData?.data?.excercise_data && (
-                      <View
-                        bg={'white'}
-                        ml={2}
-                        borderColor={'grey.400'}
-                        borderWidth={1}
-                        p={1}
-                        borderRadius={10}>
-                        <Row alignItems={'center'}>
-                          <Image
-                            source={require('../../assets/fitness.png')}
-                            h={5}
-                            w={5}
-                            resizeMode={'contain'}
-                            alt={'profile'}
-                          />
-                          <Text
-                            ml={2}
-                            fontSize={10}
-                            fontFamily={'Lexend-Medium'}>
-                            {userData?.data?.excercise_data}
-                          </Text>
-                        </Row>
-                      </View>
-                    )}
-                  </Row>
-                  <Row mt={4}>
-                    {userData?.data?.cooking_skill_data && (
-                      <View
-                        bg={'white'}
-                        w={'35%'}
-                        borderColor={'grey.400'}
-                        borderWidth={1}
-                        p={1}
-                        borderRadius={10}>
-                        <Row alignItems={'center'}>
-                          <Image
-                            source={require('../../assets/chef.png')}
-                            h={5}
-                            w={5}
-                            resizeMode={'contain'}
-                            alt={'profile'}
-                          />
-                          <Text
-                            ml={2}
-                            fontSize={10}
-                            fontFamily={'Lexend-Medium'}
-                            numberOfLines={1}>
-                            {userData?.data?.cooking_skill_data}
-                          </Text>
-                        </Row>
-                      </View>
-                    )}
-                    {userData?.data?.habit_data && (
-                      <View
-                        bg={'white'}
-                        ml={2}
-                        borderColor={'grey.400'}
-                        borderWidth={1}
-                        p={1}
-                        borderRadius={10}>
-                        <Row alignItems={'center'}>
-                          <Image
-                            source={require('../../assets/hiking.png')}
-                            h={5}
-                            w={5}
-                            resizeMode={'contain'}
-                            alt={'profile'}
-                          />
-                          <Text
-                            ml={2}
-                            fontSize={10}
-                            fontFamily={'Lexend-Medium'}>
-                            {userData?.data?.habit_data}
-                          </Text>
-                        </Row>
-                      </View>
-                    )}
-                  </Row>
-                  <Row mt={4}>
-                    {userData?.data?.night_life_data && (
-                      <View
-                        bg={'white'}
-                        w={'35%'}
-                        borderColor={'grey.400'}
-                        borderWidth={1}
-                        p={1}
-                        borderRadius={10}>
-                        <Row alignItems={'center'}>
-                          <Image
-                            source={require('../../assets/moon.png')}
-                            h={5}
-                            w={5}
-                            resizeMode={'contain'}
-                            alt={'profile'}
-                          />
-                          <Text
-                            ml={2}
-                            fontSize={10}
-                            numberOfLines={1}
-                            fontFamily={'Lexend-Medium'}>
-                            {userData?.data?.night_life_data}
-                          </Text>
-                        </Row>
-                      </View>
-                    )}
-                    {userData?.data?.smoking_opinion_data && (
-                      <View
-                        bg={'white'}
-                        ml={2}
-                        borderColor={'grey.400'}
-                        borderWidth={1}
-                        p={1}
-                        borderRadius={10}>
-                        <Row alignItems={'center'}>
-                          <Image
-                            source={require('../../assets/smoking.png')}
-                            h={5}
-                            w={5}
-                            resizeMode={'contain'}
-                            alt={'profile'}
-                          />
-                          <Text
-                            ml={2}
-                            fontSize={10}
-                            fontFamily={'Lexend-Medium'}>
-                            {userData?.data?.smoking_opinion_data}
-                          </Text>
-                        </Row>
-                      </View>
-                    )}
-                  </Row>
-                  <Row mt={4}>
-                    {userData?.data?.kids_opinion_data && (
-                      <View
-                        w={'35%'}
-                        bg={'white'}
-                        borderColor={'grey.400'}
-                        borderWidth={1}
-                        p={1}
-                        borderRadius={10}>
-                        <Row alignItems={'center'}>
-                          <Image
-                            source={require('../../assets/kid.png')}
-                            h={5}
-                            w={5}
-                            resizeMode={'contain'}
-                            alt={'profile'}
-                          />
-                          <Text
-                            ml={2}
-                            fontSize={10}
-                            numberOfLines={1}
-                            fontFamily={'Lexend-Medium'}>
-                            {userData?.data?.kids_opinion_data}
-                          </Text>
-                        </Row>
-                      </View>
-                    )}
-                    {userData?.data?.hobby_data && (
-                      <View
-                        bg={'white'}
-                        ml={2}
-                        borderColor={'grey.400'}
-                        borderWidth={1}
-                        p={1}
-                        borderRadius={10}>
-                        <Row alignItems={'center'}>
-                          <Image
-                            source={require('../../assets/healthy.png')}
-                            h={5}
-                            w={5}
-                            resizeMode={'contain'}
-                            alt={'profile'}
-                          />
-                          <Text
-                            ml={2}
-                            fontSize={10}
-                            fontFamily={'Lexend-Medium'}>
-                            {userData?.data?.hobby_data}
-                          </Text>
-                        </Row>
-                      </View>
-                    )}
-                  </Row>
+                  {userData?.data?.excercise_data && (
+                    <View
+                      bg={'white'}
+                      ml={1}
+                      m={2}
+                      borderColor={'grey.400'}
+                      borderWidth={1}
+                      p={1}
+                      borderRadius={10}>
+                      <Row alignItems={'center'}>
+                        <Image
+                          source={require('../../assets/fitness.png')}
+                          h={5}
+                          w={5}
+                          resizeMode={'contain'}
+                          alt={'profile'}
+                        />
+                        <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                          {userData?.data?.excercise_data}
+                        </Text>
+                      </Row>
+                    </View>
+                  )}
+
+                  {userData?.data?.cooking_skill_data && (
+                    <View
+                      bg={'white'}
+                      borderColor={'grey.400'}
+                      borderWidth={1}
+                      p={1}
+                      m={1}
+                      borderRadius={10}>
+                      <Row alignItems={'center'}>
+                        <Image
+                          source={require('../../assets/chef.png')}
+                          h={5}
+                          w={5}
+                          resizeMode={'contain'}
+                          alt={'profile'}
+                        />
+                        <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                          {userData?.data?.cooking_skill_data}
+                        </Text>
+                      </Row>
+                    </View>
+                  )}
+                  {userData?.data?.habit_data && (
+                    <View
+                      bg={'white'}
+                      ml={1}
+                      borderColor={'grey.400'}
+                      borderWidth={1}
+                      p={1}
+                      borderRadius={10}>
+                      <Row alignItems={'center'}>
+                        <Image
+                          source={require('../../assets/hiking.png')}
+                          h={5}
+                          w={5}
+                          resizeMode={'contain'}
+                          alt={'profile'}
+                        />
+                        <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                          {userData?.data?.habit_data}
+                        </Text>
+                      </Row>
+                    </View>
+                  )}
+
+                  {userData?.data?.night_life_data && (
+                    <View
+                      bg={'white'}
+                      borderColor={'grey.400'}
+                      borderWidth={1}
+                      p={1}
+                      m={1}
+                      borderRadius={10}>
+                      <Row alignItems={'center'}>
+                        <Image
+                          source={require('../../assets/moon.png')}
+                          h={5}
+                          w={5}
+                          resizeMode={'contain'}
+                          alt={'profile'}
+                        />
+                        <Text
+                          ml={2}
+                          fontSize={10}
+                          numberOfLines={1}
+                          fontFamily={'Lexend-Medium'}>
+                          {userData?.data?.night_life_data}
+                        </Text>
+                      </Row>
+                    </View>
+                  )}
+                  {userData?.data?.smoking_opinion_data && (
+                    <View
+                      bg={'white'}
+                      ml={1}
+                      borderColor={'grey.400'}
+                      borderWidth={1}
+                      p={1}
+                      borderRadius={10}>
+                      <Row alignItems={'center'}>
+                        <Image
+                          source={require('../../assets/smoking.png')}
+                          h={5}
+                          w={5}
+                          resizeMode={'contain'}
+                          alt={'profile'}
+                        />
+                        <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                          {userData?.data?.smoking_opinion_data}
+                        </Text>
+                      </Row>
+                    </View>
+                  )}
+
+                  {userData?.data?.kids_opinion_data && (
+                    <View
+                      bg={'white'}
+                      borderColor={'grey.400'}
+                      borderWidth={1}
+                      p={1}
+                      m={1}
+                      borderRadius={10}>
+                      <Row alignItems={'center'}>
+                        <Image
+                          source={require('../../assets/kid.png')}
+                          h={5}
+                          w={5}
+                          resizeMode={'contain'}
+                          alt={'profile'}
+                        />
+                        <Text
+                          ml={2}
+                          fontSize={10}
+                          numberOfLines={1}
+                          fontFamily={'Lexend-Medium'}>
+                          {userData?.data?.kids_opinion_data}
+                        </Text>
+                      </Row>
+                    </View>
+                  )}
+                  {userData?.data?.hobby_data && (
+                    <View
+                      bg={'white'}
+                      ml={1}
+                      borderColor={'grey.400'}
+                      borderWidth={1}
+                      p={1}
+                      m={2}
+                      borderRadius={10}>
+                      <Row alignItems={'center'}>
+                        <Image
+                          source={require('../../assets/healthy.png')}
+                          h={5}
+                          w={5}
+                          resizeMode={'contain'}
+                          alt={'profile'}
+                        />
+                        <Text ml={2} fontSize={10} fontFamily={'Lexend-Medium'}>
+                          {userData?.data?.hobby_data}
+                        </Text>
+                      </Row>
+                    </View>
+                  )}
                 </View>
                 <Text fontSize={16} fontFamily={'Lexend-Medium'}>
                   Gallery

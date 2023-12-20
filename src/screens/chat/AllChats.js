@@ -41,6 +41,7 @@ import {
   useGetUserCrushesQuery,
   useRemoveCrushMutation,
 } from '../../redux/apis/auth';
+import LoaderModal from '../../components/Loader/Loader';
 var {width, height} = Dimensions.get('window');
 
 function AllChats({navigation}) {
@@ -54,65 +55,6 @@ function AllChats({navigation}) {
     page: page,
   });
 
-  const [connections, setConnections] = useState([
-    {
-      id: 1,
-      img: require('../../assets/h1.png'),
-      name: 'Olivia',
-      message: 'Okay see you soon',
-      time: '12:32 AM',
-      recieved: '2',
-
-      status: 'online',
-    },
-    {
-      id: 2,
-      img: require('../../assets/h2.png'),
-      name: 'Rose',
-      message: 'Thankyou Alex after interested',
-      time: '12:22 AM',
-      sent: '2',
-
-      status: 'offline',
-    },
-    {
-      id: 3,
-      img: require('../../assets/h3.png'),
-      name: 'Isabell',
-      message: 'Do you have time in sunday ?',
-      time: '12:20 AM',
-      sent: '2',
-      status: 'online',
-    },
-    {
-      id: 4,
-      img: require('../../assets/h4.png'),
-      name: 'Emma',
-      message: 'Where your home ? I want . . .',
-      time: '12:08 AM',
-      sent: '2',
-      status: 'offline',
-    },
-    {
-      id: 5,
-      img: require('../../assets/h5.png'),
-      name: 'Isabell',
-      message: 'Okee makasih yaa waktunya',
-      time: '12:08 AM',
-      sent: '2',
-
-      status: 'online',
-    },
-    {
-      id: 6,
-      img: require('../../assets/h6.png'),
-      name: 'Sofia',
-      message: 'Maaf yaa kalo pernah ngerepotin',
-      time: '12:32 AM',
-      sent: '2',
-      status: 'online',
-    },
-  ]);
   const bottomSheetRef = React.useRef(null);
   const openBottomSheet = id => {
     if (bottomSheetRef.current) {
@@ -159,7 +101,7 @@ function AllChats({navigation}) {
           fontFamily={'Lexend-SemiBold'}>
           Messages
         </Text>
-
+        <LoaderModal visible={crushLoading} />
         <Row alignItems={'center'} flexDir={'row-reverse'}>
           <Pressable onPress={() => navigation.navigate('CallHistory')}>
             <Image
@@ -217,25 +159,6 @@ function AllChats({navigation}) {
             />
           </Pressable>
         }
-        // InputRightElement={
-        //   <Pressable
-        //     onPress={() => {
-        //       openBottomSheet();
-        //     }}>
-        //     <Icon
-        //       as={
-        //         <Image
-        //           source={require('../../assets/camera.png')}
-        //           h={5}
-        //           w={5}
-        //           resizeMode="contain"
-        //           alt={'img'}
-        //         />
-        //       }
-        //       mr={2}
-        //     />
-        //   </Pressable>
-        // }
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -447,106 +370,8 @@ function Basic(props) {
     });
   };
 
-  // const AllMessages = async otherId => {
-  //   // var user = await AsyncStorage.getItem('Userid');
-  //   const doc_id = otherId > uid ? uid + '-' + otherId : otherId + '-' + uid;
-
-  //   console.log('doc_id  :  ', doc_id);
-
-  //   const messageRef = firestore()
-  //     .collection('chats')
-  //     .doc(doc_id)
-  //     .collection('messages')
-  //     .orderBy('createdAt', 'desc');
-
-  //   messageRef.get().then(querySnap => {
-  //     const allmsg = querySnap?.docs?.map(docsnap => {
-  //       const data = docsnap.data();
-  //       if (data.createdAt) {
-  //         return {
-  //           ...docsnap.data(),
-  //           createdAt: docsnap.data().createdAt.toDate(),
-  //         };
-  //       } else {
-  //         return {
-  //           ...docsnap.data(),
-  //           createdAt: new Date(),
-  //         };
-  //       }
-  //     });
-  //     // if (allmsg?.length > 0) {
-  //     console.log(allmsg[0]);
-  //     setChattingList(prev => [...prev, allmsg[0]]);
-  //     // }
-  //     //  setLoading(false);
-  //     //  setCount(count + 1);
-
-  //     // setChat(allmsg);
-  //   });
-  //   // setTimeout(() => {
-  //   //   setLoading(false);
-  //   // }, 2000);
-  // };
   const [chatId, setChatId] = React.useState();
   const [active, setActive] = useState(false);
-  const [listData, setListData] = useState([
-    {
-      id: 1,
-      img: require('../../assets/h1.png'),
-      name: 'Sahara Ardia Fadia',
-      message: 'Okay see you soon',
-      time: '12:32 AM',
-      user_id: 'D3jC7o86tNUlXH81nkIdyUb66Z23',
-      recieved: '2',
-      status: 'rec',
-    },
-    {
-      id: 2,
-      img: require('../../assets/h2.png'),
-      name: 'Zahra Putri Stephanie',
-      message: 'Thankyou Alex after interested',
-      user_id: 'RtAflHv3RNdw4wETiMvvJa6IT6l2',
-      time: '12:22 AM',
-      sent: '2',
-      status: 'sent',
-    },
-    {
-      id: 3,
-      img: require('../../assets/h3.png'),
-      name: 'Shiren Putri Sungkar',
-      message: 'Do you have time in sunday ?',
-      time: '12:20 AM',
-      sent: '2',
-      status: 'seen',
-    },
-    {
-      id: 4,
-      img: require('../../assets/h4.png'),
-      name: 'Natasya Valentina',
-      message: 'Where your home ? I want . . .',
-      time: '12:08 AM',
-      sent: '2',
-      status: 'seen',
-    },
-    {
-      id: 5,
-      img: require('../../assets/h5.png'),
-      name: 'Chesya Zhaharani',
-      message: 'Okee makasih yaa waktunya',
-      time: '12:08 AM',
-      sent: '2',
-      status: 'sent',
-    },
-    {
-      id: 6,
-      img: require('../../assets/h6.png'),
-      name: 'Saqila Septiani Anggun',
-      message: 'Maaf yaa kalo pernah ngerepotin',
-      time: '12:32 AM',
-      sent: '2',
-      status: 'sent',
-    },
-  ]);
 
   const closeRow = (rowMap, rowKey) => {
     if (rowMap[rowKey]) {
@@ -555,15 +380,8 @@ function Basic(props) {
   };
   const [removeCrush, {data: crushRemoved, isLoading: crushLoading}] =
     useRemoveCrushMutation();
-  const deleteRow = (rowMap, rowKey) => {
-    closeRow(rowMap, rowKey);
-    const newData = [...listData];
-    const prevIndex = listData.findIndex(item => item.id === rowKey);
-    newData.splice(prevIndex, 1);
-    setListData(newData);
-  };
+
   const removemMessages = async () => {
-    console.log('chatId', chatId);
     if (chatId) {
       const databaseRef = database()
         .ref('chatBase/' + `${uid}`)
@@ -581,6 +399,8 @@ function Basic(props) {
         });
     }
   };
+  const senderName = useSelector(state => state.auth?.userData?.name);
+
   const handleRemoveCrush = () => {
     if (chatId) {
       let body = {
@@ -606,8 +426,8 @@ function Basic(props) {
 
     const parts = dataItem?.createdAt.split(':');
 
-    const totalHours = parseInt(parts[0]);
-    const minutes = parseInt(parts[1]);
+    const totalHours = parseInt(parts[1]);
+    const minutes = parseInt(parts[2]);
     let hours = totalHours % 12;
     if (hours === 0) {
       hours = 12;
@@ -626,9 +446,9 @@ function Basic(props) {
           console.log('press');
           setChatId(item?.id);
           setAlertName(
-            dataItem.sender === item.id
-              ? dataItem?.userName
-              : dataItem.reciverName,
+            senderName === dataItem.chatterName
+              ? dataItem.chatName
+              : dataItem.chatterName,
           );
         }}
         onPress={() => {
@@ -661,9 +481,9 @@ function Basic(props) {
                   size={'md'}
                   source={{
                     uri:
-                      dataItem?.sender === item.id
-                        ? dataItem?.userAvatar
-                        : dataItem?.avatar,
+                      senderName === dataItem.chatterName
+                        ? dataItem.avatar
+                        : dataItem.userAvatar,
                   }}
                 />
                 {item?.online_status === true ? (
@@ -682,9 +502,9 @@ function Basic(props) {
                   color={'black'}
                   fontFamily={'Lexend-SemiBold'}
                   fontSize={14}>
-                  {dataItem.sender === item.id
-                    ? dataItem?.userName
-                    : dataItem.reciverName}
+                  {senderName === dataItem.chatterName
+                    ? dataItem.chatName
+                    : dataItem.chatterName}
                 </Text>
                 <Text color={'grey.400'} fontSize={12} numberOfLines={1}>
                   {dataItem?.message}
@@ -695,11 +515,11 @@ function Basic(props) {
               <Text color={'grey.400'} mb={1} fontSize={10} numberOfLines={1}>
                 {messageTime}
               </Text>
-              {dataItem.sender !== item.id ? (
+              {dataItem?.status === 'delivered' && dataItem?.sender === uid ? (
                 <Icon
                   size="4"
                   _light={{
-                    color: dataItem.status === 'seen' ? 'blue' : 'grey.400',
+                    color: 'black',
                   }}
                   _dark={{
                     color: 'coolGray.400',
@@ -708,6 +528,32 @@ function Basic(props) {
                   name={'done-all'}
                 />
               ) : null}
+              {dataItem?.status === 'seen' && dataItem.sender === uid ? (
+                <Icon
+                  size="4"
+                  _light={{
+                    color: 'blue.400',
+                  }}
+                  _dark={{
+                    color: 'coolGray.400',
+                  }}
+                  as={MaterialIcons}
+                  name={'done-all'}
+                />
+              ) : null}
+              {/* {dataItem.sender === uid ? (
+                <Icon
+                  size="4"
+                  _light={{
+                    color: dataItem.status === 'seen' ? 'blue' : 'blue',
+                  }}
+                  _dark={{
+                    color: dataItem.status === 'seen' ? 'blue' : 'blue',
+                  }}
+                  as={MaterialIcons}
+                  name={'done-all'}
+                />
+              ) : null} */}
               {/* {item?.status === 'rec' ? (
               <Box
                 rounded={'full'}

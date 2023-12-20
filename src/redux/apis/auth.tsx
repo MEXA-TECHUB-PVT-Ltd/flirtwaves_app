@@ -5,7 +5,7 @@ import {Api_Url} from '../../constants/Api_Url';
 export const authApis = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({baseUrl: Api_Url}),
-  tagTypes: ['getUser', 'getCrushes', 'getFav'],
+  tagTypes: ['getUser', 'getCrushes', 'getFav', 'getCall', 'getFaq'],
   endpoints: builder => ({
     postUser: builder.mutation({
       query: body => {
@@ -40,7 +40,7 @@ export const authApis = createApi({
     updatePassword: builder.mutation({
       query: body => {
         return {
-          url: `user/update_password`,
+          url: `user/reset_password`,
           method: 'PUT',
           body,
         };
@@ -112,9 +112,11 @@ export const authApis = createApi({
     }),
     getFaqs: builder.query({
       query: page => `faqs/get_AllFAQs?page=${page}&limit=10`,
+      providesTags: ['getFaq'],
     }),
     getFaqById: builder.query({
       query: id => `faqs/get_FAQ_ByID/${id}`,
+      providesTags: ['getFaq'],
     }),
     addFeedBack: builder.mutation({
       query: body => {
@@ -344,12 +346,53 @@ export const authApis = createApi({
     getFavStatus: builder.mutation({
       query: body => {
         return {
-          url: `favourites/get_favourite_status?page=${body.page}&limit=10`,
+          url: `favourites/get_favourite_status`,
           method: 'POST',
-          body: body.data,
+          body: body,
         };
       },
       invalidatesTags: ['getFav'],
+    }),
+    makeCall: builder.mutation({
+      query: body => {
+        return {
+          url: `calls/create_call`,
+          method: 'POST',
+          body: body,
+        };
+      },
+      invalidatesTags: ['getUser', 'getCall'],
+    }),
+    updateCallDuration: builder.mutation({
+      query: body => {
+        return {
+          url: `calls/update_call_duration`,
+          method: 'PUT',
+          body,
+        };
+      },
+      invalidatesTags: ['getCall'],
+    }),
+    updateCallStatus: builder.mutation({
+      query: body => {
+        return {
+          url: `calls/update_call_status`,
+          method: 'PUT',
+          body,
+        };
+      },
+      invalidatesTags: ['getCall'],
+    }),
+    getUserCalls: builder.query({
+      query: body =>
+        `/calls/get_user_callshistory/caller_id=${body?.uid}?page=${body.page}&limit=10`,
+      providesTags: ['getCall'],
+    }),
+    getCallById: builder.mutation({
+      query: body => {
+        return {url: `calls/get_user_call_bycallID`, method: 'POST', body};
+      },
+      invalidatesTags: ['getCall'],
     }),
   }),
 });
@@ -405,4 +448,9 @@ export const {
   useGetUserofRelationMutation,
   useGetUserofSmokingMutation,
   useGetFavStatusMutation,
+  useGetUserCallsQuery,
+  useUpdateCallDurationMutation,
+  useMakeCallMutation,
+  useUpdateCallStatusMutation,
+  useGetCallByIdMutation,
 } = authApis;

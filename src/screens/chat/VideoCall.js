@@ -17,6 +17,16 @@ const VideoCall = ({navigation, route}) => {
   const dispatch = useDispatch();
   const fromChat = route?.params?.fromChat;
   const fromHistory = route?.params?.fromHistory;
+  const {
+    call_id,
+    call_status,
+    call_type,
+    caller_id,
+    channel_name,
+    receiver_id,
+    gettingCall,
+  } = route?.params;
+
   const FromNotifi = useSelector(state => state.auth?.fromSignIn);
   console.log(FromNotifi);
   // React.useEffect(() => {
@@ -54,9 +64,9 @@ const VideoCall = ({navigation, route}) => {
             dispatch(setFromSignIn(false));
             navigation.replace('CallHistory');
           } else if (fromChat === true) {
-            navigation.replace('Chatting');
+            navigation.goBack();
           } else if (fromHistory === true) {
-            navigation.replace('CallHistory');
+            navigation.goBack();
           }
           // navigation.goBack();÷
           // showMessage('Remote user left the channel. uid: ' + Uid);
@@ -79,7 +89,7 @@ const VideoCall = ({navigation, route}) => {
       dispatch(setFromSignIn(false));
       // dispatch(setFromSignIn());
 
-      navigation.replace('CallHistory');
+      navigation.goBack();
       // setRemoteUid(0);
       // setIsJoined(false);/
       // showMessage('You left the channel');
@@ -92,14 +102,17 @@ const VideoCall = ({navigation, route}) => {
       if (FromNotifi === true) {
         leave();
       } else if (fromChat === true) {
-        navigation.replace('Chatting');
+        navigation.goBack();
       } else if (fromHistory === true) {
-        navigation.replace('CallHistory');
+        navigation.goBack();
       }
     },
   };
   const props = {
-    rtcProps: {appId: 'bdf562115aec49c2819b25fde6ed2b29', channel: 'test'},
+    rtcProps: {
+      appId: 'bdf562115aec49c2819b25fde6ed2b29',
+      channel: 'test',
+    },
   };
   const style = {
     localBtnContainer: {

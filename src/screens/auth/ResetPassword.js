@@ -97,6 +97,7 @@ const ResetPassword = ({navigation, route}) => {
                       placeholder={'Password'}
                       rightIcon
                       value={values.newPassword}
+                      type={'password'}
                       onChangeText={handleChange('newPassword')}
                     />
                     {errors.newPassword && (
@@ -118,6 +119,7 @@ const ResetPassword = ({navigation, route}) => {
                     <FInputs
                       placeholder={'Confirm Password'}
                       rightIcon
+                      type={'password'}
                       value={values.confirmPassword}
                       onChangeText={handleChange('confirmPassword')}
                     />
