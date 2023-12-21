@@ -59,6 +59,7 @@ const About = ({navigation}) => {
             Tell us about yourself
           </Text>
           <Formik
+            validateOnChange
             initialValues={{
               name: '',
             }}

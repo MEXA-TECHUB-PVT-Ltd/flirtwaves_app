@@ -277,6 +277,11 @@ const Partner = ({navigation, route}) => {
           />
         </View>
       )}
+      {VerifError === true && (
+        <Text textAlign={'center'} fontSize={18} fontFamily={'Lexend-SemiBild'}>
+          No Data To Display
+        </Text>
+      )}
     </View>
   );
 };

@@ -61,7 +61,7 @@ const LookingFor = ({navigation}) => {
       const newObj = {...userProfile, interested_in: id?.id};
       console.log(newObj);
       await dispatch(setUserProfile(newObj));
-      navigation.navigate('AddPhoto');
+      navigation.navigate('AddPhoto', {fromEdit: false});
     }
   };
   return (

@@ -12,11 +12,29 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
 import {useDispatch, useSelector} from 'react-redux';
 import {useLoginUserMutation} from '../../redux/apis/auth';
-import {setUserData} from '../../redux/slices/auth';
+import {setPassword, setUserData} from '../../redux/slices/auth';
 import messaging from '@react-native-firebase/messaging';
+import EncryptedStorage from 'react-native-encrypted-storage';
 const SignIn = ({navigation}) => {
   const disptach = useDispatch();
   const [loginUser, {data, isError, isLoading}] = useLoginUserMutation();
+
+  async function handleSession(uid) {
+    try {
+      await EncryptedStorage.setItem('user_session', 'SigneUp');
+      await EncryptedStorage.setItem(
+        'user_id',
+        JSON.stringify({
+          uid: uid,
+        }),
+      );
+
+      // Congrats! You've just stored your first value!
+    } catch (error) {
+      console.log(error);
+      // There was an error on the native side
+    }
+  }
 
   const formSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
@@ -33,10 +51,11 @@ const SignIn = ({navigation}) => {
       device_id: token,
     };
 
-    loginUser(body).then(res => {
+    loginUser(body).then(async res => {
+      await disptach(setPassword(password));
       console.log('res', res);
       if (res?.data?.error === false) {
-        disptach(setUserData(res?.data?.data));
+        await disptach(setUserData(res?.data?.data));
 
         navigation.navigate('Tabs', {screen: 'Home'}, {fromSignIn: true});
       } else if (res?.error?.data?.msg === 'Invalid password') {

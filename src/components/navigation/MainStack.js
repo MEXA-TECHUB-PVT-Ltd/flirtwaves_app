@@ -60,8 +60,13 @@ import Eating from '../../screens/browse/Eating';
 import Night from '../../screens/browse/Night';
 import Kids from '../../screens/browse/Kids';
 import Smoke from '../../screens/browse/Smoke';
-import {useUpdateOnlineStatusMutation} from '../../redux/apis/auth';
+import {
+  useUpdateCallStatusMutation,
+  useUpdateOnlineStatusMutation,
+} from '../../redux/apis/auth';
 import {AppState} from 'react-native';
+import UpdatePassword from '../../screens/settings/ChangePassword';
+import Feedback from '../../screens/settings/Feedback';
 export default function MainStack() {
   const navigationRef = useNavigationContainerRef(); // Access navigation container reference
   const Stack = createNativeStackNavigator();
@@ -83,139 +88,151 @@ export default function MainStack() {
     }
     // when loaded successfully
   });
-  PushNotification.createChannel(
-    {
-      channelId: 'channel-id', // (required)
-      channelName: 'My channel', // (required)
-      foreground: true,
-      channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
-      playSound: true, // (optional) default: true
-      soundName: 'call.mp3', // (optional) See `soundName` parameter of `localNotification` function
-      importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
-      vibrate: true,
-      timeoutAfter: 3000,
-      priority: 'high',
-      //
-      // (optional) default: true. Creates the default vibration pattern if true.
-    },
-    // (optional) callback returns whether the channel was created, false means it already existed.
-  );
-  PushNotification.configure({
-    onNotification: function (notification) {
-      console.log('NOTIFICATION:', notification);
-      if (notification.userInteraction === true) {
+
+  React.useEffect(() => {
+    handleNotifi();
+    return () => handleNotifi();
+  }, []);
+  const [updateCall, {data: callData, isLoading, loading}] =
+    useUpdateCallStatusMutation();
+
+  const handleNotifi = () => {
+    PushNotification.configure({
+      onNotification: function (notification) {
+        console.log('NOTIFICATION:', notification);
+        if (notification.userInteraction === true) {
+          ding.stop(() => {
+            // Note: If you want to play a sound after stopping and rewinding it,
+            // it is important to call play() in a callback.
+            //   whoosh.play();
+          });
+          switch (notification.action) {
+            case 'Answer':
+              if (notification?.data?.call_type === 'AUDIO') {
+                let body = {
+                  caller_id: notification?.data?.caller_id,
+                  call_id: notification?.data?.call_id,
+                  call_status: 'ACCEPT', //ACCEPT, DECLINED, or NOTANSWERED
+                };
+                updateCall(body).then(res => {
+                  console.log('Video', res);
+                });
+                setInitialRoute(true);
+                dispatch(setFromSignIn(true));
+                navigationRef.current.navigate('AudioCall', notification.data);
+                ding.stop(() => {
+                  // Note: If you want to play a sound after stopping and rewinding it,
+                  // it is important to call play() in a callback.
+                  //   whoosh.play();
+                });
+              } else {
+                let body = {
+                  caller_id: notification?.data?.caller_id,
+                  call_id: notification?.data?.call_id,
+                  call_status: 'ACCEPT', //ACCEPT, DECLINED, or NOTANSWERED
+                };
+                updateCall(body).then(res => {
+                  console.log('Video', res);
+                });
+                setInitialRoute(true);
+
+                dispatch(setFromSignIn(true));
+                navigationRef.current.navigate('VideoCall', notification?.data);
+                ding.stop(() => {
+                  // Note: If you want to play a sound after stopping and rewinding it,
+                  // it is important to call play() in a callback.
+                  //   whoosh.play();
+                });
+              }
+
+              // navigate to answer screen
+              // navigation.navigate('AnswerScreen', {notification: notification});
+              break;
+            case 'Decline':
+              ding.stop(() => {});
+              let body = {
+                caller_id: notification?.data?.caller_id,
+                call_id: notification?.data?.call_id,
+                call_status: 'DECLINED', //ACCEPT, DECLINED, or NOTANSWERED
+              };
+              updateCall(body).then(res => {
+                console.log('Video', res);
+              });
+              break;
+          }
+        }
+      },
+      requestPermissions: Platform.OS === 'ios',
+      onAction: function (notification) {
         ding.stop(() => {
           // Note: If you want to play a sound after stopping and rewinding it,
           // it is important to call play() in a callback.
           //   whoosh.play();
         });
-        switch (notification.action) {
-          case 'Answer':
-            console.warn(notification.action);
-            if (notification?.data?.callType === 'Audio') {
-              setInitialRoute(true);
-              dispatch(setFromSignIn(true));
-              navigationRef.current.navigate('AudioCall');
-              ding.stop(() => {
-                // Note: If you want to play a sound after stopping and rewinding it,
-                // it is important to call play() in a callback.
-                //   whoosh.play();
-              });
-            } else {
-              setInitialRoute(true);
-              dispatch(setFromSignIn(true));
-              navigationRef.current.navigate('VideoCall');
-              ding.stop(() => {
-                // Note: If you want to play a sound after stopping and rewinding it,
-                // it is important to call play() in a callback.
-                //   whoosh.play();
-              });
-            }
-
-            // navigate to answer screen
-            // navigation.navigate('AnswerScreen', {notification: notification});
-            break;
-          case 'Decline':
-            ding.stop(() => {
-              // Note: If you want to play a sound after stopping and rewinding it,
-              // it is important to call play() in a callback.
-              //   whoosh.play();
-            });
-            // update app state to decline call
-            // ...
-            break;
+      },
+    });
+    messaging().setBackgroundMessageHandler(async remoteMessage => {
+      console.log('Message handled in the background!', remoteMessage);
+      ding.play(success => {
+        if (success) {
+        } else {
         }
-      }
-    },
-    requestPermissions: Platform.OS === 'ios',
-    onAction: function (notification) {
-      ding.stop(() => {
-        // Note: If you want to play a sound after stopping and rewinding it,
-        // it is important to call play() in a callback.
-        //   whoosh.play();
       });
-    },
-  });
-  messaging().setBackgroundMessageHandler(async remoteMessage => {
-    console.log('Message handled in the background!', remoteMessage);
-    ding.play(success => {
-      if (success) {
-      } else {
-      }
-    });
 
-    // if (remoteMessage.notification && remoteMessage.notification.title) {
-    PushNotification.localNotification({
-      /* Android Only Properties */
-      channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
-      // ticker: 'My Notification Ticker', // (optional)
-      /* iOS and Android properties */
-      largeIcon: 'ic_launcher',
-      smallIcon: 'ic_notification',
-      largeIconUrl: 'https://www.example.tld/picture.jpg',
-      title: remoteMessage.notification.title, // (optional)
-      message: remoteMessage.notification.body, // (required)
-      playSound: true,
-      priority: 'high',
-      timeoutAfter: 3000,
-      //   invokeApp: false,
-      soundName: 'call.mp3',
-      actions: ['Answer', 'Decline'],
-      userInfo: remoteMessage?.data,
-    });
-    //  ToastAndroid.show(remoteMessage.notification.title, ToastAndroid.SHORT);
-    // }
-  });
-  // Register foreground message handler
-  messaging().onMessage(async remoteMessage => {
-    console.log('Notification received in foreground:', remoteMessage);
-    ding.play(success => {
-      if (success) {
-      } else {
-      }
-    });
-    // Handle the notification content here
-    // You can update your app's UI or show a custom in-app notification.
-    if (remoteMessage.notification && remoteMessage.notification.title) {
+      // if (remoteMessage.notification && remoteMessage.notification.title) {
       PushNotification.localNotification({
         /* Android Only Properties */
         channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
-        ticker: 'My Notification Ticker', // (optional)
+        // ticker: 'My Notification Ticker', // (optional)
         /* iOS and Android properties */
         largeIcon: 'ic_launcher',
-        priority: 'high',
+        smallIcon: 'ic_notification',
         largeIconUrl: 'https://www.example.tld/picture.jpg',
         title: remoteMessage.notification.title, // (optional)
         message: remoteMessage.notification.body, // (required)
         playSound: true,
-        smallIcon: 'ic_notification',
-        soundName: 'call.mp3',
+        priority: 'high',
         timeoutAfter: 3000,
+        //   invokeApp: false,
+        soundName: 'call.mp3',
         actions: ['Answer', 'Decline'],
         userInfo: remoteMessage?.data,
       });
-    }
-  });
+      //  ToastAndroid.show(remoteMessage.notification.title, ToastAndroid.SHORT);
+      // }
+    });
+    // Register foreground message handler
+    messaging().onMessage(async remoteMessage => {
+      console.log('Notification received in foreground:', remoteMessage);
+      ding.play(success => {
+        if (success) {
+        } else {
+        }
+      });
+      // Handle the notification content here
+      // You can update your app's UI or show a custom in-app notification.
+      if (remoteMessage.notification && remoteMessage.notification.title) {
+        PushNotification.localNotification({
+          /* Android Only Properties */
+          channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
+          ticker: 'My Notification Ticker', // (optional)
+          /* iOS and Android properties */
+          largeIcon: 'ic_launcher',
+          priority: 'high',
+          largeIconUrl: 'https://www.example.tld/picture.jpg',
+          title: remoteMessage.notification.title, // (optional)
+          message: remoteMessage.notification.body, // (required)
+          playSound: true,
+          smallIcon: 'ic_notification',
+          soundName: 'call.mp3',
+          timeoutAfter: 3000,
+          actions: ['Answer', 'Decline'],
+          userInfo: remoteMessage?.data,
+        });
+      }
+    });
+  };
+
   const [updateStaus, {isError: onlineError}] = useUpdateOnlineStatusMutation();
   const appState = React.useRef(AppState.currentState);
   const [appStateVisible, setAppStateVisible] = React.useState(
@@ -318,6 +335,8 @@ export default function MainStack() {
         <Stack.Screen name="Night" component={Night} />
         <Stack.Screen name="Kids" component={Kids} />
         <Stack.Screen name="Smoke" component={Smoke} />
+        <Stack.Screen name="ChangePassword" component={UpdatePassword} />
+        <Stack.Screen name="Feedback" component={Feedback} />
       </Stack.Navigator>
     </NavigationContainer>
   );

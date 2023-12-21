@@ -37,6 +37,7 @@ const Profile = ({navigation}) => {
   const [active, setActive] = React.useState(false);
   const [active2, setActive2] = React.useState(false);
   const uid = useSelector(state => state.auth?.userData?.id);
+  console.log(uid);
   const [deleteUser, {data: isData, isError, isLoading: loading}] =
     useDeleteUserMutation();
   const bottomSheetRef = React.useRef(null);
@@ -86,9 +87,9 @@ const Profile = ({navigation}) => {
     });
   };
   const userData = useSelector(state => state?.auth?.userData);
-  console.log(userData);
+
   const {data: profileData, isError: profileError} = useGetUserByIdQuery(uid);
-  console.log(profileData);
+
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View bg={'white'} flex={1}>

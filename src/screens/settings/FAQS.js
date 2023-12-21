@@ -17,45 +17,13 @@ import React from 'react';
 import Header from '../../components/Header/Header';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
+import {useGetFaqsQuery} from '../../redux/apis/auth';
+import LoaderModal from '../../components/Loader/Loader';
 
 const FAQS = ({navigation}) => {
-  const data = [
-    {
-      id: 1,
-      que: 'Is this dating app free to use?',
-      ans: 'This app is designed to help users easily book and manage appointments with Professional Doctors or service providers.',
-    },
-    {
-      id: 2,
-      que: 'Can I edit my profile information after creating it?',
-      ans: 'This app is designed to help users easily book and manage appointments with Professional Doctors or service providers.',
-    },
-    {
-      id: 3,
-      que: 'What is the matching algorithm used in this dating app?',
-      ans: 'This app is designed to help users easily book and manage appointments with Professional Doctors or service providers.',
-    },
-    {
-      id: 4,
-      que: 'How can I report inappropriate or offensive content or behavior?',
-      ans: 'This app is designed to help users easily book and manage appointments with Professional Doctors or service providers.',
-    },
-    {
-      id: 5,
-      que: 'Can I delete my account if I no longer want to use the app?',
-      ans: 'This app is designed to help users easily book and manage appointments with Professional Doctors or service providers.',
-    },
-    {
-      id: 6,
-      que: 'How do I contact customer support if I have a question or issue?',
-      ans: 'This app is designed to help users easily book and manage appointments with Professional Doctors or service providers.',
-    },
-    {
-      id: 7,
-      que: 'Can I use this dating app on multiple devices with the same account?',
-      ans: 'This app is designed to help users easily book and manage appointments with Professional Doctors or service providers.',
-    },
-  ];
+  const [page, setPage] = React.useState(1);
+  const {data: FaqData, isLoading} = useGetFaqsQuery(page);
+
   const [selected, setSelected] = React.useState();
   const handleSelection = id => {
     if (selected === id) {
@@ -65,80 +33,7 @@ const FAQS = ({navigation}) => {
   const [clicked, setClicked] = React.useState(false);
 
   const [focused, setFocued] = React.useState(false);
-  const data2 = [
-    {
-      id: 1,
-      img: require('../../assets/h1.png'),
-      name: 'Rosie',
-      age: 20,
-      status: 'Active Now',
-      distance: '1.3 km',
-      isVerified: true,
-    },
-    {
-      id: 2,
-      img: require('../../assets/h2.png'),
-      name: 'Olivia',
-      age: 22,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 3,
-      img: require('../../assets/h3.png'),
-      name: 'Sophia',
-      age: 26,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 4,
-      img: require('../../assets/h4.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 5,
-      img: require('../../assets/h5.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 6,
-      img: require('../../assets/h6.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 7,
-      img: require('../../assets/h1.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-    {
-      id: 8,
-      img: require('../../assets/h2.png'),
-      name: 'Emily',
-      age: 30,
-      status: 'offline',
-      distance: '1.3 km',
-      isVerified: false,
-    },
-  ];
+
   const [searchText, setSearchText] = React.useState('');
   const [searchHistory, setSearchHistory] = React.useState([
     'Sofia Rodriguez',
@@ -325,7 +220,7 @@ const FAQS = ({navigation}) => {
 
           <ScrollView>
             <View m={5} mx={4}>
-              {data?.map(item => {
+              {FaqData?.data?.map(item => {
                 return (
                   <Pressable
                     borderRadius={10}
@@ -350,7 +245,7 @@ const FAQS = ({navigation}) => {
                         }
                         w={'90%'}
                         color={'black'}>
-                        {item?.que}
+                        {item?.question}
                       </Text>
                       <AntDesign
                         name={item?.id === selected ? 'up' : 'down'}
@@ -364,7 +259,7 @@ const FAQS = ({navigation}) => {
                         fontFamily={'Lexend-Light'}
                         mt={2}
                         color={'grey.400'}>
-                        {item?.ans}
+                        {item?.answer}
                       </Text>
                     ) : null}
 
@@ -383,6 +278,7 @@ const FAQS = ({navigation}) => {
           </ScrollView>
         </>
       )}
+      <LoaderModal visible={isLoading} />
     </View>
   );
 };

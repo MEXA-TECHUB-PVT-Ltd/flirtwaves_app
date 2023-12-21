@@ -122,6 +122,7 @@ const Exercise = ({navigation, route}) => {
 
     return age;
   }
+  console.log(VerifError);
   return (
     <View bg={'white'} flex={1}>
       <Header />
@@ -278,6 +279,11 @@ const Exercise = ({navigation, route}) => {
             }}
           />
         </View>
+      )}
+      {VerifError === true && (
+        <Text textAlign={'center'} fontSize={18} fontFamily={'Lexend-SemiBild'}>
+          No Data To Display
+        </Text>
       )}
     </View>
   );

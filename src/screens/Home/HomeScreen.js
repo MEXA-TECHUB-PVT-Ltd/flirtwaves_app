@@ -63,6 +63,7 @@ import {
 import RangeSlider from './components/RangeSlider';
 
 const HomeScreen = ({navigation, route}) => {
+  const dispatch = useDispatch();
   const [postCrush, {data: crushData, isLoading: crusLoading}] =
     useAddCrushMutation();
 
@@ -119,8 +120,20 @@ const HomeScreen = ({navigation, route}) => {
           var addressComponent = json.results[0].formatted_address;
           setAddress(addressComponent);
           // ref?.current?.setAddressText(addressComponent);
-          // console.log('address', addressComponent);
-
+          console.log('address', addressComponent);
+          console.log(uid);
+          let body = {
+            id: uid,
+            data: {
+              location: addressComponent,
+              latitude: lat,
+              longitude: long,
+            },
+          };
+          console.log(body);
+          updateUser(body).then(res => {
+            console.log('res', res);
+          });
           // _________________________________fix current location issue while adding listing_________________
           let geometry = json?.results[0]?.geometry;
         });
@@ -149,8 +162,6 @@ const HomeScreen = ({navigation, route}) => {
       },
     );
   };
-
-  const dispatch = useDispatch();
 
   const userProfile = useSelector(state => state.auth?.userProfile);
   const uid = useSelector(state => state.auth?.userData?.id);

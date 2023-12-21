@@ -5,12 +5,14 @@ export interface CounterState {
   userData: object;
   userProfile: object;
   fromSignIn: boolean;
+  password: string;
 }
 
 const initialState: CounterState = {
   userData: {},
   userProfile: {},
   fromSignIn: false,
+  password: '',
 };
 
 export const authSlice = createSlice({
@@ -26,10 +28,14 @@ export const authSlice = createSlice({
     setFromSignIn: (state, action) => {
       state.fromSignIn = action.payload;
     },
+    setPassword: (state, action) => {
+      state.password = action.payload;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const {setUserData, setUserProfile, setFromSignIn} = authSlice.actions;
+export const {setUserData, setUserProfile, setFromSignIn, setPassword} =
+  authSlice.actions;
 
 export default authSlice.reducer;
