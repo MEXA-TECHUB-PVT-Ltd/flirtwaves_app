@@ -4,20 +4,64 @@ import Header from '../../components/Header/Header';
 import FButton from '../../components/button/FButton';
 
 const Privacy = ({navigation, route}) => {
-  const des = `The personal information that you are asked to provide, and the reasons why you are asked to provide it, will be made clear to you at the point we ask you to provide your personal information.
-If you contact us directly, we may receive additional information about you such as your name, email address, phone number, the contents of the message and/or attachments you may send us, and any other information you may choose to provide.
-When you register for an Account, we may ask for your contact information, including items such as name, company name, address, email address, and telephone number.
-Like any other website, mtechub llc uses 'cookies'. These cookies are used to store information including visitors' preferences, and the pages on the website that the visitor accessed or visited. The information is used to optimize the users' experience by customizing our web page content based on visitors' browser type and/or other information.
-You may consult this list to find the Privacy Policy for each of the advertising partners of mtechub llc.
-Third-party ad servers or ad networks uses technologies like cookies, JavaScript, or Web Beacons that are used in their respective advertisements and links that appear on mtechub llc, which are sent directly to users' browser. They automatically receive your IP address when this occurs. These technologies are used to measure the effectiveness of their advertising campaigns and/or to personalize the advertising content that you see on websites that you visit.
-Note that mtechub llc has no access to or control over these cookies that are used by third-party advertisers. 
-The personal information that you are asked to provide, and the reasons why you are asked to provide it, will be made clear to you at the point we ask you to provide your personal information.
-If you contact us directly, we may receive additional information about you such as your name, email address, phone number, the contents of the message and/or attachments you may send us, and any other information you may choose to provide.
-When you register for an Account, we may ask for your contact information, including items such as name, company name, address, email address, and telephone number.
-Like any other website, mtechub llc uses 'cookies'. These cookies are used to store information including visitors' preferences, and the pages on the website that the visitor accessed or visited. The information is used to optimize the users' experience by customizing our web page content based on visitors' browser type and/or other information.
-You may consult this list to find the Privacy Policy for each of the advertising partners of mtechub llc.
-Third-party ad servers or ad networks uses technologies like cookies, JavaScript, or Web Beacons that are used in their respective advertisements and links that appear on mtechub llc, which are sent directly to users' browser. They automatically receive your IP address when this occurs. These technologies are used to measure the effectiveness of their advertising campaigns and/or to personalize the advertising content that you see on websites that you visit.
-Note that mtechub llc has no access to or control over these cookies that are used by third-party advertisers.
+  const des = `Welcome to Flirt Waves! This Privacy Policy outlines how we collect, use, and safeguard your information while using our app. You agree to the practices described in this policy by using Flirt Waves.
+1. Information We Collect
+a. User Profile Information:
+          Gender
+          Age
+          Height
+          Food preferences
+          Sleeping habits
+          Smoking habits
+          Exercise habits
+          Cooking skills
+          Eating habits
+b. Communication Data:
+Messages
+Audio and video call logs
+c. Multi-Lingual Converter:
+Language preferences for translation
+d. Photo Verification:
+User-submitted photos for identity verification
+2. How We Use Your Information
+a. Profile Matching:
+Matching users based on preferences for a personalized experience.
+b. Communication Features:
+Facilitating messaging, audio, and video calls between users.
+c. Multi-Lingual Converter:
+Providing language conversion services based on user preferences.
+d. Photo Verification:
+Verifying user identity for increased trust and safety.
+3. Information Sharing
+a. Profile Information:
+Shared with other users to enable matching based on preferences.
+b. Communication Data:
+Used to facilitate and improve in-app communication features.
+c. Favorites and Distance Information:
+Shared with users to enhance the app experience.
+d. Reporting Feature:
+User-reported information is shared with our support team to address concerns and maintain a safe environment.
+4. User Controls and Choices
+a. Profile Updates:
+Users can update their profile information, including preferences, at any time.
+b. Communication Preferences:
+Users can manage their communication preferences, including opting out of certain types of communication.
+c. Favorites Management:
+Users can add, view, and remove other users from their favorites list.
+5. Security Measures
+We implement security measures to protect your information from unauthorized access, disclosure, alteration, and destruction.
+6. Distance Calculation
+Users can view the approximate distance between each other based on their provided location information.
+7. Subscription Plans and Payments
+a. Subscription Features:
+Users can purchase subscription plans to unlock additional features.
+b. Payment Processing:
+Payment transactions for subscription plans are handled securely through Stripe. Flirt Waves does not store your payment information.
+8. Changes to this Privacy Policy
+We may update this Privacy Policy to reflect changes in our practices. Please review this policy periodically for any updates.
+9. Contact Us:
+If you have questions or concerns about this Privacy Policy, please contact us at [contact@flirtwaves.com].
+
 
 `;
   return (

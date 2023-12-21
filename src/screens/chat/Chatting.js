@@ -38,9 +38,17 @@ import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import {useGetUserByIdQuery} from '../../redux/apis/auth';
 import moment from 'moment';
-
+import translate from 'translate-google-api';
+import LoaderModal from '../../components/Loader/Loader';
 const Chatting = ({navigation, route}) => {
+  const [loading, setLoading] = React.useState(false);
   const otherid = route?.params?.uid;
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchTrans('testing ');
+    }, [otherid]),
+  );
+
   const {data: userData, isLoading} = useGetUserByIdQuery(otherid);
   const [messages, setMessages] = useState([]);
   const [messageReciver, setMessageReciver] = useState([]);
@@ -210,7 +218,7 @@ const Chatting = ({navigation, route}) => {
           }
           return timeA[3] - timeB[3];
         });
-        setIndexss(simpleMessagesArray.length);
+        setIndexss(simpleMessagesArray?.length);
         setMessages(simpleMessagesArray);
       }
     });
@@ -251,9 +259,9 @@ const Chatting = ({navigation, route}) => {
           }
           return timeA[3] - timeB[3];
         });
-        setReciverIndex(simpleMessagesArray.length);
+        setReciverIndex(simpleMessagesArray?.length);
         setReciverMessageID(
-          simpleMessagesArray[simpleMessagesArray.length - 1]?.id,
+          simpleMessagesArray[simpleMessagesArray?.length - 1]?.id,
         );
         const RecieverMessagesId = messagesArray?.map(mes => ({
           RecMesId: mes?.id,
@@ -347,7 +355,7 @@ const Chatting = ({navigation, route}) => {
   };
   const addImageMessage = (imageUri, time) => {
     const newImageMessage = {
-      id: chat.length + 1,
+      id: chat?.length + 1,
       time: getCurrentTime(),
       image: imageUri,
     };
@@ -356,7 +364,7 @@ const Chatting = ({navigation, route}) => {
   const handleEmojiSelection = selectedEmoji => {
     // Add the selected emoji to your chat array
     const newChatItem = {
-      id: chat.length + 1,
+      id: chat?.length + 1,
       sent: selectedEmoji,
       time: getCurrentTime(), // You should define this function
       image: '', // If it's a text message
@@ -491,7 +499,6 @@ const Chatting = ({navigation, route}) => {
   );
   const handleSeendStatus = () => {
     if (reciverMessageID) {
-      console.log('handle');
       receiverIds?.map(updated => {
         const messagesRefreciver = database()
           .ref('chatBase/' + `${otherid}`)
@@ -504,6 +511,35 @@ const Chatting = ({navigation, route}) => {
     }
   };
   handleSeendStatus();
+  React.useEffect(() => {
+    fetchTrans();
+  }, [otherid, isLoading]);
+  const fetchTrans = async => {
+    setLoading(true);
+
+    try {
+      messages?.forEach(async (item, index) => {
+        const result = await translate(item?.message, {from: 'en', to: 'ar'});
+
+        const translatedText = [...messages];
+        translatedText[index].message = result[0];
+
+        console.log(translatedText);
+        setMessages(translatedText);
+      });
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    }
+
+    // result?.forEach((item, index) => {
+    //   const translated = [...messages];
+    //   translated[index].message = item;
+    //   console.log(translated);
+    // });
+  };
+
   const renderConversation = ({item}) => {
     const parts = item?.createdAt.split(':');
 
@@ -756,6 +792,7 @@ const Chatting = ({navigation, route}) => {
       <Divider opacity={0.2} mt={2} />
       <View mx={5} mt={5} mb={5} flex={1}>
         <View mt={5} mb={16} flex={1}>
+          <LoaderModal visible={loading} />
           <FlatList
             style={{flex: 1}}
             data={messages}
