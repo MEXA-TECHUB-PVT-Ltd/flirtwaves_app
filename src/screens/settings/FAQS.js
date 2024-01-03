@@ -36,55 +36,61 @@ const FAQS = ({navigation}) => {
 
   const [searchText, setSearchText] = React.useState('');
   const [searchHistory, setSearchHistory] = React.useState([
-    'Sofia Rodriguez',
-    'Sofia Lopez',
-    'Sofia Ramirez',
-    'Sofia Morales',
+    
   ]);
   const [found, setFound] = React.useState();
 
-  const handleSearch = () => {
-    const lowerCaseSearchText = searchText.toLowerCase();
-    const isFound = searchHistory.includes(lowerCaseSearchText);
+  const handleSearch = (txt) => {
+setSearchText(txt);
+    const lowerCaseSearchText = txt?.toLowerCase();
+    const isFound = FaqData?.data?.filter((item) => {
+      return item.question.toLowerCase().includes(txt?.toLowerCase());
+    });
+    console.log(isFound)
+    setSearchHistory(isFound)
 
     // Update search history
-    setSearchHistory(prevHistory =>
-      isFound ? prevHistory : [...prevHistory, lowerCaseSearchText],
-    );
+    // setSearchHistory(prevHistory =>
+    //   isFound ? prevHistory : [...prevHistory, lowerCaseSearchText],
+    // );
 
     // Clear the input
-    setSearchText('');
-    setTimeout(() => {
-      setClicked(false);
-      setFocued(false);
-    }, 2000);
+  // ÷  setSearchText('');
+    // setTimeout(() => {
+    //   setClicked(false);
+    //   setFocued(false);
+    // }, 2000);
   };
 
   const highlightMatches = item => {
     const lowerCaseSearchText = searchText.toLowerCase();
 
-    if (!lowerCaseSearchText) {
-      // No search text, return the original item
-      return (
-        <Pressable
-          onPress={() => {
-            setClicked(false);
-            setFocued(false);
-          }}>
-          <Text style={styles.historyItem}>{item}</Text>
-          <Divider my={2} />
-        </Pressable>
-      );
-    }
+    // if (!lowerCaseSearchText) {
+    //   // No search text, return the original item
+    //   return (
+    //     <Pressable
+    //       onPress={() => {
+    //         setClicked(false);
+    //         setFocued(false);
+    //       }}>
+    //       <Text style={styles.historyItem}>{item}</Text>
+    //       <Divider my={2} />
+    //     </Pressable>
+    //   );
+    // }
 
     // Split the item into parts based on the search text
-    const parts = item.split(new RegExp(`(${lowerCaseSearchText})`, 'gi'));
+    const parts = item?.question?.split(new RegExp(`(${lowerCaseSearchText})`, 'gi'));
 
     return (
       <Pressable
         onPress={() => {
+          setSelected(item?.id);
+          handleSelection(item?.id);
           setClicked(false);
           setFocued(false);
+          
+
         }}>
         <Text style={styles.historyItem}>
           {parts.map((part, index) =>
@@ -119,8 +125,8 @@ const FAQS = ({navigation}) => {
     <View bg={'white'} flex={1}>
       {clicked === true ? (
         <>
-          <View flex={1} bg={'white'}>
-            <View mt={5} mx={3} flexDir={'row'} alignItems={'center'}>
+          <View flex={1} bg={'white'} tvParallaxShiftDistanceX={20}>
+            <View mt={5} mx={3} my={2} flexDir={'row'} alignItems={'center'}>
               <Pressable
                 onPress={() => {
                   setClicked(false);
@@ -131,17 +137,16 @@ const FAQS = ({navigation}) => {
               <Input
                 alignSelf={'center'}
                 onTouchStart={() => setFocued(true)}
-                onFocus={() => console.log('focus')}
-                onBlur={() => {
-                  handleSearch();
-                  // setTimeout(() => {
-                  //   setFocued(false);
-                  // }, 2000);
-                }}
+                
+                // onBlur={() => {
+               
+                // setFocued(false);
+                
+                // }}
                 _focus={{borderColor: 'primary.400'}}
                 backgroundColor={'white'}
                 value={searchText}
-                onChangeText={setSearchText}
+                onChangeText={(txt)=>handleSearch(txt)}
                 mx={4}
                 borderRadius={12}
                 placeholder="search here"
@@ -189,6 +194,62 @@ const FAQS = ({navigation}) => {
                   )
                 }
               />
+              <>
+              {searchHistory?.map(item => {
+                return (
+                  <Pressable
+                    borderRadius={10}
+                    key={item?.id}
+                    onPress={() => {
+                      setSelected(item?.id);
+                      handleSelection(item?.id);
+                    }}
+                    bg={item?.id === selected ? 'primary.20' : null}
+                    p={2}>
+                    <Row
+                      // mx={2}
+                      flexDir={'row'}
+                      alignItems={'center'}
+                      justifyContent={'space-between'}>
+                      <Text
+                        fontSize={item?.id === selected ? 14 : 14}
+                        fontFamily={
+                          item?.id === selected
+                            ? 'Lexend-SemiBold'
+                            : 'Lexend-Regular'
+                        }
+                        w={'90%'}
+                        color={'black'}>
+                        {item?.question}
+                      </Text>
+                      <AntDesign
+                        name={item?.id === selected ? 'up' : 'down'}
+                        color={'black'}
+                        size={15}
+                      />
+                    </Row>
+                    {item?.id === selected ? (
+                      <Text
+                        fontSize={12}
+                        fontFamily={'Lexend-Light'}
+                        mt={2}
+                        color={'grey.400'}>
+                        {item?.answer}
+                      </Text>
+                    ) : null}
+
+                    <Divider
+                      my={2}
+                      bg={
+                        item?.id === selected || item?.id === 5
+                          ? 'transparent'
+                          : null
+                      }
+                    />
+                  </Pressable>
+                );
+              })}
+              </>
             </View>
 
             <ScrollView></ScrollView>
@@ -202,12 +263,24 @@ const FAQS = ({navigation}) => {
                 w={'80%'}
                 top={20}
                 right={5}>
-                <View m={2} mx={4} my={4}>
+                <View m={2} mx={4} my={2} borderColor={'gray.400'} borderWidth={1} borderRadius={10} flex={1} p={2}>
                   <FlatList
                     data={searchHistory}
                     renderItem={renderItem}
-                    keyExtractor={item => item}
+                    keyExtractor={item => item?.id}
                     //   style={styles.historyList}
+                    ListEmptyComponent={()=>{
+                      return (
+                        <View>
+                          <Text
+                            fontSize={14}
+                            fontFamily={'Lexend-Light'}
+                            color={'grey.400'}>
+                            No results found
+                          </Text>
+                        </View>
+                      )
+                    }}
                   />
                 </View>
               </View>

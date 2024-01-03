@@ -34,6 +34,7 @@ const FInputs = props => {
         onFocus={() => {
           setFocused(true);
         }}
+        onSubmitEditing={props?.onSubmit}
         _focus={{bg: 'white', borderColor: 'primary.400'}}
         onEndEditing={props?.onFocusEnd}
         onBlur={() => {

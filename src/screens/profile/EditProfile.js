@@ -20,6 +20,7 @@ import {
   useUpdateUserProfileMutation,
 } from '../../redux/apis/auth';
 import Lottie from 'lottie-react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 const EditProfile = ({navigation}) => {
   const [visible, setVisible] = React.useState(false);
@@ -31,6 +32,29 @@ const EditProfile = ({navigation}) => {
     isLoading: Userloading,
   } = useGetUserByIdQuery(uid);
   const [updateProfile, {isLoading}] = useUpdateUserProfileMutation();
+  useFocusEffect(
+    React.useCallback(() => {
+      if(Object.keys(userProfile).length!==0){
+        console.log('isLoading', userProfile)
+        let body = {
+       
+          id:uid,
+          data:userProfile
+        
+      };
+      updateProfile(body).then(res => {
+        console.log(res);
+        if (res?.data?.error === false) {
+          // setVisible(true);÷
+        }
+      });
+      }
+     
+      
+
+      
+    }, [userProfile]),
+  );
   const handleNavigation = () => {
     let body = {
       id: uid,
@@ -56,7 +80,7 @@ const EditProfile = ({navigation}) => {
         }}
         messageDescription={'Profile edited Successfully'}
       />
-      {Userloading ? (
+      {Userloading ||isLoading? (
         <Center
           flex={1}
           // mt={'50%'}

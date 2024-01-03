@@ -63,7 +63,14 @@ const OnBoarding4 = ({navigation, route}) => {
   return (
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
-      <Header right />
+      <>     
+       {fromEdit ?
+      (<Header />)
+      :
+      (<Header right />)
+
+      }
+      </>
       {isLoading ? (
         <ActivityIndicator size={'small'} color={'black'} />
       ) : (
