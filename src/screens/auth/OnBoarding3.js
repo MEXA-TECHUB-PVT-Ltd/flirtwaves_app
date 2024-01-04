@@ -65,8 +65,17 @@ const OnBoarding3 = ({navigation, route}) => {
   return (
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
-      <Header right />
-      {loading ? (
+      <>     
+       {fromEdit ?
+      (<Header />)
+      :
+      (<Header right />)
+
+      }
+      </>
+
+      
+            {loading ? (
         <ActivityIndicator color={'black'} size={'small'} />
       ) : (
         <ScrollView flex={1}>

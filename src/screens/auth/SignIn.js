@@ -55,6 +55,7 @@ const SignIn = ({navigation}) => {
       await disptach(setPassword(password));
       console.log('res', res);
       if (res?.data?.error === false) {
+        
         await disptach(setUserData(res?.data?.data));
 
         navigation.navigate('Tabs', {screen: 'Home'}, {fromSignIn: true});
@@ -148,6 +149,7 @@ const SignIn = ({navigation}) => {
                     placeholder={'Password'}
                     onChangeText={handleChange('password')}
                     value={values.password}
+                    onSubmit={(handleSubmit)}
                     rightIcon
                     type={'password'}
                   />
@@ -186,6 +188,7 @@ const SignIn = ({navigation}) => {
                     loading={isLoading}
                     label={'Continue'}
                     variant={'Solid'}
+                    
                     onPress={handleSubmit}
                   />
                   <FButton

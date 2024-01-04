@@ -245,14 +245,14 @@ const Profile = ({navigation}) => {
                 {userData?.location}
               </Text>
             </Row>
-            <View my={5}>
+            <View my={5} flexWrap={'wrap'} alignItems={'center'} justifyContent={'space-between'}>
               <Row>
                 {profileData?.data?.relation_type_data && (
                   <View
                     bg={'white'}
                     borderColor={'grey.400'}
                     borderWidth={1}
-                    w={'40%'}
+                    w={'auto'}
                     p={1}
                     borderRadius={10}>
                     <Row alignItems={'center'}>
@@ -301,7 +301,7 @@ const Profile = ({navigation}) => {
                   <View
                     bg={'white'}
                     borderColor={'grey.400'}
-                    w={'40%'}
+                    w={'auto'}
                     borderWidth={1}
                     p={1}
                     borderRadius={10}>
@@ -351,7 +351,7 @@ const Profile = ({navigation}) => {
                 {profileData?.data?.night_life_data && (
                   <View
                     bg={'white'}
-                    w={'40%'}
+                    w={'auto'}
                     borderColor={'grey.400'}
                     borderWidth={1}
                     p={1}
@@ -406,7 +406,7 @@ const Profile = ({navigation}) => {
                     borderColor={'grey.400'}
                     borderWidth={1}
                     p={1}
-                    w={'40%'}
+                    w={'auto'}
                     borderRadius={10}>
                     <Row alignItems={'center'}>
                       <Image
