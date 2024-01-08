@@ -94,7 +94,7 @@ const Profile = ({navigation}) => {
     <GestureHandlerRootView style={{flex: 1}}>
       <View bg={'white'} flex={1}>
         <ImageBackground
-          source={{uri: userData?.images[0]}}
+          source={{uri: userData?.images?.length>0?userData?.images[0]:''}}
           style={{height: '65%', width: '100%'}}>
           <Pressable
             position={'absolute'}

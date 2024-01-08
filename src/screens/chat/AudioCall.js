@@ -20,10 +20,13 @@ import {
   useUpdateCallDurationMutation,
   useUpdateCallStatusMutation,
 } from '../../redux/apis/auth';
+import database from '@react-native-firebase/database';
+
 const AudioCall = ({navigation, route}) => {
   const [mute, setMute] = React.useState(false);
   const uid = useSelector(state => state.auth?.userData?.id);
   const [duration, setDuration] = React.useState(0);
+  const [onlyMe, setOnlyMe] = React.useState(false);
   const {
     call_id,
     call_status,
@@ -35,14 +38,81 @@ const AudioCall = ({navigation, route}) => {
   } = route?.params;
   const [updateCall, {data: isData, isLoading}] =
     useUpdateCallDurationMutation();
+  const [status, setStatus] = React.useState(false);
+  const [accepted, setAccepted] = React.useState(false);
+  const [hangup, setHangup] = React.useState(false);
   const [updateCallStatus, {data: call, isLoading: callLoading}] =
     useUpdateCallStatusMutation();
+
   // React.useEffect(() => {
   //   if (videoCall === false) {
   //     navigation.goBack();
   //   }
   // }, [videoCall]);
 
+  React.useEffect(() => {
+    database()
+      .ref('call/' + `${caller_id}`)
+      .child(`${receiver_id}`)
+      .on('value', snapshot => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          if (
+            data?.call_status !== 'DECLINED' &&
+            data?.call_status !== 'ACCEPTED'
+          ) {
+            setTimeout(() => {
+              handleNotAnswer();
+              setStatus(true);
+            }, 30000);
+          } else if (data?.call_status === 'DECLINED') {
+            handleDecline();
+            setHangup(true);
+          }
+
+          console.log(
+            '----------------------------------------------------------------',
+          );
+          console.log(
+            '----------------------------------------------------------------',
+          );
+          console.log(data, hangup);
+
+          console.log(
+            '----------------------------------------------------------------',
+          );
+          console.log(
+            '----------------------------------------------------------------',
+          );
+        }
+      });
+  }, []);
+  const handleNotAnswer = () => {
+    let body = {
+      caller_id: caller_id,
+      call_id: call_id,
+      call_status: 'NOTANSWERED', //ACCEPT, DECLINED, or NOTANSWERED
+    };
+    updateCallStatus(body).then(res => {
+      console.log(res);
+      if (res?.data?.error === false) {
+        navigation.goBack();
+      }
+    });
+  };
+  const handleDecline = () => {
+    let body = {
+      caller_id: caller_id,
+      call_id: call_id,
+      call_status: 'DECLINED', //ACCEPT, DECLINED, or NOTANSWERED
+    };
+    updateCallStatus(body).then(res => {
+      console.log(res);
+      if (res?.data?.error === false) {
+        navigation.goBack();
+      }
+    });
+  };
   const DeclineCall = () => {
     let body = {
       caller_id: caller_id,
@@ -56,26 +126,6 @@ const AudioCall = ({navigation, route}) => {
       }
     });
   };
-  const RenderIcon = () => {
-    return (
-      <View
-        h={10}
-        w={10}
-        rounded={'full'}
-        bg={'white'}
-        alignItems={'center'}
-        justifyContent={'center'}>
-        <Image
-          h={6}
-          // p={2}
-          w={6}
-          resizeMode="contain"
-          source={require('../../assets/volume.png')}
-          alt={'volume'}
-        />
-      </View>
-    );
-  };
 
   return (
     <>
@@ -85,15 +135,14 @@ const AudioCall = ({navigation, route}) => {
           'e8f8f62ab2a2f835eeff9c9f7aa343c74fc762acb54299680b268447ddc6638b'
         }
         userID={`${uid}`} // userID can be something like a phone number or the user id on your own user system.
-        // userName={`${}`}
+        userName={'sami'}
         callID={channel_name} // callID can be any unique string.
         config={{
           // You can also use ONE_ON_ONE_VOICE_CALL_CONFIG/GROUP_VIDEO_CALL_CONFIG/GROUP_VOICE_CALL_CONFIG to make more types of calls.
           ...ONE_ON_ONE_VIDEO_CALL_CONFIG,
 
-          onOnlySelfInRoom: res => {
-            console.log(res);
-            DeclineCall();
+          onOnlySelfInRoom: () => {
+            console.warn('onOnlySelfInRoom');
           },
           layout: {
             mode: ZegoLayoutMode.pictureInPicture,
@@ -144,8 +193,9 @@ const AudioCall = ({navigation, route}) => {
             },
           },
           onOnlySelfInRoom: () => {
-            DeclineCall();
+            navigation.goBack();
           },
+
           onHangUp: () => {
             DeclineCall();
           },

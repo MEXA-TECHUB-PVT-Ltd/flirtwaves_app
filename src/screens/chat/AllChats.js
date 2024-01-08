@@ -36,15 +36,18 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import BottomSheet from '../../components/bottomSheet/BottomSheet';
 import FButton from '../../components/button/FButton';
 import database from '@react-native-firebase/database';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import {
   useGetUserCrushesQuery,
   useRemoveCrushMutation,
 } from '../../redux/apis/auth';
 import LoaderModal from '../../components/Loader/Loader';
+import { setLanguage } from '../../redux/slices/auth';
 var {width, height} = Dimensions.get('window');
 
 function AllChats({navigation}) {
+  const dispatch=useDispatch();
   // const uid = useSelector(state => state.auth?.userData?.id);
   const [mode, setMode] = useState('Basic');
   const [layer, setLayer] = React.useState(false);
@@ -61,32 +64,55 @@ function AllChats({navigation}) {
       bottomSheetRef.current.open();
     }
   };
+  // function for storing language for the user preferences
+  async function storeUserSession(ln) {
+    try {
+      await EncryptedStorage.setItem(
+        'trans_language',
+        JSON.stringify({
+          language: ln,
+        }),
+      );
+      await dispatch(setLanguage({
+          language: ln,
+        }));
 
+      // Congrats! You've just stored your first value!
+    } catch (error) {
+      // There was an error on the native side
+    }
+  }
   const languages = [
     {
       id: 1,
       name: 'Afrikans',
+      code: 'af',
     },
     {
       id: 2,
       name: 'Albanian',
+      code: 'sq',
     },
-    {id: 3, name: 'Amharic'},
+    {id: 3, name: 'Amharic', code: 'am'},
     {
       id: 4,
       name: 'Arabic',
+      code: 'ar',
     },
     {
       id: 5,
       name: 'Armenian',
+      code: 'hy',
     },
     {
       id: 6,
       name: 'Azerbaijani',
+      code: 'az',
     },
     {
       id: 7,
       name: 'Basque',
+      code: 'eu',
     },
   ];
 
@@ -211,7 +237,8 @@ function AllChats({navigation}) {
                         position={'absolute'}
                         bottom={0}
                         right={2}
-                        bg={'#04C200'}></Stack>
+                        bg={'#04C200'}
+                      />
                     ) : null}
                   </Stack>
                   <Text
@@ -261,7 +288,7 @@ function AllChats({navigation}) {
         <View position={'absolute'} right={10} top={16} p={2} rounded={'full'}>
           <Pressable
             onPress={() => {
-              bottomSheetRef.current.close();
+              bottomSheetRef?.current?.close();
             }}>
             <Entypo name={'cross'} color={'black'} size={25} />
           </Pressable>
@@ -283,8 +310,12 @@ function AllChats({navigation}) {
                 <Checkbox
                   aria-label="check"
                   isChecked={index === selected ? true : false}
-                  onChange={() => setSelected(index)}
-                  value="val"></Checkbox>
+                  onChange={() => {
+                    setSelected(index);
+                    storeUserSession(item?.code);
+                  }}
+                  value="val"
+                />
               </Row>
               <Divider
                 mt={2}
@@ -297,7 +328,11 @@ function AllChats({navigation}) {
           );
         })}
 
-        <FButton label={'Change'} variant={'Solid'} />
+        <FButton
+          label={'Change'}
+          variant={'Solid'}
+          onPress={() => bottomSheetRef?.current?.close()}
+        />
       </BottomSheet>
     </View>
   );
@@ -321,11 +356,7 @@ function Basic(props) {
   const [chats, setChats] = useState([]);
   const uid = useSelector(state => state.auth?.userData?.id);
   const [chatingList, setChattingList] = React.useState([]);
-  // React.useEffect(() => {
-  //   props?.chats?.forEach(item => {
-  //     AllMessages(item?.id);
-  //   });
-  // }, [props?.chats]);
+
   useFocusEffect(
     React.useCallback(() => {
       // setIsLoading(true);
@@ -372,12 +403,6 @@ function Basic(props) {
 
   const [chatId, setChatId] = React.useState();
   const [active, setActive] = useState(false);
-
-  const closeRow = (rowMap, rowKey) => {
-    if (rowMap[rowKey]) {
-      rowMap[rowKey].closeRow();
-    }
-  };
   const [removeCrush, {data: crushRemoved, isLoading: crushLoading}] =
     useRemoveCrushMutation();
 
@@ -409,9 +434,7 @@ function Basic(props) {
           crushId: chatId,
         },
       };
-      removeCrush(body).then(res => {
-        console.log(res);
-      });
+      removeCrush(body).then(res => {});
     }
   };
   const [dis, setDis] = React.useState(false);
@@ -494,7 +517,8 @@ function Basic(props) {
                     position={'absolute'}
                     bottom={0}
                     right={0}
-                    bg={'#04C200'}></Stack>
+                    bg={'#04C200'}
+                  />
                 ) : null}
               </Stack>
               <Box ml={5}>
@@ -670,7 +694,8 @@ function Basic(props) {
           props.close && props.close('open');
           handleRemoveCrush();
           setActive(false);
-        }}></AlertModal>
+        }}
+      />
       <AlertModal
         modalVisible={dis}
         cancelPress={() => {
@@ -686,7 +711,8 @@ function Basic(props) {
         onPress={() => {
           removemMessages();
           props.close && props.close('open');
-        }}></AlertModal>
+        }}
+      />
     </Box>
   );
 }

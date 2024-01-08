@@ -72,12 +72,10 @@ const AddHeight = ({navigation}) => {
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
       <>     
-       {fromEdit ?
-      (<Header />)
-      :
-      (<Header right />)
+    
+      <Header right />
 
-      }
+      
       </>
       <ScrollView flex={1}>
         <View mx={5} flex={1}>
