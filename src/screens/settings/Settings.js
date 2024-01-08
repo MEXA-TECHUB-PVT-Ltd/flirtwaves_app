@@ -7,6 +7,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {setUserData} from '../../redux/slices/auth';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import { useDispatch } from 'react-redux';
 const Settings = ({navigation}) => {
   const [visible, setVisible] = React.useState(false);
   const [active, setActive] = React.useState(false);
@@ -18,6 +19,7 @@ const Settings = ({navigation}) => {
       // There was an error on the native side
     }
   }
+  const dispatch=useDispatch()
   return (
     <View bg={'white'} flex={1}>
       <Header title={'Settings'} />
@@ -165,6 +167,7 @@ const Settings = ({navigation}) => {
           setVisible(false);
           removeUserSession();
           dispatch(setUserData({}));
+          navigation.navigate('OnBoarding');
         }}></AlertModal>
       <AlertModal
         modalVisible={active}

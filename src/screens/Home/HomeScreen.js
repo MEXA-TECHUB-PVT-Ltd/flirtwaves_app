@@ -61,12 +61,27 @@ import {
   useUpdateUserProfileMutation,
 } from '../../redux/apis/auth';
 import RangeSlider from './components/RangeSlider';
+import EncryptedStorage from 'react-native-encrypted-storage';
+import {setLanguage} from '../../redux/slices/auth';
 
 const HomeScreen = ({navigation, route}) => {
   const dispatch = useDispatch();
   const [postCrush, {data: crushData, isLoading: crusLoading}] =
     useAddCrushMutation();
-
+  React.useEffect(() => {
+    retrieveUserSession();
+  }, []);
+  async function retrieveUserSession() {
+    try {
+      const session = await EncryptedStorage.getItem('trans_language');
+      console.log('see', session);
+      if (session !== undefined) {
+        dispatch(setLanguage(session));
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
   const [updateUser, {isError}] = useUpdateUserProfileMutation();
   const [updateStaus, {isError: onlineError}] = useUpdateOnlineStatusMutation();
   const [LocationCords, setLocationCords] = React.useState({
@@ -219,11 +234,11 @@ const HomeScreen = ({navigation, route}) => {
     [],
   );
   const renderRail = React.useCallback(
-    () => <View bg={'primary.20'} h={1} w={'100%'} rounded={'full'}></View>,
+    () => <View bg={'primary.20'} h={1} w={'100%'} rounded={'full'} />,
     [],
   );
   const renderRailSelected = React.useCallback(
-    () => <View bg={'primary.400'} h={1} w={'100%'} rounded={'full'}></View>,
+    () => <View bg={'primary.400'} h={1} w={'100%'} rounded={'full'} />,
     [],
   );
   const renderLabel = React.useCallback(value => <Text>{value}</Text>, []);
@@ -446,7 +461,8 @@ const HomeScreen = ({navigation, route}) => {
                     height: 50,
                     width: 50,
                     // backgroundColor: 'black',
-                  }}></Lottie>
+                  }}
+                />
               </Center>
             ) : (
               <ScrollView
@@ -454,7 +470,8 @@ const HomeScreen = ({navigation, route}) => {
                 refreshControl={
                   <RefreshControl
                     refreshing={isLoading}
-                    onRefresh={onRefresh}></RefreshControl>
+                    onRefresh={onRefresh}
+                  />
                 }>
                 <FlatList
                   mt={2}
@@ -464,7 +481,8 @@ const HomeScreen = ({navigation, route}) => {
                   refreshControl={
                     <RefreshControl
                       refreshing={isLoading}
-                      onRefresh={onRefresh}></RefreshControl>
+                      onRefresh={onRefresh}
+                    />
                   }
                   onEndReached={() => {
                     setPage(page + 1);
@@ -600,7 +618,8 @@ const HomeScreen = ({navigation, route}) => {
                                       }
                                       h={2}
                                       w={2}
-                                      rounded={'full'}></View>
+                                      rounded={'full'}
+                                    />
                                     <Text
                                       fontSize={10}
                                       fontFamily={'Lexend-Light'}

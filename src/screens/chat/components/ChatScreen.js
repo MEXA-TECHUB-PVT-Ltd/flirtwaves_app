@@ -8,16 +8,16 @@ import {
   useMakeCallMutation,
 } from '../../../redux/apis/auth';
 import PushNotification, {Importance} from 'react-native-push-notification';
-
-// navigate('Tabs', {screen: 'AllChats'}
+import database from '@react-native-firebase/database';
 
 const ChatScreen = props => {
   const navigation = useNavigation();
-  const {data: userData, isLoading} = useGetUserByIdQuery(props?.otherid);
+  const {data: userData} = useGetUserByIdQuery(props?.otherid);
   const uid = useSelector(state => state.auth?.userData?.id);
   const name = useSelector(state => state.auth?.userData?.name);
-  const [createCall, {data: callData, isLoading: callLoading}] =
-    useMakeCallMutation();
+  const [createCall] = useMakeCallMutation();
+
+  // in this function video call setup is handled and calls are handled with firebase to listen for call declined or accepted on real time
   const sendNotification = async () => {
     let r = (Math.random() + 1).toString(36).substring(7);
     console.log(r);
@@ -41,9 +41,9 @@ const ChatScreen = props => {
           soundName: 'call.mp3', // (optional) See `soundName` parameter of `localNotification` function
           importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
           vibrate: true,
-          timeoutAfter: 30000,
+
           priority: 'high',
-          //
+
           // (optional) default: true. Creates the default vibration pattern if true.
         },
         // (optional) callback returns whether the channel was created, false means it already existed.
@@ -68,6 +68,7 @@ const ChatScreen = props => {
           caller_id: res?.data?.call.caller_id,
           channel_name: r,
           receiver_id: res?.data?.call?.receiver_id,
+          gettingCall: true,
         },
       };
       const headers = {
@@ -80,7 +81,18 @@ const ChatScreen = props => {
           headers: headers,
           body: JSON.stringify(data),
         });
-
+        await database()
+          .ref('call/' + `${uid}`)
+          .child(`${props?.otherid}`)
+          .update({
+            call_id: res?.data?.call.call_id,
+            call_status: 'ALL',
+            call_type: 'VIDEO',
+            caller_id: res?.data?.call.caller_id,
+            channel_name: r,
+            receiver_id: res?.data?.call?.receiver_id,
+            hangup_up: false,
+          });
         navigation.navigate('VideoCall', {
           fromChat: true,
           gettingCall: false,
@@ -95,58 +107,8 @@ const ChatScreen = props => {
         console.error('Error sending notification:', error);
       }
     });
-    // PushNotification.createChannel(
-    //   {
-    //     channelId: 'channel-id', // (required)
-    //     channelName: 'My channel', // (required)
-    //     foreground: true,
-    //     channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
-    //     playSound: true, // (optional) default: true
-    //     soundName: 'call.mp3', // (optional) See `soundName` parameter of `localNotification` function
-    //     importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
-    //     vibrate: true,
-    //     timeoutAfter: 30000,
-    //     priority: 'high',
-    //     //
-    //     // (optional) default: true. Creates the default vibration pattern if true.
-    //   },
-    //   // (optional) callback returns whether the channel was created, false means it already existed.
-    // );
-
-    // let userToken = userData?.data?.device_id;
-    // const serverKey =
-    //   'AAAAwIzMwkc:APA91bFhMh8x-9cwYeNpav4xc6g_gkmjARKk8sao7ZjE1fD_7xvRWAypZa6xESII19AlcDRd3N5BAZn5ZLQEPgTjEsJSRhhUJjALZ36fXZOXroQy5o9oYBxD7tDNwTeWhVShkYB8PkAb'; // Replace with your actual server key
-    // const token = userToken.replace(/"/g, '');
-    // //'f5scnV4jSJ6j2QMOLYUAYI:APA91bEQOL6umubg_n73gGvXxwM8lF9UdkiIcQC2qnHeH2Axi54RQM6Ny6wXnz8RxdvCiMOOR5KBrzGUp4d59cf9oBq3stokRw4HzMSF'; // Replace with the device token
-    // const data = {
-    //   to: token,
-    //   notification: {
-    //     body: `${userData?.data?.name} is Calling you`,
-    //     title: 'Calling',
-    //     subtitle: 'New offer is recieved',
-    //   },
-    //   data: {
-    //     channelName: r,
-    //     userId: `${uid}`,
-    //     callType: 'Video',
-    //   },
-    // };
-    // const headers = {
-    //   'Content-Type': 'application/json',
-    //   Authorization: `key=${serverKey}`,
-    // };
-    // try {
-    //   const response = await fetch('https://fcm.googleapis.com/fcm/send', {
-    //     method: 'POST',
-    //     headers: headers,
-    //     body: JSON.stringify(data),
-    //   });
-
-    //   navigation.navigate('VideoCall', {fromChat: true});
-    // } catch (error) {
-    //   console.error('Error sending notification:', error);
-    // }
   };
+  // in this function audio call setup is handled and calls are handled with firebase to listen for call declined or accepted on real time
   const sendAudioNotification = async () => {
     let r = (Math.random() + 1).toString(36).substring(7);
     console.log(r);
@@ -172,7 +134,7 @@ const ChatScreen = props => {
           soundName: 'call.mp3', // (optional) See `soundName` parameter of `localNotification` function
           importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
           vibrate: true,
-          timeoutAfter: 30000,
+          // (optional) default: true
           priority: 'high',
           //
           // (optional) default: true. Creates the default vibration pattern if true.
@@ -191,7 +153,7 @@ const ChatScreen = props => {
           // subtitle: 'New offer is recieved',
         },
         data: {
-          gettingCall: false,
+          gettingCall: true,
           call_id: res?.data?.call.call_id,
           call_status: 'DECLINED',
           call_type: 'AUDIO',
@@ -211,11 +173,22 @@ const ChatScreen = props => {
           headers: headers,
           body: JSON.stringify(data),
         });
-
+        await database()
+          .ref('call/' + `${uid}`)
+          .child(`${props?.otherid}`)
+          .update({
+            call_id: res?.data?.call.call_id,
+            call_status: 'ALL',
+            call_type: 'AUDIO',
+            caller_id: res?.data?.call.caller_id,
+            channel_name: r,
+            receiver_id: res?.data?.call?.receiver_id,
+            hangup_up: false,
+          });
         navigation.navigate('AudioCall', {
           gettingCall: false,
           call_id: res?.data?.call.call_id,
-          call_status: 'DECLINED',
+          call_status: 'NOTANSWERED',
           call_type: 'AUDIO',
 
           caller_id: res?.data?.call.caller_id,

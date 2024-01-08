@@ -1,22 +1,18 @@
 import React, {useState} from 'react';
 import AgoraUIKit from 'agora-rn-uikit';
-import {Image, Text, View} from 'native-base';
-import LinearGradient from 'react-native-linear-gradient';
-import {
-  ClientRoleType,
-  createAgoraRtcEngine,
-  IRtcEngine,
-  ChannelProfileType,
-} from 'react-native-agora';
+
+import {createAgoraRtcEngine} from 'react-native-agora';
 import {useDispatch, useSelector} from 'react-redux';
 import {setFromSignIn} from '../../redux/slices/auth';
+import database from '@react-native-firebase/database';
+
 const VideoCall = ({navigation, route}) => {
-  const [videoCall, setVideoCall] = useState(true);
   const agoraEngineRef = React.useRef(); // Agora engine instance
-  const RtcEngine = React.useRef();
   const dispatch = useDispatch();
   const fromChat = route?.params?.fromChat;
   const fromHistory = route?.params?.fromHistory;
+  const [duration, setDuration] = React.useState(0);
+  console.log('duration: ' + duration);
   const {
     call_id,
     call_status,
@@ -29,11 +25,41 @@ const VideoCall = ({navigation, route}) => {
 
   const FromNotifi = useSelector(state => state.auth?.fromSignIn);
   console.log(FromNotifi);
-  // React.useEffect(() => {
-  //   if (videoCall === false) {
-  //     navigation.goBack();
-  //   }
-  // }, [videoCall]);
+  React.useEffect(() => {
+    database()
+      .ref('call/' + `${caller_id}`)
+      .child(`${receiver_id}`)
+      .on('value', snapshot => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          if (
+            data?.call_status !== 'DECLINED' &&
+            data?.call_status !== 'ACCEPTED'
+          ) {
+            setTimeout(() => {
+              leave();
+            }, 30000);
+          } else if (data?.call_status === 'DECLINED') {
+            leave();
+          }
+
+          console.log(
+            '----------------------------------------------------------------',
+          );
+          console.log(
+            '----------------------------------------------------------------',
+          );
+          console.log(data);
+
+          console.log(
+            '----------------------------------------------------------------',
+          );
+          console.log(
+            '----------------------------------------------------------------',
+          );
+        }
+      });
+  }, []);
   React.useEffect(() => {
     // Initialize Agora engine when the app starts
     setupVoiceSDKEngine();
@@ -59,7 +85,6 @@ const VideoCall = ({navigation, route}) => {
         },
         onUserOffline: (_connection, Uid) => {
           console.log('useroffline', Uid);
-          setVideoCall(false);
           if (FromNotifi === true) {
             dispatch(setFromSignIn(false));
             navigation.replace('CallHistory');
@@ -74,6 +99,7 @@ const VideoCall = ({navigation, route}) => {
         },
         onRtcStats: (connection, stats) => {
           console.log('stats: ', stats?.duration, stats?.userCount);
+          setDuration(stats?.duration);
         },
       });
       agoraEngine.initialize({
@@ -111,7 +137,7 @@ const VideoCall = ({navigation, route}) => {
   const props = {
     rtcProps: {
       appId: 'bdf562115aec49c2819b25fde6ed2b29',
-      channel: 'test',
+      channel: channel_name,
     },
   };
   const style = {
@@ -154,12 +180,12 @@ const VideoCall = ({navigation, route}) => {
       },
     },
   };
-  return videoCall ? (
+  return (
     <AgoraUIKit
       connectionData={props.rtcProps}
       rtcCallbacks={rtcCallbacks}
       styleProps={style}
     />
-  ) : null;
+  );
 };
 export default VideoCall;

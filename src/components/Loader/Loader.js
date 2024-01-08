@@ -1,4 +1,4 @@
-import {View, ActivityIndicator, Modal, StyleSheet} from 'react-native';
+import {View, Modal, StyleSheet} from 'react-native';
 import React from 'react';
 
 // import { COLORS } from "../../utils/COLORS";
@@ -12,12 +12,8 @@ const LoaderModal = ({visible}) => {
           source={require('../../assets/spinner.json')}
           autoPlay
           loop
-          style={{
-            // marginBottom: 5,
-            height: 80,
-            width: 80,
-            // backgroundColor: 'black',
-          }}></Lottie>
+          style={styles.loader}
+        />
       </View>
     </Modal>
   );
@@ -30,5 +26,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  loader: {
+    height: 80,
+    width: 80,
   },
 });
