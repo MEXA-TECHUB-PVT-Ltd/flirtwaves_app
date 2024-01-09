@@ -34,26 +34,7 @@ const CallHistory = ({navigation}) => {
   const name = useSelector(state => state.auth?.userData?.name);
   const [createCall, {data: callData}] = useMakeCallMutation();
 
-  React.useEffect(() => {
-    const fetchUserData = async () => {
-      const userDataMapCopy = {};
 
-      callHistory?.calls?.data?.forEach(item => {
-        console.log(item)
-        try {
-          const {data:userData} = useGetUserByIdQuery(item?.receiver_id);
-          console.log(userData);
-          userDataMapCopy[item.id] = userData;
-        } catch (error) {
-          console.error(`Error fetching user data for ID ${item.id}:`, error);
-        }
-      });
-
-      setUserDataMap(userDataMapCopy);
-    };
-
-    fetchUserData();
-  }, [callHistory]);
 
   // in this function video call setup is handled and calls are handled with firebase to listen for call declined or accepted on real time
   const sendNotification = async (r_id, d_id) => {
@@ -248,6 +229,7 @@ const CallHistory = ({navigation}) => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View m={5} ml={3}>
             {callHistory?.calls?.data?.map((item, index) => {
+              console.log(item)
               return (
                 <View borderRadius={10} p={1} key={index}>
                   <Row

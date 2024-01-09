@@ -26,37 +26,39 @@ import DateComp from './components/DateComp';
 import Footer from '../../components/footer/footer';
 import {useDispatch, useSelector} from 'react-redux';
 import {setUserProfile} from '../../redux/slices/auth';
-import {useGetAllSmokingsQuery} from '../../redux/apis/auth';
+import {useGetAllRelationsQuery} from '../../redux/apis/auth';
 
-const OnBoarding8 = ({navigation, route}) => {
-  const [id, setId] = React.useState(0);
+const OnBoarding3 = ({navigation, route}) => {
   const fromEdit = route?.params?.fromEdit;
-  const dispatch = useDispatch();
-  const [page, setPage] = React.useState(1);
-  const {data: isData, isLoading} = useGetAllSmokingsQuery(page);
   const userProfile = useSelector(state => state.auth?.userProfile);
-
-  const data = [
-    {
-      id: 1,
-      name: 'I smoke',
-    },
-    {
-      id: 2,
-      name: 'Not a fan but whatever',
-    },
-    {id: 3, name: `Zero tolerance`},
-  ];
+  const [page, setPage] = React.useState(1);
+  const {
+    data: isData,
+    isError,
+    isLoading: loading,
+  } = useGetAllRelationsQuery(page);
+  const dispatch = useDispatch();
+  const [id, setId] = React.useState(0);
+  // const data = [
+  //   {
+  //     id: 1,
+  //     name: 'A Relationship',
+  //   },
+  //   {
+  //     id: 2,
+  //     name: 'Nothing Serious',
+  //   },
+  //   {id: 3, name: `I'll know when i find it`},
+  // ];
   const handleNavigation = async () => {
     if (id) {
-      const data = {...userProfile, smoking_opinion: id?.id};
-      console.log('data', data);
+      const data = {...userProfile, relation_type: id?.id};
+      console.log(data);
       await dispatch(setUserProfile(data));
-
       if (fromEdit === true) {
         navigation.goBack();
       } else {
-        navigation.navigate('OnBoarding9');
+        navigation.navigate('AddHeight');
       }
     }
   };
@@ -68,9 +70,12 @@ const OnBoarding8 = ({navigation, route}) => {
       (<Header />)
       :
       (<Header right />)
+
       }
-      </>     
-      {isLoading ? (
+      </>
+
+      
+            {loading ? (
         <ActivityIndicator color={'black'} size={'small'} />
       ) : (
         <ScrollView flex={1}>
@@ -80,7 +85,7 @@ const OnBoarding8 = ({navigation, route}) => {
               fontSize={20}
               fontFamily={'Lexend-SemiBold'}
               mt={10}>
-              Your opinion on smoking
+              Looking for?
             </Text>
             <View mt={20}>
               {isData?.data?.map(item => {
@@ -104,7 +109,7 @@ const OnBoarding8 = ({navigation, route}) => {
                       }
                       color={id?.id === item?.id ? 'black' : 'grey.400'}
                       textAlign={'center'}>
-                      {item?.smoking_opinion}
+                      {item?.relation_type}
                     </Text>
                   </Pressable>
                 );
@@ -113,7 +118,7 @@ const OnBoarding8 = ({navigation, route}) => {
           </View>
         </ScrollView>
       )}
-      {!isLoading && (
+      {!loading ? (
         <>
           {fromEdit === true ? (
             <View mb={16} mx={5}>
@@ -125,12 +130,12 @@ const OnBoarding8 = ({navigation, route}) => {
             </View>
           ) : (
             <View mb={16} mx={5}>
-              <Footer load={'80'} num={10} onPress={() => handleNavigation()} />
+              <Footer load={'30'} num={4} onPress={() => handleNavigation()} />
             </View>
           )}
         </>
-      )}
+      ) : null}
     </View>
   );
 };
-export default OnBoarding8;
+export default OnBoarding3;

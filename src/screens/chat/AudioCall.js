@@ -130,9 +130,9 @@ const AudioCall = ({navigation, route}) => {
   return (
     <>
       <ZegoUIKitPrebuiltCall
-        appID={1248645703}
+        appID={1458041945}
         appSign={
-          'e8f8f62ab2a2f835eeff9c9f7aa343c74fc762acb54299680b268447ddc6638b'
+          '2aaecc7b28fc3d7f614df4b2ca1379d0b020461a71a1b1ca1f321b93b26bda27'
         }
         userID={`${uid}`} // userID can be something like a phone number or the user id on your own user system.
         userName={'sami'}

@@ -6,6 +6,7 @@ export interface CounterState {
   fromSignIn: boolean;
   password: string;
   language: string;
+  user_id: string;
 }
 
 const initialState: CounterState = {
@@ -14,6 +15,7 @@ const initialState: CounterState = {
   fromSignIn: false,
   password: '',
   language: '',
+  user_id: '',
 };
 
 export const authSlice = createSlice({
@@ -35,6 +37,9 @@ export const authSlice = createSlice({
     setLanguage: (state, action) => {
       state.language = action.payload;
     },
+    setUser_id: (state, action) => {
+      state.user_id = action.payload;
+    },
   },
 });
 
@@ -45,6 +50,7 @@ export const {
   setFromSignIn,
   setPassword,
   setLanguage,
+  setUser_id,
 } = authSlice.actions;
 
 export default authSlice.reducer;

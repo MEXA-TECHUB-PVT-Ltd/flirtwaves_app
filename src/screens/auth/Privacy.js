@@ -67,24 +67,24 @@ If you have questions or concerns about this Privacy Policy, please contact us a
   return (
     <View bg={'white'} flex={1}>
       <Header />
-      <View mx={5} mt={5}>
-        <Image
-          alignSelf={'center'}
-          source={require('../../assets/privacy-policy.png')}
-          h={20}
-          w={20}
-          resizeMode="contain"
-          alt={'privacy'}
-        />
-        <Text
-          textAlign={'center'}
-          fontSize={22}
-          mt={3}
-          fontFamily={'Lexend-SemiBold'}>
-          {`Review and accept our${'\n'}privacy policy`}
-        </Text>
-      </View>
       <ScrollView>
+        <View mx={5} mt={5}>
+          <Image
+            alignSelf={'center'}
+            source={require('../../assets/privacy-policy.png')}
+            h={20}
+            w={20}
+            resizeMode="contain"
+            alt={'privacy'}
+          />
+          <Text
+            textAlign={'center'}
+            fontSize={22}
+            mt={3}
+            fontFamily={'Lexend-SemiBold'}>
+            {`Review and accept our${'\n'}privacy policy`}
+          </Text>
+        </View>
         <View mx={5}>
           <Text textAlign={'justify'} fontSize={14} mt={5}>
             {des}

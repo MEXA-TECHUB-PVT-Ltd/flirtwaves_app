@@ -26,37 +26,37 @@ import DateComp from './components/DateComp';
 import Footer from '../../components/footer/footer';
 import {useDispatch, useSelector} from 'react-redux';
 import {setUserProfile} from '../../redux/slices/auth';
-import {useGetAllSmokingsQuery} from '../../redux/apis/auth';
+import {useGetAllCookingsQuery} from '../../redux/apis/auth';
 
-const OnBoarding8 = ({navigation, route}) => {
+const OnBoarding5 = ({navigation, route}) => {
   const [id, setId] = React.useState(0);
   const fromEdit = route?.params?.fromEdit;
   const dispatch = useDispatch();
   const [page, setPage] = React.useState(1);
-  const {data: isData, isLoading} = useGetAllSmokingsQuery(page);
+  const {data: isData, isError, isLoading} = useGetAllCookingsQuery(page);
   const userProfile = useSelector(state => state.auth?.userProfile);
-
   const data = [
     {
       id: 1,
-      name: 'I smoke',
+      name: 'I’m a microwave master',
     },
     {
       id: 2,
-      name: 'Not a fan but whatever',
+      name: 'I’m a delivery expert',
     },
-    {id: 3, name: `Zero tolerance`},
+    {id: 3, name: `I know a few good recipes`},
+    {id: 4, name: `I’m an excellent chef`},
   ];
   const handleNavigation = async () => {
     if (id) {
-      const data = {...userProfile, smoking_opinion: id?.id};
+      const data = {...userProfile, cooking_skill: id?.id};
       console.log('data', data);
       await dispatch(setUserProfile(data));
 
       if (fromEdit === true) {
         navigation.goBack();
       } else {
-        navigation.navigate('OnBoarding9');
+        navigation.navigate('OnBoarding6');
       }
     }
   };
@@ -68,10 +68,11 @@ const OnBoarding8 = ({navigation, route}) => {
       (<Header />)
       :
       (<Header right />)
+
       }
-      </>     
+      </>
       {isLoading ? (
-        <ActivityIndicator color={'black'} size={'small'} />
+        <ActivityIndicator color={'black'} size={'small'}></ActivityIndicator>
       ) : (
         <ScrollView flex={1}>
           <View mx={5} flex={1}>
@@ -80,7 +81,7 @@ const OnBoarding8 = ({navigation, route}) => {
               fontSize={20}
               fontFamily={'Lexend-SemiBold'}
               mt={10}>
-              Your opinion on smoking
+              What’s your cooking skills?
             </Text>
             <View mt={20}>
               {isData?.data?.map(item => {
@@ -104,7 +105,7 @@ const OnBoarding8 = ({navigation, route}) => {
                       }
                       color={id?.id === item?.id ? 'black' : 'grey.400'}
                       textAlign={'center'}>
-                      {item?.smoking_opinion}
+                      {item?.cooking_skill}
                     </Text>
                   </Pressable>
                 );
@@ -125,7 +126,7 @@ const OnBoarding8 = ({navigation, route}) => {
             </View>
           ) : (
             <View mb={16} mx={5}>
-              <Footer load={'80'} num={10} onPress={() => handleNavigation()} />
+              <Footer load={'60'} num={7} onPress={() => handleNavigation()} />
             </View>
           )}
         </>
@@ -133,4 +134,4 @@ const OnBoarding8 = ({navigation, route}) => {
     </View>
   );
 };
-export default OnBoarding8;
+export default OnBoarding5;

@@ -5,21 +5,24 @@ import FButton from '../../components/button/FButton';
 import AlertModal from '../../components/Modal/AlertModal';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {setUserData} from '../../redux/slices/auth';
+import {setUserData, setUser_id} from '../../redux/slices/auth';
 import EncryptedStorage from 'react-native-encrypted-storage';
-import { useDispatch } from 'react-redux';
+import {useDispatch} from 'react-redux';
 const Settings = ({navigation}) => {
   const [visible, setVisible] = React.useState(false);
   const [active, setActive] = React.useState(false);
   async function removeUserSession() {
     try {
       await EncryptedStorage.removeItem('user_session');
+      await EncryptedStorage.removeItem('user_id');
+      dispatch(setUserData({}));
+      dispatch(setUser_id());
       // Congrats! You've just removed your first value!
     } catch (error) {
       // There was an error on the native side
     }
   }
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   return (
     <View bg={'white'} flex={1}>
       <Header title={'Settings'} />
@@ -166,9 +169,8 @@ const Settings = ({navigation}) => {
         onPress={() => {
           setVisible(false);
           removeUserSession();
-          dispatch(setUserData({}));
-          navigation.navigate('OnBoarding');
-        }}></AlertModal>
+        }}
+      />
       <AlertModal
         modalVisible={active}
         heading={'Contact Support'}
@@ -179,7 +181,8 @@ const Settings = ({navigation}) => {
         comon={true}
         onPress={() => {
           setActive(false);
-        }}></AlertModal>
+        }}
+      />
     </View>
   );
 };

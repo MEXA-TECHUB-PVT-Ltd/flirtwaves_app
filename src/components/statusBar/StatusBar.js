@@ -5,7 +5,7 @@ import {ImageBackground, SafeAreaView, StatusBar} from 'react-native';
 const FStatusBar = () => {
   return (
     <View>
-      <StatusBar backgroundColor="#FDF2CD" barStyle="dark-content" />
+      <StatusBar backgroundColor="#FDF2CD" barStyle="default" />
     </View>
   );
 };
