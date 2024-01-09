@@ -44,7 +44,7 @@ const OnBoarding7 = ({navigation, route}) => {
       id: 2,
       name: 'I’m a night owl',
     },
-    {id: 3, name: `I party in moderation`},
+    {id: 3, name: 'I party in moderation'},
   ];
   const handleNavigation = async () => {
     if (id) {
@@ -62,13 +62,11 @@ const OnBoarding7 = ({navigation, route}) => {
   return (
     <View bg={'primary.20'} flex={1}>
       <FStatusBar />
-      <>     
-       {fromEdit ?
+      <>
+      {fromEdit ? 
       (<Header />)
-      :
-      (<Header right />)
-
-      }
+       :
+       (<Header right />)}
       </>
       {isLoading ? (
         <ActivityIndicator color={'black'} size={'small'} />

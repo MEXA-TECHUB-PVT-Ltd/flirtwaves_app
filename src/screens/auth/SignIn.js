@@ -12,33 +12,23 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
 import {useDispatch, useSelector} from 'react-redux';
 import {useLoginUserMutation} from '../../redux/apis/auth';
-import {setPassword, setUserData} from '../../redux/slices/auth';
+import {setPassword, setUserData, setUser_id} from '../../redux/slices/auth';
 import messaging from '@react-native-firebase/messaging';
 import EncryptedStorage from 'react-native-encrypted-storage';
 const SignIn = ({navigation}) => {
-  const disptach = useDispatch();
+  const dispatch = useDispatch();
   const [loginUser, {data, isError, isLoading}] = useLoginUserMutation();
 
   async function handleSession(uid) {
     try {
-      await EncryptedStorage.setItem('user_session', 'SigneUp');
-      await EncryptedStorage.setItem(
-        'user_id',
-        JSON.stringify({
-          uid: uid,
-        }),
-      );
-
-      // Congrats! You've just stored your first value!
-    } catch (error) {
-      console.log(error);
-      // There was an error on the native side
-    }
+      await EncryptedStorage.setItem('user_id', JSON.stringify(uid));
+      // eslint-disable-next-line no-catch-shadow
+    } catch (error) {}
   }
 
   const formSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
-    password: Yup.string().required(`Password is required`),
+    password: Yup.string().required('Password is required'),
   });
   const [error, setError] = React.useState();
   const [emailError, setEmailError] = React.useState();
@@ -52,13 +42,12 @@ const SignIn = ({navigation}) => {
     };
 
     loginUser(body).then(async res => {
-      await disptach(setPassword(password));
+      await dispatch(setPassword(password));
       console.log('res', res);
       if (res?.data?.error === false) {
-        
-        await disptach(setUserData(res?.data?.data));
-
-        navigation.navigate('Tabs', {screen: 'Home'}, {fromSignIn: true});
+        await dispatch(setUserData(res?.data?.data));
+        await handleSession(res?.data?.data?.id);
+        await dispatch(setUser_id(res?.data?.data?.id));
       } else if (res?.error?.data?.msg === 'Invalid password') {
         setError('Wrong Password');
         setEmailError();
@@ -81,7 +70,8 @@ const SignIn = ({navigation}) => {
       await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
       // Get the users ID token
       const {idToken, user} = await GoogleSignin.signIn();
-      console.log(idToken, user);
+      console.log(idToken, user)
+  
     } catch (e) {
       console.error(e);
     }
@@ -136,7 +126,8 @@ const SignIn = ({navigation}) => {
                         h={2}
                         w={2}
                         rounded={'full'}
-                        mx={1}></View>
+                        mx={1}
+                      />
                       <Text color={'red.500'} fontSize={12}>
                         {errors.email ? errors?.email : emailError}
                       </Text>
@@ -149,7 +140,7 @@ const SignIn = ({navigation}) => {
                     placeholder={'Password'}
                     onChangeText={handleChange('password')}
                     value={values.password}
-                    onSubmit={(handleSubmit)}
+                    onSubmit={handleSubmit}
                     rightIcon
                     type={'password'}
                   />
@@ -162,7 +153,8 @@ const SignIn = ({navigation}) => {
                           h={2}
                           w={2}
                           rounded={'full'}
-                          mx={1}></View>
+                          mx={1}
+                        />
                         <Text color={'red.500'} fontSize={12}>
                           {errors?.password ? errors?.password : error}
                         </Text>
@@ -188,7 +180,6 @@ const SignIn = ({navigation}) => {
                     loading={isLoading}
                     label={'Continue'}
                     variant={'Solid'}
-                    
                     onPress={handleSubmit}
                   />
                   <FButton

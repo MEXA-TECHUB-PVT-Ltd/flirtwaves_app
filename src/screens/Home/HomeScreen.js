@@ -62,7 +62,7 @@ import {
 } from '../../redux/apis/auth';
 import RangeSlider from './components/RangeSlider';
 import EncryptedStorage from 'react-native-encrypted-storage';
-import {setLanguage} from '../../redux/slices/auth';
+import {setLanguage, setUserData} from '../../redux/slices/auth';
 
 const HomeScreen = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -74,7 +74,6 @@ const HomeScreen = ({navigation, route}) => {
   async function retrieveUserSession() {
     try {
       const session = await EncryptedStorage.getItem('trans_language');
-      console.log('see', session);
       if (session !== undefined) {
         dispatch(setLanguage(session));
       }
@@ -179,7 +178,7 @@ const HomeScreen = ({navigation, route}) => {
   };
 
   const userProfile = useSelector(state => state.auth?.userProfile);
-  const uid = useSelector(state => state.auth?.userData?.id);
+  const uid = useSelector(state => state.auth?.user_id);
   const location = useSelector(state => state.userData?.location);
 
   const [limit, setLimit] = React.useState(10);
@@ -298,6 +297,12 @@ const HomeScreen = ({navigation, route}) => {
     isError: userError,
     isLoading: Userloading,
   } = useGetUserByIdQuery(uid);
+  React.useEffect(() => {
+    handleData();
+  }, [userData]);
+  const handleData = async () => {
+    await dispatch(setUserData(userData?.data));
+  };
   // console.log('name', userData?.data?.id);
   const img = require('../../assets/avatars.png');
   const innerTap = Gesture.Tap().onStart(() => {

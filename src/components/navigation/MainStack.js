@@ -50,7 +50,7 @@ import {PermissionsAndroid, Platform} from 'react-native';
 import database from '@react-native-firebase/database';
 import {useNavigationContainerRef} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
-import {setFromSignIn} from '../../redux/slices/auth';
+import {setFromSignIn, setUser_id} from '../../redux/slices/auth';
 import Cooking from '../../screens/browse/Cooking';
 import Travel from '../../screens/browse/Travel';
 import Exercise from '../../screens/browse/Exercise';
@@ -66,26 +66,26 @@ import {
 import {AppState} from 'react-native';
 import UpdatePassword from '../../screens/settings/ChangePassword';
 import Feedback from '../../screens/settings/Feedback';
+import EncryptedStorage from 'react-native-encrypted-storage';
 export default function MainStack() {
   const navigationRef = useNavigationContainerRef(); // Access navigation container reference
   const Stack = createNativeStackNavigator();
   const dispatch = useDispatch();
   const fromNotifi = useSelector(state => state.auth?.fromSignIn);
-  messaging()
-    .getToken()
-    .then(res => {
-      console.log(Platform.Version);
-    });
-  //     React.useEffect(()=>{
-  // handlePermissions();
-  // return ()=>handlePermissions();
-
-  //     })
-  // const handlePermissions=()=>{
-  //   if(Platform.Version<30){
-  //     Linking.openSettings()
-  //   }
-  // }
+  const user_id = useSelector(state => state.auth?.user_id);
+  React.useEffect(() => {
+    retrieveUserSession();
+  }, []);
+  async function retrieveUserSession() {
+    try {
+      const session = await EncryptedStorage.getItem('user_id');
+      if (session !== undefined) {
+        dispatch(setUser_id(session));
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
   const [initialRoute, setInitialRoute] = React.useState(false);
   const uid = useSelector(state => state.auth?.userData?.id);
   Sound.setCategory('Playback');
@@ -449,65 +449,86 @@ export default function MainStack() {
     appState.current = nextAppState;
     setAppStateVisible(appState.current);
   };
-  // React?.useEffect(() => {
-
-  // }, [AppState?.currentState]);
   return (
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator screenOptions={{headerShown: false}}>
-        <Stack.Screen name="OnBoarding" component={OnBoarding} />
-
-        <Stack.Screen name="ConnectionProblem" component={ConnectionProblem} />
-        <Stack.Screen name="Verify" component={EmailVerify} />
-        <Stack.Screen name="SignUp" component={SignUp} />
-        <Stack.Screen name="SignIn" component={SignIn} />
-        <Stack.Screen name="About" component={About} />
-        <Stack.Screen name="Looking" component={LookingFor} />
-        <Stack.Screen name="AddPhoto" component={AddPhoto} />
-        <Stack.Screen name="OnBoarding3" component={OnBoarding3} />
-        <Stack.Screen name="AddHeight" component={AddHeight} />
-        <Stack.Screen name="OnBoarding4" component={OnBoarding4} />
-        <Stack.Screen name="OnBoarding5" component={OnBoarding5} />
-        <Stack.Screen name="OnBoarding6" component={OnBoarding6} />
-        <Stack.Screen name="OnBoarding7" component={OnBoarding7} />
-        <Stack.Screen name="OnBoarding8" component={OnBoarding8} />
-        <Stack.Screen name="OnBoarding9" component={OnBoarding9} />
-        <Stack.Screen name="OnBoarding10" component={OnBoarding10} />
-        <Stack.Screen name="Map" component={Map} />
-        <Stack.Screen name="ForgetPassword" component={ForgotPassword} />
-        <Stack.Screen name="Verification" component={VerifyOtp} />
-        <Stack.Screen name="ResetPassword" component={ResetPassword} />
-        <Stack.Screen name="Tabs" component={BottomTabs} />
-        <Stack.Screen name="Filter" component={Filtered} />
-        <Stack.Screen name="Gallery" component={Gallery} />
-        <Stack.Screen name="ReportUser" component={ReportUser} />
-        <Stack.Screen name="Chatting" component={Chatting} />
-        <Stack.Screen name="CallHistory" component={CallHistory} />
-        <Stack.Screen name="AudioCall" component={AudioCall} />
-        <Stack.Screen name="VideoCall" component={VideoCall} />
-        <Stack.Screen name="AcceptRequest" component={AcceptRequest} />
-        <Stack.Screen name="Search" component={SearchScreen} />
-        <Stack.Screen name="FavoriteUser" component={FavoriteUser} />
-        <Stack.Screen name="ProfileProcess" component={ProfileProcessing} />
-        <Stack.Screen name="ProfileVerifi" component={ProfileVerification} />
-        <Stack.Screen name="EditProfile" component={EditProfile} />
-        <Stack.Screen name="PersonalInfo" component={PersnolInfo} />
-        <Stack.Screen name="Settings" component={Settings} />
-        <Stack.Screen name="Faq" component={FAQS} />
-        <Stack.Screen name="Premium" component={Premium} />
-        <Stack.Screen name="Privacy" component={Privacy} />
-        <Stack.Screen name="PrivacySetting" component={PrivacySettings} />
-        <Stack.Screen name="Content" component={Content} />
-        <Stack.Screen name="Cooking" component={Cooking} />
-        <Stack.Screen name="Travel" component={Travel} />
-        <Stack.Screen name="Exercise" component={Exercise} />
-        <Stack.Screen name="Partner" component={Partner} />
-        <Stack.Screen name="Eating" component={Eating} />
-        <Stack.Screen name="Night" component={Night} />
-        <Stack.Screen name="Kids" component={Kids} />
-        <Stack.Screen name="Smoke" component={Smoke} />
-        <Stack.Screen name="ChangePassword" component={UpdatePassword} />
-        <Stack.Screen name="Feedback" component={Feedback} />
+        {!user_id ? (
+          <Stack.Group>
+            <Stack.Screen name="OnBoarding" component={OnBoarding} />
+            <Stack.Screen
+              name="ConnectionProblem"
+              component={ConnectionProblem}
+            />
+            <Stack.Screen name="Verify" component={EmailVerify} />
+            <Stack.Screen name="SignUp" component={SignUp} />
+            <Stack.Screen name="SignIn" component={SignIn} />
+            <Stack.Screen name="About" component={About} />
+            <Stack.Screen name="Looking" component={LookingFor} />
+            <Stack.Screen name="AddPhoto" component={AddPhoto} />
+            <Stack.Screen name="OnBoarding3" component={OnBoarding3} />
+            <Stack.Screen name="Privacy" component={Privacy} />
+            <Stack.Screen name="AddHeight" component={AddHeight} />
+            <Stack.Screen name="OnBoarding4" component={OnBoarding4} />
+            <Stack.Screen name="OnBoarding5" component={OnBoarding5} />
+            <Stack.Screen name="OnBoarding6" component={OnBoarding6} />
+            <Stack.Screen name="OnBoarding7" component={OnBoarding7} />
+            <Stack.Screen name="OnBoarding8" component={OnBoarding8} />
+            <Stack.Screen name="OnBoarding9" component={OnBoarding9} />
+            <Stack.Screen name="OnBoarding10" component={OnBoarding10} />
+            <Stack.Screen name="Map" component={Map} />
+            <Stack.Screen name="ForgetPassword" component={ForgotPassword} />
+            <Stack.Screen name="Verification" component={VerifyOtp} />
+            <Stack.Screen name="ResetPassword" component={ResetPassword} />
+          </Stack.Group>
+        ) : (
+          <Stack.Group>
+            <Stack.Screen name="Tabs" component={BottomTabs} />
+            <Stack.Screen name="Filter" component={Filtered} />
+            <Stack.Screen name="Gallery" component={Gallery} />
+            <Stack.Screen name="ReportUser" component={ReportUser} />
+            <Stack.Screen name="Chatting" component={Chatting} />
+            <Stack.Screen name="CallHistory" component={CallHistory} />
+            <Stack.Screen name="AudioCall" component={AudioCall} />
+            <Stack.Screen name="VideoCall" component={VideoCall} />
+            <Stack.Screen name="AcceptRequest" component={AcceptRequest} />
+            <Stack.Screen name="Search" component={SearchScreen} />
+            <Stack.Screen name="FavoriteUser" component={FavoriteUser} />
+            <Stack.Screen name="ProfileProcess" component={ProfileProcessing} />
+            <Stack.Screen
+              name="ProfileVerifi"
+              component={ProfileVerification}
+            />
+            <Stack.Screen name="EditProfile" component={EditProfile} />
+            <Stack.Screen name="PersonalInfo" component={PersnolInfo} />
+            <Stack.Screen name="Settings" component={Settings} />
+            <Stack.Screen name="Faq" component={FAQS} />
+            <Stack.Screen name="Premium" component={Premium} />
+            <Stack.Screen name="PrivacySetting" component={PrivacySettings} />
+            <Stack.Screen name="Content" component={Content} />
+            <Stack.Screen name="Cooking" component={Cooking} />
+            <Stack.Screen name="Travel" component={Travel} />
+            <Stack.Screen name="Exercise" component={Exercise} />
+            <Stack.Screen name="Partner" component={Partner} />
+            <Stack.Screen name="Eating" component={Eating} />
+            <Stack.Screen name="Night" component={Night} />
+            <Stack.Screen name="Kids" component={Kids} />
+            <Stack.Screen name="Smoke" component={Smoke} />
+            <Stack.Screen name="ChangePassword" component={UpdatePassword} />
+            <Stack.Screen name="Feedback" component={Feedback} />
+            <Stack.Screen name="Looking" component={LookingFor} />
+            <Stack.Screen name="AddPhoto" component={AddPhoto} />
+            <Stack.Screen name="OnBoarding3" component={OnBoarding3} />
+            <Stack.Screen name="AddHeight" component={AddHeight} />
+            <Stack.Screen name="OnBoarding4" component={OnBoarding4} />
+            <Stack.Screen name="OnBoarding5" component={OnBoarding5} />
+            <Stack.Screen name="OnBoarding6" component={OnBoarding6} />
+            <Stack.Screen name="OnBoarding7" component={OnBoarding7} />
+            <Stack.Screen name="OnBoarding8" component={OnBoarding8} />
+            <Stack.Screen name="OnBoarding9" component={OnBoarding9} />
+            <Stack.Screen name="OnBoarding10" component={OnBoarding10} />
+            <Stack.Screen name="Map" component={Map} />
+          </Stack.Group>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -46,7 +46,7 @@ const Chatting = ({navigation, route}) => {
   const [loading, setLoading] = React.useState(false);
   const otherid = route?.params?.uid;
   const language = useSelector(state => state.auth?.language);
-  const [limit,setLimit]=React.useState(20);
+  const [limit, setLimit] = React.useState(20);
 
   const {data: userData, isLoading} = useGetUserByIdQuery(otherid);
   const [messages, setMessages] = useState([]);
@@ -142,10 +142,12 @@ const Chatting = ({navigation, route}) => {
     setLoading(true);
     const messagesRef = database()
       .ref('chatBase/' + `${uid}`)
-      .child(`${otherid}`).limitToLast(limit);
+      .child(`${otherid}`)
+      .limitToLast(limit);
     const messagesreciverRef = database()
       .ref('chatBase/' + `${otherid}`)
-      .child(`${uid}`).limitToLast(limit);
+      .child(`${uid}`)
+      .limitToLast(limit);
     messagesRef.on('value', snapshot => {
       if (snapshot.exists()) {
         const data = snapshot.val();
@@ -483,7 +485,9 @@ const Chatting = ({navigation, route}) => {
               <FlatList
                 style={{flex: 1}}
                 data={messages}
-                onStartReached={()=>{setLimit(limit+20)}}
+                onStartReached={() => {
+                  setLimit(limit + 20);
+                }}
                 ref={flatListRef}
                 showsVerticalScrollIndicator={false}
                 renderItem={renderConversation}

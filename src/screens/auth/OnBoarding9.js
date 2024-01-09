@@ -70,7 +70,8 @@ const OnBoarding9 = ({navigation, route}) => {
       (<Header right />)
 
       }
-      </>      {isLoading ? (
+      </>
+       {isLoading ? (
         <ActivityIndicator color={'black'} size={'small'} />
       ) : (
         <ScrollView flex={1}>

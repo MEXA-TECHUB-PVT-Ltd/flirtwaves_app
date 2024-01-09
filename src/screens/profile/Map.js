@@ -33,8 +33,6 @@ import {useNavigation} from '@react-navigation/native';
 import FButton from '../../components/button/FButton';
 import {useUpdateUserProfileMutation} from '../../redux/apis/auth';
 import {setActive} from 'react-native-sound';
-import EncryptedStorage from 'react-native-encrypted-storage';
-import {setUser_id} from '../../redux/slices/auth';
 
 const Map = () => {
   const navigation = useNavigation();
@@ -244,8 +242,7 @@ const Map = () => {
                       coordinate={{
                         latitude: marker?.lat,
                         longitude: marker?.long,
-                      }}
-                    />
+                      }}></Marker>
                   </View>
                 )}
               </>
@@ -347,8 +344,7 @@ const Map = () => {
               justifyContent: 'center',
               height: 8,
               borderRadius: 3,
-            }}
-          />
+            }}></TouchableOpacity>
           <View mx={5}>
             <FButton
               label="Added"
@@ -425,12 +421,11 @@ const Map = () => {
                 },
               };
               console.log(body);
-              updateUser(body).then(async res => {
+              updateUser(body).then(res => {
                 console.log('res', res);
                 if (res?.data?.error === false) {
                   bottomSheetRef?.current?.close();
-                  await EncryptedStorage.setItem('user_id', uid);
-                  await dispatch(setUser_id(uid));
+                  navigation.navigate('Tabs', {screen: 'Home'});
                 }
               });
             }}
