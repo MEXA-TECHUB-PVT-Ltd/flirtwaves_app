@@ -1,11 +1,11 @@
 import {createSlice} from '@reduxjs/toolkit';
-import type {PayloadAction} from '@reduxjs/toolkit';
 
 export interface CounterState {
   userData: object;
   userProfile: object;
   fromSignIn: boolean;
   password: string;
+  language: string;
 }
 
 const initialState: CounterState = {
@@ -13,6 +13,7 @@ const initialState: CounterState = {
   userProfile: {},
   fromSignIn: false,
   password: '',
+  language: '',
 };
 
 export const authSlice = createSlice({
@@ -31,11 +32,19 @@ export const authSlice = createSlice({
     setPassword: (state, action) => {
       state.password = action.payload;
     },
+    setLanguage: (state, action) => {
+      state.language = action.payload;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const {setUserData, setUserProfile, setFromSignIn, setPassword} =
-  authSlice.actions;
+export const {
+  setUserData,
+  setUserProfile,
+  setFromSignIn,
+  setPassword,
+  setLanguage,
+} = authSlice.actions;
 
 export default authSlice.reducer;

@@ -49,7 +49,7 @@ const SignUp = ({navigation}) => {
         console.log(res);
         if (res?.data?.error === false) {
           await dispatch(setUserData(res?.data?.data));
-          await distpatch(setPassword(password));
+          await dispatch(setPassword(password));
           navigation.navigate('About');
         } else {
           setError(res?.error?.data?.msg);

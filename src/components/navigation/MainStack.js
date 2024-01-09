@@ -44,12 +44,11 @@ import Premium from '../../screens/settings/Premium';
 import PrivacySettings from '../../screens/settings/PrivacySettings';
 import Content from '../../screens/browse/Content';
 import messaging from '@react-native-firebase/messaging';
-import PushNotification, {Importance} from 'react-native-push-notification';
+import PushNotification from 'react-native-push-notification';
 import Sound from 'react-native-sound';
-import {
-  useNavigation,
-  useNavigationContainerRef,
-} from '@react-navigation/native';
+import {PermissionsAndroid, Platform} from 'react-native';
+import database from '@react-native-firebase/database';
+import {useNavigationContainerRef} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {setFromSignIn} from '../../redux/slices/auth';
 import Cooking from '../../screens/browse/Cooking';
@@ -75,8 +74,18 @@ export default function MainStack() {
   messaging()
     .getToken()
     .then(res => {
-      // console.log(res);
+      console.log(Platform.Version);
     });
+  //     React.useEffect(()=>{
+  // handlePermissions();
+  // return ()=>handlePermissions();
+
+  //     })
+  // const handlePermissions=()=>{
+  //   if(Platform.Version<30){
+  //     Linking.openSettings()
+  //   }
+  // }
   const [initialRoute, setInitialRoute] = React.useState(false);
   const uid = useSelector(state => state.auth?.userData?.id);
   Sound.setCategory('Playback');
@@ -90,13 +99,151 @@ export default function MainStack() {
   });
 
   React.useEffect(() => {
-    handleNotifi();
-    return () => handleNotifi();
+    pushNoti();
+    return () => pushNoti();
   }, []);
-  const [updateCall, {data: callData, isLoading, loading}] =
-    useUpdateCallStatusMutation();
+  const pushNoti = async () => {
+    try {
+      await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
+        title: 'Cool Photo App Camera Permission',
+        message:
+          'Cool Photo App needs access to your camera ' +
+          'so you can take awesome pictures.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      });
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+        {
+          title: 'Notification Permission',
+          message: 'App needs permission to send notifications',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Permission granted');
+        // handleNotifi()
+        // Permission is granted, continue with your logic here
+      } else {
+        console.log('Permission denied', granted);
+        // Permission denied, handle the lack of permission here
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+  const [updateCall] = useUpdateCallStatusMutation();
 
-  const handleNotifi = () => {
+  // const handleNotifi = () => {
+  //   PushNotification.configure({
+  //     onNotification: function (notification) {
+  //       console.log('NOTIFICATION:', notification);
+  //       if (notification.userInteraction === true) {
+  //         ding.stop(() => {
+  //           // Note: If you want to play a sound after stopping and rewinding it,
+  //           // it is important to call play() in a callback.
+  //           //   whoosh.play();
+  //         });
+  //         switch (notification.action) {
+  //           case 'Answer':
+  //             if (notification?.data?.call_type === 'AUDIO') {
+  //               let body = {
+  //                 caller_id: notification?.data?.caller_id,
+  //                 call_id: notification?.data?.call_id,
+  //                 call_status: 'ACCEPT', //ACCEPT, DECLINED, or NOTANSWERED
+  //               };
+  //               updateCall(body).then(res => {
+  //                 console.log('Video', res);
+  //               });
+  //               setInitialRoute(true);
+  //               dispatch(setFromSignIn(true));
+  //               navigationRef.current.navigate('AudioCall', notification.data);
+  //               ding.stop(() => {
+  //                 // Note: If you want to play a sound after stopping and rewinding it,
+  //                 // it is important to call play() in a callback.
+  //                 //   whoosh.play();
+  //               });
+  //             } else {
+  //               let body = {
+  //                 caller_id: notification?.data?.caller_id,
+  //                 call_id: notification?.data?.call_id,
+  //                 call_status: 'ACCEPT', //ACCEPT, DECLINED, or NOTANSWERED
+  //               };
+  //               updateCall(body).then(res => {
+  //                 console.log('Video', res);
+  //               });
+  //               setInitialRoute(true);
+
+  //               dispatch(setFromSignIn(true));
+  //               navigationRef.current.navigate('VideoCall', notification?.data);
+  //               ding.stop(() => {
+  //                 // Note: If you want to play a sound after stopping and rewinding it,
+  //                 // it is important to call play() in a callback.
+  //                 //   whoosh.play();
+  //               });
+  //             }
+
+  //             // navigate to answer screen
+  //             // navigation.navigate('AnswerScreen', {notification: notification});
+  //             break;
+  //           case 'Decline':
+  //             ding.stop(() => {});
+  //             let body = {
+  //               caller_id: notification?.data?.caller_id,
+  //               call_id: notification?.data?.call_id,
+  //               call_status: 'DECLINED', //ACCEPT, DECLINED, or NOTANSWERED
+  //             };
+  //             updateCall(body).then(res => {
+  //               console.log('Video', res);
+  //             });
+  //             break;
+  //         }
+  //       }
+  //     },
+  //     requestPermissions: Platform.OS === 'ios',
+  //     onAction: function (notification) {
+  //       ding.stop(() => {
+  //         // Note: If you want to play a sound after stopping and rewinding it,
+  //         // it is important to call play() in a callback.
+  //         //   whoosh.play();
+  //       });
+  //     },
+  //   });
+  //   // messaging().setBackgroundMessageHandler(async remoteMessage => {
+  //   //   console.log('Message handled in the background!', remoteMessage);
+  //   //   ding.play(success => {
+  //   //     if (success) {
+  //   //     } else {
+  //   //     }
+  //   //   });
+
+  //   //   // if (remoteMessage.notification && remoteMessage.notification.title) {
+  //   //   PushNotification.localNotification({
+  //   //     /* Android Only Properties */
+  //   //     channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
+  //   //     // ticker: 'My Notification Ticker', // (optional)
+  //   //     /* iOS and Android properties */
+  //   //     largeIcon: 'ic_launcher',
+  //   //     smallIcon: 'ic_notification',
+  //   //     largeIconUrl: 'https://www.example.tld/picture.jpg',
+  //   //     title: remoteMessage.notification.title, // (optional)
+  //   //     message: remoteMessage.notification.body, // (required)
+  //   //     playSound: true,
+  //   //     priority: 'high',
+  //   //     timeoutAfter: 3000,
+  //   //     //   invokeApp: false,
+  //   //     soundName: 'call.mp3',
+  //   //     actions: ['Answer', 'Decline'],
+  //   //     userInfo: remoteMessage?.data,
+  //   //   });
+  //   //   //  ToastAndroid.show(remoteMessage.notification.title, ToastAndroid.SHORT);
+  //   //   // }
+  //   // });
+  //   // Register foreground message handler
+
+  // };
+  React.useEffect(() => {
     PushNotification.configure({
       onNotification: function (notification) {
         console.log('NOTIFICATION:', notification);
@@ -117,6 +264,17 @@ export default function MainStack() {
                 updateCall(body).then(res => {
                   console.log('Video', res);
                 });
+                database()
+                  .ref('call/' + `${notification?.data?.caller_id}`)
+                  .child(`${notification?.data?.receiver_id}`)
+                  .update({
+                    caller_id: notification?.data?.caller_id,
+                    call_status: 'ACCEPTED',
+                    call_type: 'AUDIO',
+                    call_id: notification?.data?.call_id,
+                    channel_name: notification?.data?.channel_name,
+                    receiver_id: notification?.data?.receiver_id,
+                  });
                 setInitialRoute(true);
                 dispatch(setFromSignIn(true));
                 navigationRef.current.navigate('AudioCall', notification.data);
@@ -134,6 +292,17 @@ export default function MainStack() {
                 updateCall(body).then(res => {
                   console.log('Video', res);
                 });
+                database()
+                  .ref('call/' + `${notification?.data?.caller_id}`)
+                  .child(`${notification?.data?.receiver_id}`)
+                  .update({
+                    caller_id: notification?.data?.caller_id,
+                    call_status: 'ACCEPTED',
+                    call_type: 'VIDEO',
+                    call_id: notification?.data?.call_id,
+                    channel_name: notification?.data?.channel_name,
+                    receiver_id: notification?.data?.receiver_id,
+                  });
                 setInitialRoute(true);
 
                 dispatch(setFromSignIn(true));
@@ -150,14 +319,47 @@ export default function MainStack() {
               break;
             case 'Decline':
               ding.stop(() => {});
-              let body = {
-                caller_id: notification?.data?.caller_id,
-                call_id: notification?.data?.call_id,
-                call_status: 'DECLINED', //ACCEPT, DECLINED, or NOTANSWERED
-              };
-              updateCall(body).then(res => {
-                console.log('Video', res);
-              });
+              if (notification?.data?.call_type === 'AUDIO') {
+                let body = {
+                  caller_id: notification?.data?.caller_id,
+                  call_id: notification?.data?.call_id,
+                  call_status: 'DECLINED', //ACCEPT, DECLINED, or NOTANSWERED
+                };
+                database()
+                  .ref('call/' + `${notification?.data?.caller_id}`)
+                  .child(`${notification?.data?.receiver_id}`)
+                  .update({
+                    caller_id: notification?.data?.caller_id,
+                    call_status: 'DECLINED',
+                    call_type: 'AUDIO',
+                    call_id: notification?.data?.call_id,
+                    channel_name: notification?.data?.channel_name,
+                    receiver_id: notification?.data?.receiver_id,
+                  });
+                updateCall(body).then(res => {
+                  console.log('Video', res);
+                });
+              } else {
+                let body = {
+                  caller_id: notification?.data?.caller_id,
+                  call_id: notification?.data?.call_id,
+                  call_status: 'DECLINED', //ACCEPT, DECLINED, or NOTANSWERED
+                };
+                database()
+                  .ref('call/' + `${notification?.data?.caller_id}`)
+                  .child(`${notification?.data?.receiver_id}`)
+                  .update({
+                    caller_id: notification?.data?.caller_id,
+                    call_status: 'DECLINED',
+                    call_type: 'VIDEO',
+                    call_id: notification?.data?.call_id,
+                    channel_name: notification?.data?.channel_name,
+                    receiver_id: notification?.data?.receiver_id,
+                  });
+                updateCall(body).then(res => {
+                  console.log('Video', res);
+                });
+              }
               break;
           }
         }
@@ -171,37 +373,6 @@ export default function MainStack() {
         });
       },
     });
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('Message handled in the background!', remoteMessage);
-      ding.play(success => {
-        if (success) {
-        } else {
-        }
-      });
-
-      // if (remoteMessage.notification && remoteMessage.notification.title) {
-      PushNotification.localNotification({
-        /* Android Only Properties */
-        channelId: 'channel-id', // (required) channelId, if the channel doesn't exist, notification will not trigger.
-        // ticker: 'My Notification Ticker', // (optional)
-        /* iOS and Android properties */
-        largeIcon: 'ic_launcher',
-        smallIcon: 'ic_notification',
-        largeIconUrl: 'https://www.example.tld/picture.jpg',
-        title: remoteMessage.notification.title, // (optional)
-        message: remoteMessage.notification.body, // (required)
-        playSound: true,
-        priority: 'high',
-        timeoutAfter: 3000,
-        //   invokeApp: false,
-        soundName: 'call.mp3',
-        actions: ['Answer', 'Decline'],
-        userInfo: remoteMessage?.data,
-      });
-      //  ToastAndroid.show(remoteMessage.notification.title, ToastAndroid.SHORT);
-      // }
-    });
-    // Register foreground message handler
     messaging().onMessage(async remoteMessage => {
       console.log('Notification received in foreground:', remoteMessage);
       ding.play(success => {
@@ -209,6 +380,7 @@ export default function MainStack() {
         } else {
         }
       });
+
       // Handle the notification content here
       // You can update your app's UI or show a custom in-app notification.
       if (remoteMessage.notification && remoteMessage.notification.title) {
@@ -231,8 +403,7 @@ export default function MainStack() {
         });
       }
     });
-  };
-
+  }, []);
   const [updateStaus, {isError: onlineError}] = useUpdateOnlineStatusMutation();
   const appState = React.useRef(AppState.currentState);
   const [appStateVisible, setAppStateVisible] = React.useState(
